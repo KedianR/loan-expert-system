@@ -1,65 +1,78 @@
 # Spike S1 Report: Python + SWI-Prolog Integration
 
 **Date:** 2026-11-08
-**Phase:** 0 (WP-02)
+**Phase:** 0 (WP-02 rerun)
 **Requirement:** ADR-001
 
 ## 1. Objective
 
-Verify that SWI-Prolog can be called from Python, load a toy rule file, evaluate one toy application, and return the decision AND the list of fired rules as structured data. Run 1,000 decisions and record the time per decision.
+Verify that SWI-Prolog can be called from Python, load a toy rule file, evaluate one toy application, and return the decision AND the list of fired rules as structured data. Run 1,000 decisions and record the time per decision measured two ways:
+1. Fresh `swipl` process per decision.
+2. One persistent process answering 1,000 queries.
+
+Report mean, median, and 95th-percentile time per decision for each with real output.
 
 ## 2. Environment
 
-- **OS:** Windows (win32)
+- **OS:** Windows x64 (win32 / AMD64)
 - **Python:** 3.14.2 at `C:\Users\asus\AppData\Local\Python\pythoncore-3.14-64\python.exe`
-- **SWI-Prolog (`swipl`):** **NOT INSTALLED**
-
-Searches performed:
-- `where.exe swipl` → not found
-- `Get-ChildItem "C:\Program Files"` → no Prolog directory
-- `Get-ChildItem "C:\Program Files (x86)"` → no Prolog directory
-- `pip list | Select-String "janus|prolog"` → no packages found
+- **SWI-Prolog (`swipl`):** `SWI-Prolog version 10.1.20 for x64-win64` at `C:\Program Files\swipl\bin\swipl.exe`
 
 ## 3. What was tried
 
-1. **Availability check.** `shutil.which("swipl")` returned `None`. The spike script (`spikes/s1/spike_s1.py`) exited with:
+1. **Integration and benchmark execution.** `spikes/s1/spike_s1.py` was executed with SWI-Prolog 10.1.20 x64. The toy rule file [toy_rules.pl](file:///c:/Users/asus/Documents/Learning/AI_Class_Project/loan-expert-system/spikes/s1/toy_rules.pl) was loaded, a single decision was verified, and 1,000 decisions were measured across both execution modes.
+
+2. **Real output:**
 
    ```json
    {
-     "swipl_available": false,
-     "swipl_version": "swipl not found in PATH",
-     "outcome": "FAILED: SWI-Prolog not installed",
-     "recommendation": "SWI-Prolog is not installed. Per ADR-001, the owner must decide whether to install it or fall back to the pure-Python evaluator. See docs/open-questions.md OQ-001."
+     "swipl_path": "C:\\Program Files\\swipl\\bin\\swipl.exe",
+     "swipl_available": true,
+     "swipl_version": "SWI-Prolog version 10.1.20 for x64-win64",
+     "single_decision_fresh": {
+       "decision": "eligible",
+       "fired_rules": []
+     },
+     "fresh_process_stats": {
+       "count": 1000,
+       "mean_ms": 94.76,
+       "median_ms": 93.71,
+       "p95_ms": 104.737
+     },
+     "single_decision_persistent": {
+       "decision": "eligible",
+       "fired_rules": []
+     },
+     "persistent_process_stats": {
+       "count": 1000,
+       "mean_ms": 0.042,
+       "median_ms": 0.036,
+       "p95_ms": 0.065
+     },
+     "outcome": "OK",
+     "recommendation": "SWI-Prolog integration works. Fresh process: mean=94.76ms, median=93.71ms, p95=104.737ms. Persistent process: mean=0.042ms, median=0.036ms, p95=0.065ms."
    }
    ```
 
-2. **Toy Prolog file.** Written to `spikes/s1/toy_rules.pl`. Defines two knockout rules (`k_score` and `k_income`) and a `fired_rule/5` predicate. This file is a throwaway toy and is never used by the product (AGENTS.md Hard Rule 3).
-
-3. **Python bridge script.** Written to `spikes/s1/spike_s1.py`. Would call `swipl` via subprocess, pass a goal that loads the toy file, runs `findall/3` to collect fired rules, and prints JSON to stdout. Could not run because `swipl` is absent.
-
-4. **Timing.** Not performed. Requires a working SWI-Prolog installation.
-
 ## 4. What worked
 
-- The spike script itself runs cleanly and reports the failure in structured form.
-- The toy Prolog file and the bridge approach are ready to test once SWI-Prolog is installed.
+- SWI-Prolog loads the toy rules and returns decisions and fired rules as structured data (`{"decision": "eligible", "fired_rules": []}`).
+- Both modes executed 1,000 decisions with zero errors.
+- **Measured timing statistics (1,000 decisions per mode):**
+
+| Mode | Mean (ms) | Median (ms) | 95th Percentile (ms) |
+| --- | --- | --- | --- |
+| **Fresh `swipl` process per decision** | 94.760 | 93.710 | 104.737 |
+| **Persistent `swipl` process (stdin/stdout)** | 0.042 | 0.036 | 0.065 |
+
+Both modes satisfy the NFR-06 requirement (< 1,000 ms per decision).
 
 ## 5. What did not work
 
-- SWI-Prolog is not installed on this machine. No timing or integration test was possible.
+- An initial attempt with an ARM64 binary failed with `WinError 216`; resolved by installing the x64 build of SWI-Prolog 10.1.20. No runtime failures occurred with the x64 build.
 
 ## 6. Recommendation
 
-**Owner decision needed (OQ-001):** Per ADR-001, the options are:
-
-| Option | Action |
-| --- | --- |
-| **A. Install SWI-Prolog** | Install SWI-Prolog, add `swipl` to PATH, re-run this spike. The toy file and bridge script are ready. Estimated time: 15 minutes for install + 10 minutes to run the spike. |
-| **B. Fall back to pure-Python evaluator** | Use a pure-Python rule engine that reads the same rule files and produces the same trace format, as described in ADR-001. No Prolog needed. The rest of the project (loader, hash, params, tests) is unaffected. |
-
-Both options produce the same trace format and the same decisions, so the choice does not affect Phases 1–5.
-
-If SWI-Prolog is installed and the spike succeeds, the expected approach is:
-- **Phase 0–1:** subprocess with JSON (simple, no extra dependency).
-- **Phase 2+:** evaluate `janus-swi` (the official Python–SWI bridge) for better performance (no subprocess overhead). If `janus-swi` works, expect sub-millisecond per decision. If not, subprocess calls at ~5–20 ms each are still well within the 1-second NFR-06 target.
+- Subprocess calls with a fresh process take ~95 ms per decision, which is well within the 1-second NFR-06 target.
+- A persistent process communicating via stdin/stdout brings evaluation time down to ~0.04 ms per decision, offering sub-millisecond evaluation speed without requiring C-extension compilation (`janus-swi`).
 

@@ -34,7 +34,7 @@ DS-1 is the only one Phase 0 depends on. If you would prefer hand-written Prolog
 4. Formula F1 divides by monthly net income, which the fact schema allows to be 0. I have assumed the fact builder then records `existing_foir` as unknown. The Lending Calculations Specification instead says zero income returns REFER through V01. Rule K05 fires INELIGIBLE for zero income, and INELIGIBLE wins, so the decision is the same, but the trace differs. I keep my assumption and add no V01, and I have aligned the edge-case line in that specification.
 5. The catalog gives X01 and X02 no position in the layer order. Section 4 proposes one; both rules are disabled in the baseline.
 
-6) The catalog says A04 fires when the recommended amount is below the requested amount. The Lending Calculations Specification (edge cases) says a reduced offer is reported only when the result is below the request by at least one step, because a request that is not a multiple of 5,000 is floored. The rule file follows the calculation specification: `recommended_amount + amount_step <= requested_amount`. Without it, a request of 777,777 would fire A04 with no reason code that fits. I have aligned the catalog row.
+6) The catalog says A04 fires when the recommended amount is below the requested amount. The Lending Calculations Specification (edge cases) says a reduced offer is reported only when the result is below the request by at least one step, because a request that is not a multiple of 5,000 is floored. The rule file follows the calculation specification: no\_blocking\_outcome and `recommended_amount + amount_step <= requested_amount`. The first condition stops an A03 rejection from also producing a reduced-offer reason (without it, TV6 and TV8 would report two reason codes). Without the second, a request of 777,777 would fire A04 with no reason code that fits. I have aligned the catalog row.
 
 ## 2. Parameter file: params/params.toml
 
@@ -333,7 +333,7 @@ id = "A04"
 layer = "amount"
 description = "The recommended amount is at least one step below the requested amount"
 clause = "CP-3.1, CP-4, CP-1.1"
-when = "recommended_amount + amount_step <= requested_amount"
+when = "no_blocking_outcome and recommended_amount + amount_step <= requested_amount"
 outcome = "reduced_offer"
 reason_code = { by = "binding_limit", capacity = "AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY", income_multiple = "AMOUNT_LIMITED_BY_INCOME_MULTIPLE", product_maximum = "AMOUNT_LIMITED_BY_PRODUCT_MAXIMUM" }
 owner = "credit-policy"
@@ -389,7 +389,7 @@ builtin    = "known(" name ")" | "unknown(" name ")" | "any_required_unknown" | 
 - Absent: the rule that produces a derived value did not run, for example because an earlier rule blocked the amount step.
 - A rule that reads an unknown field is not evaluated, and the trace records `not_evaluated` with the missing field. The exception is `known()` and `unknown()`, which exist to read that state.
 - A rule that reads an absent field is skipped, and the trace records `skipped` with the reason.
-- A rule whose `when` is `no_blocking_outcome` and is false is also skipped.
+- A rule whose `when` is `no_blocking_outcome`, or has no\_blocking\_outcome as its first condition joined by and (as A04 does), is skipped when no\_blocking\_outcome is false.
 
 This gives the trace its four statuses: `fired`, `not_fired`, `not_evaluated` and `skipped`. If E02 finds no band, `band` stays absent, A01 and A02 are skipped, and no rule decides the case. The decision then defaults to REFER with `NO_RULE_APPLICABLE` (CP-8.1). The band coverage check in section 2 exists so that this cannot happen with the baseline parameters.
 
@@ -417,7 +417,7 @@ This table is the catalog written in the condition language. The coding agent en
 | A01 | `no_blocking_outcome` | derive | calc `F4`, `F5`, computes `max_emi`, `max_principal_emi` |
 | A02 | `no_blocking_outcome` | derive | calc `F6`, computes `recommended_amount`, `binding_limit` |
 | A03 | `recommended_amount < min_amount` | ineligible | `INSUFFICIENT_REPAYMENT_CAPACITY` |
-| A04 | `recommended_amount + amount_step <= requested_amount` | reduced\_offer | by `binding_limit`: the three `AMOUNT_LIMITED_BY_...` codes |
+| A04 | no\_blocking\_outcome and `recommended_amount + amount_step <= requested_amount` | reduced\_offer | by `binding_limit`: the three `AMOUNT_LIMITED_BY_...` codes |
 | P01 | `no_blocking_outcome` | derive | calc `rate_lookup`, `F7`, computes `indicative_rate`, `fee` |
 | X01 (disabled) | `age_at_maturity > max_age_at_maturity` | ineligible | `AGE_AT_MATURITY_LIMIT`; `after = "K06"` |
 | X02 (disabled) | `region_tier == high_risk_region_tier` | placeholder | `REGIONAL_RISK_ADJUSTMENT`; `after = "E02"` |

@@ -55,14 +55,14 @@ The system has 20 active rules and 2 experimental rules. Layers run in this orde
 | A01 | Amount | Compute the EMI-based maximum principal at the indicative rate and requested tenure | Derives value | none | CP-4, Calc Spec | Active |
 | A02 | Amount | Recommended amount is the lowest of requested, EMI-based maximum, income multiple cap and product maximum, rounded down to 5,000 | Derives amount | none | CP-1.1, 1.2, 3.1 | Active |
 | A03 | Amount | Recommended amount is below 50,000 | INELIGIBLE | INSUFFICIENT\_REPAYMENT\_CAPACITY | CP-1.1, CP-4 | Active |
-| A04 | Amount | Recommended amount is below the requested amount by at least one amount step (5,000) | Offer on reduced terms | AMOUNT\_LIMITED\_BY\_REPAYMENT\_CAPACITY, AMOUNT\_LIMITED\_BY\_INCOME\_MULTIPLE or AMOUNT\_LIMITED\_BY\_PRODUCT\_MAXIMUM, whichever cap was lowest | CP-3.1, CP-4, CP-1.1 | Active |
+| A04 | Amount | No INELIGIBLE or REFER outcome has been recorded, and the recommended amount is below the requested amount by at least one amount step (5,000) | Offer on reduced terms | AMOUNT\_LIMITED\_BY\_REPAYMENT\_CAPACITY, AMOUNT\_LIMITED\_BY\_INCOME\_MULTIPLE or AMOUNT\_LIMITED\_BY\_PRODUCT\_MAXIMUM, whichever cap was lowest | CP-3.1, CP-4, CP-1.1 | Active |
 | P01 | Pricing | Attach indicative rate, rate range and 2% processing fee of the band | Derives price | none | CP-4, CP-6.1 | Active |
 | X01 | Experimental | Age at loan maturity is above 65 | INELIGIBLE | AGE\_AT\_MATURITY\_LIMIT | Experiment only | Disabled |
 | X02 | Experimental | Region tier is 3: move the band down one step; band C becomes INELIGIBLE | Derives band or INELIGIBLE | REGIONAL\_RISK\_ADJUSTMENT | Experiment only | Disabled |
 
 **Notes**
 
-- Rules E02, A01, A02 and P01 derive values and fire only when no INELIGIBLE or REFER outcome has been recorded for the applicant. Trace entries still list the rules that were skipped and why.
+- Rules E02, A01, A02 and P01 derive values and fire only when no INELIGIBLE or REFER outcome has been recorded for the applicant. Rule A04 follows the same guard, so an A03 rejection is never combined with a reduced-offer reason. Trace entries still list the rules that were skipped and why.
 - X01 and X02 exist so the fairness review can show how an age-linked rule and a proxy rule change group outcomes. They stay disabled in the baseline rule set.
 
 **Procedural clauses referenced above**

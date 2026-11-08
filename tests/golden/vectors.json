@@ -1,0 +1,403 @@
+{
+  "_comment": "Golden vectors TV1-TV9 from docs/03-calculations.md section 3. Never edit to make a test pass (AGENTS.md hard rule 7). Inputs not listed in the specification use fixed valid values: age 34, salaried, 48 months employed, 2 enquiries, no adverse history, KYC verified, consent given. Money is whole rupees (integers) or a string with 2 decimals; ratios are strings with 4 decimals; rates are strings. Tolerance: APR only, 0.01 percentage points. Rule lists are a minimum check, not the full trace.",
+  "apr_tolerance": "0.01",
+  "vectors": [
+    {
+      "id": "TV1",
+      "description": "Typical eligible case in band B; the requested amount is the binding limit.",
+      "input": {
+        "applicant_id": "tv1",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 80000,
+        "monthly_obligations": 10000,
+        "credit_score": 735,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 700000,
+        "requested_tenure_months": 36
+      },
+      "expected": {
+        "decision": "eligible",
+        "reason_codes": [],
+        "existing_foir": "0.1250",
+        "rules_must_fire": [
+          "E02",
+          "A01",
+          "A02",
+          "P01"
+        ],
+        "rules_must_not_fire": [
+          "A04",
+          "E01",
+          "K04"
+        ],
+        "band": "B",
+        "binding_limit": "requested",
+        "offer": {
+          "amount": 700000,
+          "tenure_months": 36,
+          "indicative_rate": "14.5",
+          "emi": "24094.68",
+          "fee": "14000.00",
+          "total_interest": "167408.48",
+          "apr": "15.93",
+          "post_loan_foir": "0.4262"
+        }
+      }
+    },
+    {
+      "id": "TV2",
+      "description": "Band A boundary: FOIR is exactly 0.30. Amount is limited by repayment capacity (rule A04).",
+      "input": {
+        "applicant_id": "tv2",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": 12000,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48
+      },
+      "expected": {
+        "decision": "eligible",
+        "reason_codes": [
+          "AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY"
+        ],
+        "existing_foir": "0.3000",
+        "rules_must_fire": [
+          "E02",
+          "A01",
+          "A02",
+          "A04",
+          "P01"
+        ],
+        "rules_must_not_fire": [
+          "E01",
+          "K04"
+        ],
+        "band": "A",
+        "binding_limit": "capacity",
+        "offer": {
+          "amount": 375000,
+          "tenure_months": 48,
+          "indicative_rate": "12.0",
+          "emi": "9875.19",
+          "fee": "7500.00",
+          "total_interest": "99009.12",
+          "apr": "13.09",
+          "post_loan_foir": "0.5469"
+        }
+      }
+    },
+    {
+      "id": "TV3",
+      "description": "Zero obligations. Amount is limited by the income multiple cap (10 x income).",
+      "input": {
+        "applicant_id": "tv3",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 50000,
+        "monthly_obligations": 0,
+        "credit_score": 720,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 900000,
+        "requested_tenure_months": 60
+      },
+      "expected": {
+        "decision": "eligible",
+        "reason_codes": [
+          "AMOUNT_LIMITED_BY_INCOME_MULTIPLE"
+        ],
+        "existing_foir": "0.0000",
+        "rules_must_fire": [
+          "E02",
+          "A01",
+          "A02",
+          "A04",
+          "P01"
+        ],
+        "rules_must_not_fire": [
+          "E01"
+        ],
+        "band": "B",
+        "binding_limit": "income_multiple",
+        "offer": {
+          "amount": 500000,
+          "tenure_months": 60,
+          "indicative_rate": "14.5",
+          "emi": "11764.14",
+          "fee": "10000.00",
+          "total_interest": "205848.40",
+          "apr": "15.42",
+          "post_loan_foir": "0.2353"
+        }
+      }
+    },
+    {
+      "id": "TV4",
+      "description": "Band B boundary: score is exactly 700.",
+      "input": {
+        "applicant_id": "tv4",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 100000,
+        "monthly_obligations": 20000,
+        "credit_score": 700,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 500000,
+        "requested_tenure_months": 24
+      },
+      "expected": {
+        "decision": "eligible",
+        "reason_codes": [],
+        "existing_foir": "0.2000",
+        "rules_must_fire": [
+          "E02",
+          "A01",
+          "A02",
+          "P01"
+        ],
+        "rules_must_not_fire": [
+          "K04"
+        ],
+        "band": "B",
+        "binding_limit": "requested",
+        "offer": {
+          "amount": 500000,
+          "tenure_months": 24,
+          "indicative_rate": "14.5",
+          "emi": "24124.71",
+          "fee": "10000.00",
+          "total_interest": "78993.04",
+          "apr": "16.57",
+          "post_loan_foir": "0.4412"
+        }
+      }
+    },
+    {
+      "id": "TV5",
+      "description": "Band A boundary: score exactly 750 and FOIR exactly 0.30.",
+      "input": {
+        "applicant_id": "tv5",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 100000,
+        "monthly_obligations": 30000,
+        "credit_score": 750,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 300000,
+        "requested_tenure_months": 24
+      },
+      "expected": {
+        "decision": "eligible",
+        "reason_codes": [],
+        "existing_foir": "0.3000",
+        "rules_must_fire": [
+          "E02",
+          "A01",
+          "A02",
+          "P01"
+        ],
+        "rules_must_not_fire": [
+          "K04",
+          "E01"
+        ],
+        "band": "A",
+        "binding_limit": "requested",
+        "offer": {
+          "amount": 300000,
+          "tenure_months": 24,
+          "indicative_rate": "12.0",
+          "emi": "14122.04",
+          "fee": "6000.00",
+          "total_interest": "38928.96",
+          "apr": "14.05",
+          "post_loan_foir": "0.4412"
+        }
+      }
+    },
+    {
+      "id": "TV6",
+      "description": "Existing FOIR exactly 0.50 is allowed (E01 must NOT fire); no room left for any EMI, so A03 fires.",
+      "input": {
+        "applicant_id": "tv6",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 100000,
+        "monthly_obligations": 50000,
+        "credit_score": 650,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 300000,
+        "requested_tenure_months": 24
+      },
+      "expected": {
+        "decision": "ineligible",
+        "reason_codes": [
+          "INSUFFICIENT_REPAYMENT_CAPACITY"
+        ],
+        "existing_foir": "0.5000",
+        "rules_must_fire": [
+          "E02",
+          "A01",
+          "A02",
+          "A03"
+        ],
+        "rules_must_not_fire": [
+          "E01"
+        ],
+        "offer": null,
+        "band": "C"
+      }
+    },
+    {
+      "id": "TV7",
+      "description": "Existing FOIR just above 0.50 (50001/100000 = 0.50001; it prints as 0.5000 at 4 decimals, but the comparison must use the unrounded value): E01 fires. All later rules are skipped.",
+      "input": {
+        "applicant_id": "tv7",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 100000,
+        "monthly_obligations": 50001,
+        "credit_score": 700,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 300000,
+        "requested_tenure_months": 24
+      },
+      "expected": {
+        "decision": "ineligible",
+        "reason_codes": [
+          "HIGH_EXISTING_OBLIGATIONS"
+        ],
+        "existing_foir": "0.5000",
+        "rules_must_fire": [
+          "E01"
+        ],
+        "rules_must_not_fire": [
+          "A03"
+        ],
+        "offer": null
+      }
+    },
+    {
+      "id": "TV8",
+      "description": "Band C with almost no spare EMI: recommended amount is below the 50,000 minimum, so A03 fires.",
+      "input": {
+        "applicant_id": "tv8",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 15000,
+        "monthly_obligations": 6500,
+        "credit_score": 700,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 100000,
+        "requested_tenure_months": 12
+      },
+      "expected": {
+        "decision": "ineligible",
+        "reason_codes": [
+          "INSUFFICIENT_REPAYMENT_CAPACITY"
+        ],
+        "existing_foir": "0.4333",
+        "rules_must_fire": [
+          "E02",
+          "A01",
+          "A02",
+          "A03"
+        ],
+        "rules_must_not_fire": [
+          "E01"
+        ],
+        "offer": null,
+        "band": "C"
+      }
+    },
+    {
+      "id": "TV9",
+      "description": "Typical eligible case in band C; the requested amount is the binding limit.",
+      "input": {
+        "applicant_id": "tv9",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 60000,
+        "monthly_obligations": 5000,
+        "credit_score": 680,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 250000,
+        "requested_tenure_months": 36
+      },
+      "expected": {
+        "decision": "eligible",
+        "reason_codes": [],
+        "existing_foir": "0.0833",
+        "rules_must_fire": [
+          "E02",
+          "A01",
+          "A02",
+          "P01"
+        ],
+        "rules_must_not_fire": [
+          "A04",
+          "E01"
+        ],
+        "band": "C",
+        "binding_limit": "requested",
+        "offer": {
+          "amount": 250000,
+          "tenure_months": 36,
+          "indicative_rate": "18.0",
+          "emi": "9038.10",
+          "fee": "5000.00",
+          "total_interest": "75371.60",
+          "apr": "19.46",
+          "post_loan_foir": "0.2340"
+        }
+      }
+    }
+  ]
+}

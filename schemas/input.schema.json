@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "loan-application-input.schema.json",
+  "title": "Loan application input",
+  "description": "Input to the decision service (docs/04-predicates-and-facts.md section 2). Convention: this schema rejects MALFORMED values (wrong type, out of range, unknown key) as a schema error, FR-01. A field that is absent or null is NOT a schema error: the fact builder records it as unknown, and rule V01 (or R01 for credit_score) decides. Properties marked x-v01-required are the fields that registry rules/fields.toml marks required; the registry/schema comparison test maps required <-> x-v01-required and ignores null. Money is whole rupees (integers). Gender, religion, caste and any other attribute are not accepted here (additionalProperties false); audit-only attributes live in a separate store.",
+  "type": "object",
+  "required": [
+    "applicant_id"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "applicant_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Za-z0-9_-]+$",
+      "description": "Unique ID, used as the applicant constant. Never null."
+    },
+    "age": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 120,
+      "x-v01-required": true
+    },
+    "employment_type": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "salaried",
+        "self_employed",
+        "other",
+        null
+      ],
+      "x-v01-required": true
+    },
+    "employment_months": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 600,
+      "x-v01-required": true
+    },
+    "monthly_net_income": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "x-v01-required": true
+    },
+    "monthly_obligations": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "x-v01-required": true
+    },
+    "credit_score": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 300,
+      "maximum": 900
+    },
+    "enquiries_6m": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "x-v01-required": true
+    },
+    "severe_delinquency_36m": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "x-v01-required": true
+    },
+    "written_off": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "x-v01-required": true
+    },
+    "kyc_verified": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "x-v01-required": true
+    },
+    "consent_given": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "x-v01-required": true
+    },
+    "requested_amount": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1,
+      "x-v01-required": true
+    },
+    "requested_tenure_months": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1,
+      "x-v01-required": true
+    },
+    "region_tier": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1,
+      "maximum": 3
+    }
+  }
+}

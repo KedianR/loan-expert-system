@@ -1,0 +1,445 @@
+{
+  "_comment": "Schema acceptance cases for schemas/input.schema.json. valid=true must validate; valid=false must fail.",
+  "cases": [
+    {
+      "name": "TV2 as given",
+      "valid": true,
+      "input": {
+        "applicant_id": "tv2",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": 12000,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48
+      }
+    },
+    {
+      "name": "credit score null (no bureau record)",
+      "valid": true,
+      "input": {
+        "applicant_id": "tv2",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": 12000,
+        "credit_score": null,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48
+      }
+    },
+    {
+      "name": "credit score absent",
+      "valid": true,
+      "input": {
+        "applicant_id": "tv2",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": 12000,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48
+      }
+    },
+    {
+      "name": "income absent (V01 refers; not a schema error)",
+      "valid": true,
+      "input": {
+        "applicant_id": "tv2",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_obligations": 12000,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48
+      }
+    },
+    {
+      "name": "income null (V01 refers; not a schema error)",
+      "valid": true,
+      "input": {
+        "applicant_id": "tv2",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": null,
+        "monthly_obligations": 12000,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48
+      }
+    },
+    {
+      "name": "income zero",
+      "valid": true,
+      "input": {
+        "applicant_id": "tv2",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 0,
+        "monthly_obligations": 12000,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48
+      }
+    },
+    {
+      "name": "region tier supplied",
+      "valid": true,
+      "input": {
+        "applicant_id": "tv2",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": 12000,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48,
+        "region_tier": 2
+      }
+    },
+    {
+      "name": "credit score 1000 is out of range",
+      "valid": false,
+      "input": {
+        "applicant_id": "tv2",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": 12000,
+        "credit_score": 1000,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48
+      }
+    },
+    {
+      "name": "credit score 299 is out of range",
+      "valid": false,
+      "input": {
+        "applicant_id": "tv2",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": 12000,
+        "credit_score": 299,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48
+      }
+    },
+    {
+      "name": "age is text",
+      "valid": false,
+      "input": {
+        "applicant_id": "tv2",
+        "age": "abc",
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": 12000,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48
+      }
+    },
+    {
+      "name": "age 121 is out of range",
+      "valid": false,
+      "input": {
+        "applicant_id": "tv2",
+        "age": 121,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": 12000,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48
+      }
+    },
+    {
+      "name": "income is a float",
+      "valid": false,
+      "input": {
+        "applicant_id": "tv2",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000.5,
+        "monthly_obligations": 12000,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48
+      }
+    },
+    {
+      "name": "negative obligations",
+      "valid": false,
+      "input": {
+        "applicant_id": "tv2",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": -1,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48
+      }
+    },
+    {
+      "name": "requested amount zero",
+      "valid": false,
+      "input": {
+        "applicant_id": "tv2",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": 12000,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 0,
+        "requested_tenure_months": 48
+      }
+    },
+    {
+      "name": "tenure zero",
+      "valid": false,
+      "input": {
+        "applicant_id": "tv2",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": 12000,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 0
+      }
+    },
+    {
+      "name": "unknown employment type",
+      "valid": false,
+      "input": {
+        "applicant_id": "tv2",
+        "age": 34,
+        "employment_type": "freelance",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": 12000,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48
+      }
+    },
+    {
+      "name": "bool field given as text",
+      "valid": false,
+      "input": {
+        "applicant_id": "tv2",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": 12000,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": "yes",
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48
+      }
+    },
+    {
+      "name": "protected attribute gender is rejected",
+      "valid": false,
+      "input": {
+        "applicant_id": "tv2",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": 12000,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48,
+        "gender": "F"
+      }
+    },
+    {
+      "name": "region tier 4",
+      "valid": false,
+      "input": {
+        "applicant_id": "tv2",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": 12000,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48,
+        "region_tier": 4
+      }
+    },
+    {
+      "name": "applicant_id missing",
+      "valid": false,
+      "input": {
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": 12000,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48
+      }
+    },
+    {
+      "name": "applicant_id null",
+      "valid": false,
+      "input": {
+        "applicant_id": null,
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": 12000,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48
+      }
+    },
+    {
+      "name": "applicant_id with a space",
+      "valid": false,
+      "input": {
+        "applicant_id": "a 1",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": 12000,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48
+      }
+    }
+  ]
+}

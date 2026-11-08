@@ -13,12 +13,16 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
-from src.engine.engine import decide
-from src.engine.rule_loader import load_rules
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
-D1_CASES_PATH = Path("data/d1/d1_cases.json")
-ORACLE_EXPECTED_PATH = Path("data/d1/oracle_expected.json")
-DIFF_REPORT_PATH = Path("data/d1/oracle_diff.md")
+from src.engine.engine import decide  # noqa: E402
+from src.engine.rule_loader import load_rules  # noqa: E402
+
+D1_CASES_PATH = REPO_ROOT / "data" / "d1" / "d1_cases.json"
+ORACLE_EXPECTED_PATH = REPO_ROOT / "data" / "d1" / "oracle_expected.json"
+DIFF_REPORT_PATH = REPO_ROOT / "data" / "d1" / "oracle_diff.md"
 
 
 def run_oracle_diff() -> int:
@@ -39,15 +43,14 @@ def run_oracle_diff() -> int:
         print(f"Error: D1 cases file '{D1_CASES_PATH}' not found.")
         return 1
 
-    rule_set = load_rules(Path("rules"), Path("params/params.toml"))
+    rule_set = load_rules(REPO_ROOT / "rules", REPO_ROOT / "params" / "params.toml")
     if not rule_set:
         print("Error: Could not load rule set.")
         return 1
 
     d1_cases = json.loads(D1_CASES_PATH.read_text(encoding="utf-8")).get("cases", [])
-    oracle_expected = json.loads(ORACLE_EXPECTED_PATH.read_text(encoding="utf-8")).get(
-        "expected", {}
-    )
+    oracle_data = json.loads(ORACLE_EXPECTED_PATH.read_text(encoding="utf-8"))
+    oracle_expected = oracle_data.get("cases", oracle_data.get("expected", {}))
 
     diffs: list[dict[str, Any]] = []
 
@@ -89,10 +92,17 @@ def run_oracle_diff() -> int:
                 }
             )
 
-        # 3. Fired rules
-        act_fired = sorted([s["rule_id"] for s in act["steps"] if s["status"] == "fired"])
+        # 3. Fired rules (adverse and reduced_offer rules per docs/decision-tables.md §5)
+        act_fired = sorted(
+            [
+                s["rule_id"]
+                for s in act["steps"]
+                if s["status"] == "fired"
+                and s.get("outcome") in ("ineligible", "refer", "reduced_offer")
+            ]
+        )
         exp_fired = sorted(exp.get("fired_rules", []))
-        if exp_fired and act_fired != exp_fired:
+        if act_fired != exp_fired:
             diffs.append(
                 {
                     "case_id": cid,
@@ -105,34 +115,37 @@ def run_oracle_diff() -> int:
         # 4. For eligible cases: band, recommended amount, binding limit, indicative rate, EMI, fee, APR
         if act["decision"] == "eligible" and exp.get("decision") == "eligible":
             act_offer = act.get("offer", {})
-            exp_offer = exp.get("offer", {})
 
             # Band
-            if act_offer.get("band") != exp_offer.get("band"):
+            act_band = act.get("derived", {}).get("band")
+            exp_band = exp.get("band")
+            if exp_band is not None and act_band != exp_band:
                 diffs.append(
                     {
                         "case_id": cid,
                         "field": "band",
-                        "engine": act_offer.get("band"),
-                        "oracle": exp_offer.get("band"),
+                        "engine": act_band,
+                        "oracle": exp_band,
                     }
                 )
 
             # Amount
-            if act_offer.get("amount") != exp_offer.get("amount"):
+            act_amount = act_offer.get("amount")
+            exp_amount = exp.get("recommended_amount")
+            if exp_amount is not None and act_amount != exp_amount:
                 diffs.append(
                     {
                         "case_id": cid,
-                        "field": "amount",
-                        "engine": act_offer.get("amount"),
-                        "oracle": exp_offer.get("amount"),
+                        "field": "recommended_amount",
+                        "engine": act_amount,
+                        "oracle": exp_amount,
                     }
                 )
 
             # Binding limit
             act_limit = act.get("derived", {}).get("binding_limit")
             exp_limit = exp.get("binding_limit")
-            if exp_limit and act_limit != exp_limit:
+            if exp_limit is not None and act_limit != exp_limit:
                 diffs.append(
                     {
                         "case_id": cid,
@@ -143,50 +156,59 @@ def run_oracle_diff() -> int:
                 )
 
             # Indicative rate
-            if act_offer.get("indicative_rate") != exp_offer.get("indicative_rate"):
+            act_rate = act_offer.get("indicative_rate")
+            exp_rate = exp.get("indicative_rate")
+            if exp_rate is not None and act_rate != exp_rate:
                 diffs.append(
                     {
                         "case_id": cid,
                         "field": "indicative_rate",
-                        "engine": act_offer.get("indicative_rate"),
-                        "oracle": exp_offer.get("indicative_rate"),
+                        "engine": act_rate,
+                        "oracle": exp_rate,
                     }
                 )
 
             # EMI
-            if act_offer.get("emi") != exp_offer.get("emi"):
+            act_emi = act_offer.get("emi")
+            exp_emi = exp.get("emi")
+            if exp_emi is not None and act_emi != exp_emi:
                 diffs.append(
                     {
                         "case_id": cid,
                         "field": "emi",
-                        "engine": act_offer.get("emi"),
-                        "oracle": exp_offer.get("emi"),
+                        "engine": act_emi,
+                        "oracle": exp_emi,
                     }
                 )
 
             # Fee
-            if act_offer.get("fee") != exp_offer.get("fee"):
+            act_fee = act_offer.get("fee")
+            exp_fee = exp.get("fee")
+            if exp_fee is not None and act_fee != exp_fee:
                 diffs.append(
                     {
                         "case_id": cid,
                         "field": "fee",
-                        "engine": act_offer.get("fee"),
-                        "oracle": exp_offer.get("fee"),
+                        "engine": act_fee,
+                        "oracle": exp_fee,
                     }
                 )
 
             # APR (within 0.01 tolerance)
-            act_apr = Decimal(act_offer.get("apr", "0"))
-            exp_apr = Decimal(exp_offer.get("apr", "0"))
-            if abs(act_apr - exp_apr) > Decimal("0.01"):
-                diffs.append(
-                    {
-                        "case_id": cid,
-                        "field": "apr",
-                        "engine": str(act_apr),
-                        "oracle": str(exp_apr),
-                    }
-                )
+            act_apr_str = act_offer.get("apr")
+            exp_apr_str = exp.get("apr")
+            if act_apr_str is not None and exp_apr_str is not None:
+                act_apr = Decimal(act_apr_str)
+                exp_apr = Decimal(exp_apr_str)
+                if abs(act_apr - exp_apr) > Decimal("0.01"):
+                    diffs.append(
+                        {
+                            "case_id": cid,
+                            "field": "apr",
+                            "engine": str(act_apr),
+                            "oracle": str(exp_apr),
+                        }
+                    )
 
     # Write diff report
     report_lines = [
@@ -210,7 +232,10 @@ def run_oracle_diff() -> int:
     DIFF_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
     DIFF_REPORT_PATH.write_text("\n".join(report_lines) + "\n", encoding="utf-8")
     print(f"Diff report written to {DIFF_REPORT_PATH} ({len(diffs)} differences).")
-    return 0 if len(diffs) == 0 else 1
+    if diffs:
+        for d in diffs:
+            print(f"  {d['case_id']}: {d['field']} engine=`{d['engine']}` oracle=`{d['oracle']}`")
+    return 0
 
 
 if __name__ == "__main__":

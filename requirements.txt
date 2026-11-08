@@ -1,17 +1,21 @@
 # requirements.txt
 # Pinned dependencies for the loan expert system.
-# Phase 0 only. Generated from requirements.in.
+# Phase 1. Generated from requirements.in.
 # Python 3.11 or newer (uses standard library tomllib).
-#
-# To regenerate: python -m pip freeze > requirements.txt
 
+attrs==26.1.0
 colorama==0.4.6
 coverage==7.17.2
+hypothesis==6.170.15
 iniconfig==2.3.1
+jsonschema==4.26.0
+jsonschema-specifications==2025.9.1
 packaging==26.3
 pluggy==1.7.0
 Pygments==2.21.0
 pytest==9.2.0
 pytest-cov==7.1.0
+referencing==0.37.0
+rpds-py==2026.9.1
 ruff==0.17.4
-
+sortedcontainers==2.4.0

@@ -1,12 +1,12 @@
 """
-Float-ban static checker for src/calc.
+Float-ban static checker for src/calc and src/facts.
 
 Implements: Hard Rule 2 from AGENTS.md, NFR-03
 Spec: docs/05-architecture.md §6 (Exact arithmetic)
 
-Scans every .py file under src/calc/ for the use of float literals or
-float-returning built-ins. Reports each violation and exits non-zero if any
-are found.
+Scans every .py file under src/calc/ and src/facts/ for the use of float
+literals or float-returning built-ins. Reports each violation and exits
+non-zero if any are found.
 
 What counts as a float violation:
   - Any float literal in the AST (ast.Constant with a float value).
@@ -85,7 +85,7 @@ def check_tree(root: Path) -> list[tuple[str, int, str]]:
 def main(argv: list[str] | None = None) -> int:
     args = argv if argv is not None else sys.argv[1:]
     if not args:
-        targets = [Path("src/calc")]
+        targets = [Path("src/calc"), Path("src/facts")]
     else:
         targets = [Path(a) for a in args]
 
@@ -98,9 +98,10 @@ def main(argv: list[str] | None = None) -> int:
         else:
             print(f"WARNING: path does not exist: {target}", file=sys.stderr)
 
+    targets_str = ", ".join(str(t) for t in targets)
     if all_violations:
         print(
-            f"FLOAT_FORBIDDEN: {len(all_violations)} violation(s) found in src/calc:",
+            f"FLOAT_FORBIDDEN: {len(all_violations)} violation(s) found in {targets_str}:",
             file=sys.stderr,
         )
         for fpath, lineno, desc in all_violations:
@@ -112,7 +113,7 @@ def main(argv: list[str] | None = None) -> int:
         for t in targets
         if Path(t).exists()
     )
-    print(f"FLOAT_BAN OK: no floats in src/calc ({checked} file(s) checked).")
+    print(f"FLOAT_BAN OK: no floats in {targets_str} ({checked} file(s) checked).")
     return 0
 
 

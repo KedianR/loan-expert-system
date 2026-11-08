@@ -91,6 +91,39 @@ def bad(x):
             f"  {fp}:{lineno}: {desc}" for fp, lineno, desc in violations
         )
 
+    def test_src_facts_is_clean(self):
+        """The current src/facts directory must have no float violations."""
+        facts_dir = REPO_ROOT / "src" / "facts"
+        assert facts_dir.exists(), f"src/facts not found at {facts_dir}"
+        violations = check_tree(facts_dir)
+        assert violations == [], "Float violations found in src/facts:\n" + "\n".join(
+            f"  {fp}:{lineno}: {desc}" for fp, lineno, desc in violations
+        )
+
+    def test_injected_float_in_calc_or_facts_fails_check(self):
+        """
+        Proves the checker fails when a float is introduced in src/calc or src/facts.
+        Tested by writing a temporary file into both directories and verifying
+        check_file detects the violation.
+        """
+        bad_source = """\
+# Injected float for test
+def bad_calc():
+    return 0.42
+"""
+        for target_dir in [REPO_ROOT / "src" / "calc", REPO_ROOT / "src" / "facts"]:
+            assert target_dir.exists()
+            tmp_file = target_dir / "_temp_injected_float.py"
+            try:
+                tmp_file.write_text(bad_source, encoding="utf-8")
+                violations = check_tree(target_dir)
+                assert len(violations) >= 1, (
+                    f"Checker failed to detect injected float in {target_dir}"
+                )
+                assert any("_temp_injected_float.py" in fp for fp, _, _ in violations)
+            finally:
+                tmp_file.unlink(missing_ok=True)
+
     def test_injected_float_fails_check(self):
         """
         Proves the check fails when a float is added to a calc-like file.

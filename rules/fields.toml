@@ -1,0 +1,268 @@
+# rules/fields.toml
+# Field registry for the loan expert system.
+# Spec: docs/09-file-formats.md §3
+
+[[field]]
+name = "applicant_id"
+kind = "input"
+type = "string"
+required = true
+nullable = false
+predicate = "applicant_id"
+readable_from = "never"
+
+[[field]]
+name = "age"
+kind = "input"
+type = "int"
+unit = "years"
+min = 0
+max = 120
+required = true
+nullable = false
+predicate = "age"
+readable_from = "validation"
+
+[[field]]
+name = "employment_type"
+kind = "input"
+type = "enum"
+values = ["salaried", "self_employed", "other"]
+required = true
+nullable = false
+predicate = "employment_type"
+readable_from = "validation"
+
+[[field]]
+name = "employment_months"
+kind = "input"
+type = "int"
+unit = "months"
+min = 0
+max = 600
+required = true
+nullable = false
+predicate = "employment_months"
+readable_from = "validation"
+
+[[field]]
+name = "monthly_net_income"
+kind = "input"
+type = "int"
+unit = "INR"
+min = 0
+required = true
+nullable = false
+predicate = "monthly_net_income"
+readable_from = "validation"
+
+[[field]]
+name = "monthly_obligations"
+kind = "input"
+type = "int"
+unit = "INR"
+min = 0
+required = true
+nullable = false
+predicate = "monthly_obligations"
+readable_from = "validation"
+
+[[field]]
+name = "credit_score"
+kind = "input"
+type = "int"
+unit = "points"
+min = 300
+max = 900
+required = false
+nullable = true
+predicate = "credit_score"
+readable_from = "validation"
+
+[[field]]
+name = "enquiries_6m"
+kind = "input"
+type = "int"
+unit = "count"
+min = 0
+required = true
+nullable = false
+predicate = "enquiries_6m"
+readable_from = "validation"
+
+[[field]]
+name = "severe_delinquency_36m"
+kind = "input"
+type = "bool"
+required = true
+nullable = false
+predicate = "severe_delinquency_36m"
+readable_from = "validation"
+
+[[field]]
+name = "written_off"
+kind = "input"
+type = "bool"
+required = true
+nullable = false
+predicate = "written_off"
+readable_from = "validation"
+
+[[field]]
+name = "kyc_verified"
+kind = "input"
+type = "bool"
+required = true
+nullable = false
+predicate = "kyc_verified"
+readable_from = "validation"
+
+[[field]]
+name = "consent_given"
+kind = "input"
+type = "bool"
+required = true
+nullable = false
+predicate = "consent_given"
+readable_from = "validation"
+
+[[field]]
+name = "requested_amount"
+kind = "input"
+type = "int"
+unit = "INR"
+min = 1
+required = true
+nullable = false
+predicate = "requested_amount"
+readable_from = "validation"
+
+[[field]]
+name = "requested_tenure_months"
+kind = "input"
+type = "int"
+unit = "months"
+min = 1
+required = true
+nullable = false
+predicate = "requested_tenure"
+readable_from = "validation"
+
+[[field]]
+name = "region_tier"
+kind = "input"
+type = "int"
+min = 1
+max = 3
+required = false
+nullable = true
+predicate = "region_tier"
+readable_from = "experimental"
+
+[[field]]
+name = "existing_foir"
+kind = "derived"
+type = "decimal"
+unit = "fraction"
+produced_by = "fact builder, F1"
+predicate = "existing_foir"
+readable_from = "validation"
+
+[[field]]
+name = "band"
+kind = "derived"
+type = "enum"
+values = ["A", "B", "C"]
+produced_by = "E02"
+predicate = "band"
+readable_from = "amount"
+
+[[field]]
+name = "max_emi"
+kind = "derived"
+type = "decimal"
+unit = "INR"
+produced_by = "A01, F4"
+predicate = "max_emi"
+readable_from = "amount"
+
+[[field]]
+name = "max_principal_emi"
+kind = "derived"
+type = "decimal"
+unit = "INR"
+produced_by = "A01, F5"
+predicate = "max_principal_emi"
+readable_from = "amount"
+
+[[field]]
+name = "recommended_amount"
+kind = "derived"
+type = "int"
+unit = "INR"
+produced_by = "A02, F6"
+predicate = "recommended_amount"
+readable_from = "amount"
+
+[[field]]
+name = "binding_limit"
+kind = "derived"
+type = "enum"
+values = ["requested", "capacity", "income_multiple", "product_maximum"]
+produced_by = "A02, F6"
+predicate = "binding_limit"
+readable_from = "amount"
+
+[[field]]
+name = "indicative_rate"
+kind = "derived"
+type = "decimal"
+unit = "percent"
+produced_by = "P01"
+predicate = "indicative_rate"
+readable_from = "pricing"
+
+[[field]]
+name = "fee"
+kind = "derived"
+type = "decimal"
+unit = "INR"
+produced_by = "P01, F7"
+predicate = "fee"
+readable_from = "pricing"
+
+[[field]]
+name = "emi"
+kind = "derived"
+type = "decimal"
+unit = "INR"
+produced_by = "offer builder, F3"
+predicate = "emi"
+readable_from = "never"
+
+[[field]]
+name = "post_loan_foir"
+kind = "derived"
+type = "decimal"
+unit = "fraction"
+produced_by = "offer builder, F8"
+predicate = "post_loan_foir"
+readable_from = "never"
+
+[[field]]
+name = "apr"
+kind = "derived"
+type = "decimal"
+unit = "percent"
+produced_by = "offer builder, F9"
+predicate = "apr"
+readable_from = "never"
+
+[[field]]
+name = "age_at_maturity"
+kind = "derived"
+type = "decimal"
+unit = "years"
+produced_by = "fact builder, experimental"
+predicate = "age_at_maturity"
+readable_from = "experimental"

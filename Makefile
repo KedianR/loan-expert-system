@@ -20,7 +20,9 @@ PYTEST = $(PYTHON) -m pytest
 RUFF   = $(PYTHON) -m ruff
 PARAMS = params/params.toml
 
-.PHONY: setup test check check-params check-floats lint format \
+FIELDS = rules/fields.toml
+
+.PHONY: setup test check check-params check-fields check-floats lint format \
         check-rules decide demo replay oracle-diff baseline compare fairness reproduce
 
 # ---------------------------------------------------------------------------
@@ -36,9 +38,9 @@ test:
 	$(PYTEST) tests/ -v
 
 # ---------------------------------------------------------------------------
-# WP-01: check — tests + float ban + lint + format + check-params
+# WP-01: check — tests + float ban + lint + format + check-params + check-fields
 # ---------------------------------------------------------------------------
-check: check-floats lint format test check-params
+check: check-floats lint format test check-params check-fields
 	@echo ""
 	@echo "=== make check complete ==="
 
@@ -49,10 +51,16 @@ check-params:
 	$(PYTHON) -m src.engine.param_loader $(PARAMS)
 
 # ---------------------------------------------------------------------------
-# WP-01: check-floats — fail the build if any float is used in src/calc
+# WP-05: check-fields — load and validate rules/fields.toml
+# ---------------------------------------------------------------------------
+check-fields:
+	$(PYTHON) -m src.engine.field_loader $(FIELDS)
+
+# ---------------------------------------------------------------------------
+# WP-01/WP-04: check-floats — fail the build if any float is used in src/calc or src/facts
 # ---------------------------------------------------------------------------
 check-floats:
-	$(PYTHON) tools/check_floats.py src/calc
+	$(PYTHON) tools/check_floats.py src/calc src/facts
 
 # ---------------------------------------------------------------------------
 # Lint: ruff check

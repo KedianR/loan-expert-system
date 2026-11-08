@@ -1,0 +1,1369 @@
+{
+  "cases": {
+    "a02_cap_tv2": {
+      "apr": "13.09",
+      "band": "A",
+      "binding_limit": "capacity",
+      "decision": "eligible",
+      "emi": "9875.19",
+      "fee": "7500.00",
+      "fired_rules": [
+        "A04"
+      ],
+      "indicative_rate": "12.0",
+      "post_loan_foir": "0.5469",
+      "reason_codes": [
+        "AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY"
+      ],
+      "recommended_amount": 375000,
+      "total_interest": "99009.12"
+    },
+    "a02_inc_tv3": {
+      "apr": "15.42",
+      "band": "B",
+      "binding_limit": "income_multiple",
+      "decision": "eligible",
+      "emi": "11764.14",
+      "fee": "10000.00",
+      "fired_rules": [
+        "A04"
+      ],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.2353",
+      "reason_codes": [
+        "AMOUNT_LIMITED_BY_INCOME_MULTIPLE"
+      ],
+      "recommended_amount": 500000,
+      "total_interest": "205848.40"
+    },
+    "a03_a_tv8": {
+      "apr": null,
+      "band": "C",
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "A03"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INSUFFICIENT_REPAYMENT_CAPACITY"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "a03_b_tv6": {
+      "apr": null,
+      "band": "C",
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "A03"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INSUFFICIENT_REPAYMENT_CAPACITY"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "a04_379999": {
+      "apr": "13.09",
+      "band": "A",
+      "binding_limit": "capacity",
+      "decision": "eligible",
+      "emi": "9875.19",
+      "fee": "7500.00",
+      "fired_rules": [],
+      "indicative_rate": "12.0",
+      "post_loan_foir": "0.5469",
+      "reason_codes": [],
+      "recommended_amount": 375000,
+      "total_interest": "99009.12"
+    },
+    "a04_380000": {
+      "apr": "13.09",
+      "band": "A",
+      "binding_limit": "capacity",
+      "decision": "eligible",
+      "emi": "9875.19",
+      "fee": "7500.00",
+      "fired_rules": [
+        "A04"
+      ],
+      "indicative_rate": "12.0",
+      "post_loan_foir": "0.5469",
+      "reason_codes": [
+        "AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY"
+      ],
+      "recommended_amount": 375000,
+      "total_interest": "99009.12"
+    },
+    "a04_777777": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "26676.26",
+      "fee": "15500.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.2445",
+      "reason_codes": [],
+      "recommended_amount": 775000,
+      "total_interest": "185345.36"
+    },
+    "a04_tie_request_income": {
+      "apr": "15.42",
+      "band": "B",
+      "binding_limit": "income_multiple",
+      "decision": "eligible",
+      "emi": "11764.14",
+      "fee": "10000.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.2353",
+      "reason_codes": [],
+      "recommended_amount": 500000,
+      "total_interest": "205848.40"
+    },
+    "b0_tv1_base": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "24094.68",
+      "fee": "14000.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.4262",
+      "reason_codes": [],
+      "recommended_amount": 700000,
+      "total_interest": "167408.48"
+    },
+    "band_a_foir_29999": {
+      "apr": "13.41",
+      "band": "A",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "23250.02",
+      "fee": "14000.00",
+      "fired_rules": [],
+      "indicative_rate": "12.0",
+      "post_loan_foir": "0.5325",
+      "reason_codes": [],
+      "recommended_amount": 700000,
+      "total_interest": "137000.72"
+    },
+    "band_a_score_751": {
+      "apr": "13.41",
+      "band": "A",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "23250.02",
+      "fee": "14000.00",
+      "fired_rules": [],
+      "indicative_rate": "12.0",
+      "post_loan_foir": "0.4825",
+      "reason_codes": [],
+      "recommended_amount": 700000,
+      "total_interest": "137000.72"
+    },
+    "band_b_foir_39999": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "capacity",
+      "decision": "eligible",
+      "emi": "9982.08",
+      "fee": "5800.00",
+      "fired_rules": [
+        "A04"
+      ],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.4998",
+      "reason_codes": [
+        "AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY"
+      ],
+      "recommended_amount": 290000,
+      "total_interest": "69354.88"
+    },
+    "band_b_score_701": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "capacity",
+      "decision": "eligible",
+      "emi": "14973.13",
+      "fee": "8700.00",
+      "fired_rules": [
+        "A04"
+      ],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.4997",
+      "reason_codes": [
+        "AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY"
+      ],
+      "recommended_amount": 435000,
+      "total_interest": "104032.68"
+    },
+    "band_c_foir_49999": {
+      "apr": null,
+      "band": "C",
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "A03"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INSUFFICIENT_REPAYMENT_CAPACITY"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "cap_tie_capacity_prodmax": {
+      "apr": "13.09",
+      "band": "A",
+      "binding_limit": "product_maximum",
+      "decision": "eligible",
+      "emi": "65834.59",
+      "fee": "50000.00",
+      "fired_rules": [],
+      "indicative_rate": "12.0",
+      "post_loan_foir": "0.3761",
+      "reason_codes": [],
+      "recommended_amount": 2500000,
+      "total_interest": "660060.32"
+    },
+    "cap_tie_income_prodmax": {
+      "apr": "13.09",
+      "band": "A",
+      "binding_limit": "income_multiple",
+      "decision": "eligible",
+      "emi": "65834.59",
+      "fee": "50000.00",
+      "fired_rules": [],
+      "indicative_rate": "12.0",
+      "post_loan_foir": "0.3033",
+      "reason_codes": [],
+      "recommended_amount": 2500000,
+      "total_interest": "660060.32"
+    },
+    "e01_a_foir_exact_050": {
+      "apr": null,
+      "band": "C",
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "A03"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INSUFFICIENT_REPAYMENT_CAPACITY"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "e01_b_foir_above_050": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "E01"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "HIGH_EXISTING_OBLIGATIONS"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "e02_a_750_30000": {
+      "apr": "14.04",
+      "band": "A",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "2353.67",
+      "fee": "1000.00",
+      "fired_rules": [],
+      "indicative_rate": "12.0",
+      "post_loan_foir": "0.3235",
+      "reason_codes": [],
+      "recommended_amount": 50000,
+      "total_interest": "6488.08"
+    },
+    "e02_b_700_40000": {
+      "apr": "16.57",
+      "band": "B",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "2412.47",
+      "fee": "1000.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.4241",
+      "reason_codes": [],
+      "recommended_amount": 50000,
+      "total_interest": "7899.28"
+    },
+    "e02_b_749_30000": {
+      "apr": "16.57",
+      "band": "B",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "2412.47",
+      "fee": "1000.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.3241",
+      "reason_codes": [],
+      "recommended_amount": 50000,
+      "total_interest": "7899.28"
+    },
+    "e02_b_750_30001": {
+      "apr": "16.57",
+      "band": "B",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "2412.47",
+      "fee": "1000.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.3241",
+      "reason_codes": [],
+      "recommended_amount": 50000,
+      "total_interest": "7899.28"
+    },
+    "e02_c_650_50000": {
+      "apr": null,
+      "band": "C",
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "A03"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INSUFFICIENT_REPAYMENT_CAPACITY"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "e02_c_699_40000": {
+      "apr": "20.10",
+      "band": "C",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "2496.21",
+      "fee": "1000.00",
+      "fired_rules": [],
+      "indicative_rate": "18.0",
+      "post_loan_foir": "0.4250",
+      "reason_codes": [],
+      "recommended_amount": 50000,
+      "total_interest": "9909.04"
+    },
+    "e02_c_700_40001": {
+      "apr": "20.10",
+      "band": "C",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "2496.21",
+      "fee": "1000.00",
+      "fired_rules": [],
+      "indicative_rate": "18.0",
+      "post_loan_foir": "0.4250",
+      "reason_codes": [],
+      "recommended_amount": 50000,
+      "total_interest": "9909.04"
+    },
+    "k01_17": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "K01"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "LEGAL_CAPACITY_NOT_MET"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "k01_18": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "24094.68",
+      "fee": "14000.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.4262",
+      "reason_codes": [],
+      "recommended_amount": 700000,
+      "total_interest": "167408.48"
+    },
+    "k01_19": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "24094.68",
+      "fee": "14000.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.4262",
+      "reason_codes": [],
+      "recommended_amount": 700000,
+      "total_interest": "167408.48"
+    },
+    "k02_a_kyc_false": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "K02"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "KYC_NOT_VERIFIED"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "k03_a_delinquency_true": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "K03"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "ADVERSE_REPAYMENT_HISTORY"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "k03_b_written_off_true": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "K03"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "ADVERSE_REPAYMENT_HISTORY"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "k04_649": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "K04"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "CREDIT_SCORE_BELOW_MINIMUM"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "k04_650": {
+      "apr": "19.46",
+      "band": "C",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "25306.68",
+      "fee": "14000.00",
+      "fired_rules": [],
+      "indicative_rate": "18.0",
+      "post_loan_foir": "0.4413",
+      "reason_codes": [],
+      "recommended_amount": 700000,
+      "total_interest": "211040.48"
+    },
+    "k04_651": {
+      "apr": "19.46",
+      "band": "C",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "25306.68",
+      "fee": "14000.00",
+      "fired_rules": [],
+      "indicative_rate": "18.0",
+      "post_loan_foir": "0.4413",
+      "reason_codes": [],
+      "recommended_amount": 700000,
+      "total_interest": "211040.48"
+    },
+    "k05_0": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "K05"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INCOME_BELOW_MINIMUM"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "k05_14999": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "K05"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INCOME_BELOW_MINIMUM"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "k05_15000": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "income_multiple",
+      "decision": "eligible",
+      "emi": "5163.15",
+      "fee": "3000.00",
+      "fired_rules": [
+        "A04"
+      ],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.3442",
+      "reason_codes": [
+        "AMOUNT_LIMITED_BY_INCOME_MULTIPLE"
+      ],
+      "recommended_amount": 150000,
+      "total_interest": "35873.40"
+    },
+    "k05_15001": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "income_multiple",
+      "decision": "eligible",
+      "emi": "5163.15",
+      "fee": "3000.00",
+      "fired_rules": [
+        "A04"
+      ],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.3442",
+      "reason_codes": [
+        "AMOUNT_LIMITED_BY_INCOME_MULTIPLE"
+      ],
+      "recommended_amount": 150000,
+      "total_interest": "35873.40"
+    },
+    "k06_e23": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "K06"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "EMPLOYMENT_TENURE_TOO_SHORT"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "k06_e24": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "24094.68",
+      "fee": "14000.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.4262",
+      "reason_codes": [],
+      "recommended_amount": 700000,
+      "total_interest": "167408.48"
+    },
+    "k06_e25": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "24094.68",
+      "fee": "14000.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.4262",
+      "reason_codes": [],
+      "recommended_amount": 700000,
+      "total_interest": "167408.48"
+    },
+    "k06_s5": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "K06"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "EMPLOYMENT_TENURE_TOO_SHORT"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "k06_s6": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "24094.68",
+      "fee": "14000.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.4262",
+      "reason_codes": [],
+      "recommended_amount": 700000,
+      "total_interest": "167408.48"
+    },
+    "k06_s7": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "24094.68",
+      "fee": "14000.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.4262",
+      "reason_codes": [],
+      "recommended_amount": 700000,
+      "total_interest": "167408.48"
+    },
+    "r01_a_null_score": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "R01"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "NO_CREDIT_HISTORY"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "r02_4": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "24094.68",
+      "fee": "14000.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.4262",
+      "reason_codes": [],
+      "recommended_amount": 700000,
+      "total_interest": "167408.48"
+    },
+    "r02_5": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "24094.68",
+      "fee": "14000.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.4262",
+      "reason_codes": [],
+      "recommended_amount": 700000,
+      "total_interest": "167408.48"
+    },
+    "r02_6": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "R02"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "HIGH_RECENT_ENQUIRIES"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "r03_a_other": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "R03"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "EMPLOYMENT_TYPE_REQUIRES_REVIEW"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "req_not_mult_5000_123456": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "4130.52",
+      "fee": "2400.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.1766",
+      "reason_codes": [],
+      "recommended_amount": 120000,
+      "total_interest": "28698.72"
+    },
+    "req_not_mult_5000_54321": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "1721.05",
+      "fee": "1000.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.1465",
+      "reason_codes": [],
+      "recommended_amount": 50000,
+      "total_interest": "11957.80"
+    },
+    "req_not_mult_5000_999999": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "income_multiple",
+      "decision": "eligible",
+      "emi": "27536.78",
+      "fee": "16000.00",
+      "fired_rules": [
+        "A04"
+      ],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.4692",
+      "reason_codes": [
+        "AMOUNT_LIMITED_BY_INCOME_MULTIPLE"
+      ],
+      "recommended_amount": 800000,
+      "total_interest": "191324.08"
+    },
+    "v01_a_income_missing": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V01"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INCOMPLETE_APPLICATION"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "v01_b_requested_amount_missing": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V01"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INCOMPLETE_APPLICATION"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "v01_c_consent_missing": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V01"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INCOMPLETE_APPLICATION"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "v01_missing_age": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V01"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INCOMPLETE_APPLICATION"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "v01_missing_employment_months": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V01"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INCOMPLETE_APPLICATION"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "v01_missing_employment_type": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V01"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INCOMPLETE_APPLICATION"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "v01_missing_enquiries_6m": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V01"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INCOMPLETE_APPLICATION"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "v01_missing_kyc_verified": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V01"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INCOMPLETE_APPLICATION"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "v01_missing_monthly_obligations": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V01"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INCOMPLETE_APPLICATION"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "v01_missing_requested_tenure_months": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V01"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INCOMPLETE_APPLICATION"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "v01_missing_severe_delinquency_36m": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V01"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INCOMPLETE_APPLICATION"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "v01_missing_written_off": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V01"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INCOMPLETE_APPLICATION"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "v02_a_consent_false": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V02"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "CONSENT_NOT_GIVEN"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "v03_2499999": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "income_multiple",
+      "decision": "eligible",
+      "emi": "27536.78",
+      "fee": "16000.00",
+      "fired_rules": [
+        "A04"
+      ],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.4692",
+      "reason_codes": [
+        "AMOUNT_LIMITED_BY_INCOME_MULTIPLE"
+      ],
+      "recommended_amount": 800000,
+      "total_interest": "191324.08"
+    },
+    "v03_2500000": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "income_multiple",
+      "decision": "eligible",
+      "emi": "27536.78",
+      "fee": "16000.00",
+      "fired_rules": [
+        "A04"
+      ],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.4692",
+      "reason_codes": [
+        "AMOUNT_LIMITED_BY_INCOME_MULTIPLE"
+      ],
+      "recommended_amount": 800000,
+      "total_interest": "191324.08"
+    },
+    "v03_2500001": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V03"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "AMOUNT_OUTSIDE_PRODUCT_LIMITS"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "v03_49999": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V03"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "AMOUNT_OUTSIDE_PRODUCT_LIMITS"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "v03_50000": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "1721.05",
+      "fee": "1000.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.1465",
+      "reason_codes": [],
+      "recommended_amount": 50000,
+      "total_interest": "11957.80"
+    },
+    "v03_50001": {
+      "apr": "15.93",
+      "band": "B",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "1721.05",
+      "fee": "1000.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.1465",
+      "reason_codes": [],
+      "recommended_amount": 50000,
+      "total_interest": "11957.80"
+    },
+    "v04_11": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V04"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "TENURE_OUTSIDE_PRODUCT_LIMITS"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "v04_12": {
+      "apr": "18.38",
+      "band": "B",
+      "binding_limit": "capacity",
+      "decision": "eligible",
+      "emi": "29707.44",
+      "fee": "6600.00",
+      "fired_rules": [
+        "A04"
+      ],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.4963",
+      "reason_codes": [
+        "AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY"
+      ],
+      "recommended_amount": 330000,
+      "total_interest": "26489.28"
+    },
+    "v04_13": {
+      "apr": "18.11",
+      "band": "B",
+      "binding_limit": "capacity",
+      "decision": "eligible",
+      "emi": "29672.93",
+      "fee": "7100.00",
+      "fired_rules": [
+        "A04"
+      ],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.4959",
+      "reason_codes": [
+        "AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY"
+      ],
+      "recommended_amount": 355000,
+      "total_interest": "30748.09"
+    },
+    "v04_59": {
+      "apr": "15.43",
+      "band": "B",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "16660.48",
+      "fee": "14000.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.3333",
+      "reason_codes": [],
+      "recommended_amount": 700000,
+      "total_interest": "282968.32"
+    },
+    "v04_60": {
+      "apr": "15.42",
+      "band": "B",
+      "binding_limit": "requested",
+      "decision": "eligible",
+      "emi": "16469.80",
+      "fee": "14000.00",
+      "fired_rules": [],
+      "indicative_rate": "14.5",
+      "post_loan_foir": "0.3309",
+      "reason_codes": [],
+      "recommended_amount": 700000,
+      "total_interest": "288188.00"
+    },
+    "v04_61": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V04"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "TENURE_OUTSIDE_PRODUCT_LIMITS"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "x_inc_consent_v01_v02": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V01",
+        "V02"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "CONSENT_NOT_GIVEN"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "x_multi_k03_k04_k05": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "K03",
+        "K04",
+        "K05"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "ADVERSE_REPAYMENT_HISTORY",
+        "CREDIT_SCORE_BELOW_MINIMUM",
+        "INCOME_BELOW_MINIMUM"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "x_null_score_amt_tv2": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "R01"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "NO_CREDIT_HISTORY"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "x_ref_inel_r02_k04": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "ineligible",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "K04",
+        "R02"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "CREDIT_SCORE_BELOW_MINIMUM"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "x_refonly_r02_r03": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "R02",
+        "R03"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "HIGH_RECENT_ENQUIRIES",
+        "EMPLOYMENT_TYPE_REQUIRES_REVIEW"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    }
+  },
+  "version": 1
+}

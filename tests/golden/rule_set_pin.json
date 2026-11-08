@@ -1,0 +1,5 @@
+{
+  "rule_set_version": "rules-0.1.0+params-0.1.0",
+  "rule_set_hash": "sha256:94287e202f2306b15b16b13b7fdaceb7433fda3403807c7e17a3910c705abd67",
+  "_note": "Phase 0: only params/params.toml exists. Rule files will be added in Phase 2 and this pin updated."
+}

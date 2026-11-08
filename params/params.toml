@@ -1,0 +1,57 @@
+[meta]
+schema_version = 1
+params_version = "0.1.0"
+currency = "INR"
+description = "Illustrative personal loan policy, Credit Policy and Rule Catalog v0.1"
+
+[product]
+min_amount = 50000
+max_amount = 2500000
+amount_step = 5000
+min_tenure_months = 12
+max_tenure_months = 60
+processing_fee_rate = "0.02"
+income_multiple_cap = 10
+
+[eligibility]
+min_age = 18
+min_monthly_income = 15000
+min_credit_score = 650
+min_employment_months_salaried = 6
+min_employment_months_self_employed = 24
+max_existing_foir = "0.50"
+max_enquiries_6m = 5
+
+[experimental]
+x01_enabled = false
+x02_enabled = false
+max_age_at_maturity = 65
+high_risk_region_tier = 3
+
+[[band]]
+id = "A"
+min_score = 750
+max_foir = "0.30"
+rate_low = "11.0"
+rate_high = "13.0"
+indicative_rate = "12.0"
+post_loan_foir_cap = "0.55"
+
+[[band]]
+id = "B"
+min_score = 700
+max_foir = "0.40"
+rate_low = "13.0"
+rate_high = "16.0"
+indicative_rate = "14.5"
+post_loan_foir_cap = "0.50"
+
+[[band]]
+id = "C"
+min_score = 650
+max_foir = "0.50"
+rate_low = "16.0"
+rate_high = "20.0"
+indicative_rate = "18.0"
+post_loan_foir_cap = "0.45"
+

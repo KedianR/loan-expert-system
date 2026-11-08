@@ -196,3 +196,21 @@ For every case, store both systems' outputs side by side and mark each disagreem
 - [ ] Write the Edge Case Catalog as its own document from section 6
 - [ ] Decide the minimum group size for fairness reporting
 - [ ] Decide whether continuous integration is available to run `make test` on every commit
+
+## Lean mode (from 8 November 2026)
+
+This section governs test scope. Where any other document lists more tests (the Rule File and Parameter File Format Specification section 7, the Lending Calculations Specification, the Dataset Mapping and Synthetic Data Specification, or earlier sections of this plan), only the tests below are required to pass a phase gate. Extra tests may be written, but no gate waits for them. Phase 0 is already complete under its original scope.
+
+| Phase | Required | Not required |
+| --- | --- | --- |
+| 1 | The numeric expectations of TV1 to TV9, exactly. The float ban, with one test proving it fails when a float is added. Two property tests: the recommended amount never exceeds the requested amount, the EMI-based maximum, the income multiple cap or the product maximum, and is always a multiple of the amount step. One test that a missing input becomes an unknown fact. | Other property tests, several seeds, a coverage figure |
+| 2 | One firing test and one threshold-boundary test per active rule. Loader tests RT-01, 02, 04, 05, 07, 09 and 11. Each hygiene check shown failing on one seeded fault. Each active rule fires at least once on D1. Engine behaviours: null credit score; missing required field; derivation rules skipped after a blocking outcome; default REFER with `NO_RULE_APPLICABLE`; the request of 777,777. The full outcome of TV1 to TV9. Engine against oracle on all of D1 with no unexplained mismatch, the oracle written in a separate session. A check that no rule reads a protected attribute. | RT-03, 06, 08, 10 and 12 to 17; tests on both sides of every threshold |
+| 3 | On all of D1, the rules named in the trace equal the rules that fired, and the explanation names exactly the reason codes of the decision. The same input twice gives identical output. Replay reproduces one stored decision and reports a mismatch when a parameter changes. One valid and one invalid request validate against the schemas. `make demo` runs TV1 to TV9. A record is written for every decision and is append-only. | Audit tamper tests, reviewer-view tests, performance tests beyond one timing line |
+| 4 | The D2 mapping reproduces (same hash twice) and every assumption is recorded. D3 reproduces from its seed. A feature-list test: no protected attribute, identifier or label-derived column is a model feature. Both systems use the same split, and the test split is never used for tuning. Two models: logistic regression and gradient boosting, with a metrics file and seed each. | Sensitivity checks on ASM-D4, ASM-D5 and ASM-D11; oracle runs on D2 and D3; the decision tree; long datasheets (one short paragraph each: source, licence, known limits) |
+| 5 and 6 (one phase) | Edge cases run on both systems. A scorecard in which each score cites an artifact. The fairness plan committed before any result and unchanged, or changed only by a logged amendment. The planted bias detected and the no-bias control not flagged. One metric checked by hand on a tiny example. Groups under 100 marked too small. The regulatory mapping with gaps listed as gaps. One clean-machine run of `make reproduce`. A requirement-to-test table built from test names. A document-to-code consistency check of rule IDs, reason codes and parameter names. A final report that cites an artifact for every claim and has a limits section. | The Fairlearn cross-check, a coverage figure, a separate Phase 6 review |
+
+**Unchanged.** These stay required in every phase they apply to: TV1 to TV9, the float ban, engine against oracle on D1, trace built only from fired rules, the protected-attribute check, the fairness plan fixed before results, and the planted-bias test.
+
+**Reports.** A phase report gives a pass or fail table and, for each gate command, its pass or fail line and the last 15 lines of its output, unedited. The full output is pasted only for a command that failed.
+
+**Review.** The owner sends the phase report alone. Spike files and full output are requested only when something looks wrong.

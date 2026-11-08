@@ -29,6 +29,8 @@ The build runs in six phases. Each phase ends at a gate: a check that must pass 
 
 The work packages themselves and their "done when" checks are unchanged. Where this plan's phase table and the playbook group the work differently, the playbook governs.
 
+From 8 November 2026 the playbook runs in lean mode: Phases 5 and 6 are one phase with one review, and a "done when" check that asks for more tests than the "Lean mode" section of the Master Test Plan lists is optional.
+
 **Ground rules**
 
 - Follow the order of precedence in the AGENTS.md draft when documents disagree, and log conflicts in `docs/open-questions.md`.

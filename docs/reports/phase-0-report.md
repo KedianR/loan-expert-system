@@ -136,3 +136,4 @@ OK: params/params.toml loaded with 0 warning(s) and no errors.
    - Authorising the pure-Python fallback evaluator described in ADR-001 and docs/09-file-formats.md DS-2.
 2. **OQ-002 (Home Credit verification):** Kaggle licence and exact column names must be verified in WP-15 when network or raw files are available.
 3. **OQ-003 (Full rule-set hash):** The rule-set pin must be updated when rule files are added in Phase 2.
+

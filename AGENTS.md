@@ -5,7 +5,8 @@ Rule-based loan eligibility expert system for an unsecured personal loan in INR.
 ## How you work
 
 - The owner tells you ONE phase at a time and which documents to read. Do only that phase. Do not read ahead or start the next one.
-- At the end of a phase, run its gate commands, write `docs/reports/phase-N-report.md` from `docs/10-phase-report-template.md` with real, unedited command output, and STOP.
+- Test scope: the "Lean mode" section of `docs/06-test-plan.md` governs. Write the tests it requires; do not write extra tests unless told.
+- At the end of a phase, run its gate commands, write `docs/reports/phase-N-report.md` from `docs/10-phase-report-template.md`, and STOP. Give a pass or fail table and, per command, the last 15 lines of its output, unedited; paste full output only for a failure.
 - If a document is silent, ambiguous, or two documents disagree: STOP and ask. Record it in `docs/open-questions.md`. Never choose silently.
 - Never invent a policy value, rule, threshold, formula or reason-code text.
 

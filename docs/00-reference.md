@@ -503,6 +503,8 @@ The coding agent can start WP-01 and WP-02 with the documents already written (S
 
 The [Coding Agent Playbook: Risk-Driven Phases](https://claude.ai/artifact/CL7euKCiRuJ9Fdv5drCHDE) sets out seven phases (0 to 6), the documents to give the agent in each, a risk register, a paste-ready prompt per phase, and the review step with me after each one. A working expert system exists after Phase 3 and the project is complete after Phase 6. Before Phase 0 can start, the Tier 1 documents above still have to be written.
 
+**Decision D-07 (8 November 2026): lean testing.** The required tests are cut to those that catch real defects, and the phase reports are trimmed, because full-scope testing used too much agent usage. The required set is in the "Lean mode" section of the Master Test Plan. The non-negotiable checks are unchanged: TV1 to TV9, the float ban, engine against oracle on D1, trace from fired rules, the protected-attribute check, the fairness plan fixed before results, and the planted-bias test. Also on record: rules are written as data in a condition language, with Prolog generated from them (DS-2 in the Rule File and Parameter File Format Specification).
+
 ## Build order and progress
 
 Work in this order, because each step feeds the next. Tick items off as they are done.

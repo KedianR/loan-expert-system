@@ -1,0 +1,106 @@
+[[code]]
+code = "INCOMPLETE_APPLICATION"
+rule = "V01"
+text = "We could not decide because these details are missing: {missing_fields}."
+
+[[code]]
+code = "CONSENT_NOT_GIVEN"
+rule = "V02"
+text = "We cannot process your application without your recorded consent to use your data."
+
+[[code]]
+code = "AMOUNT_OUTSIDE_PRODUCT_LIMITS"
+rule = "V03"
+text = "The amount requested ({requested_amount}) is outside our limits of {param.min_amount} to {param.max_amount}."
+
+[[code]]
+code = "TENURE_OUTSIDE_PRODUCT_LIMITS"
+rule = "V04"
+text = "The tenure requested ({requested_tenure_months} months) is outside our range of {param.min_tenure_months} to {param.max_tenure_months} months."
+
+[[code]]
+code = "LEGAL_CAPACITY_NOT_MET"
+rule = "K01"
+text = "Applicants must be at least {param.min_age} years old."
+
+[[code]]
+code = "KYC_NOT_VERIFIED"
+rule = "K02"
+text = "Your identity verification is not complete."
+
+[[code]]
+code = "ADVERSE_REPAYMENT_HISTORY"
+rule = "K03"
+text = "Your credit record shows a payment 90 or more days overdue in the last 36 months, or a written-off account."
+
+[[code]]
+code = "CREDIT_SCORE_BELOW_MINIMUM"
+rule = "K04"
+text = "Your credit score ({credit_score}) is below our minimum of {param.min_credit_score}."
+
+[[code]]
+code = "INCOME_BELOW_MINIMUM"
+rule = "K05"
+text = "Your monthly net income ({monthly_net_income}) is below our minimum of {param.min_monthly_income}."
+
+[[code]]
+code = "EMPLOYMENT_TENURE_TOO_SHORT"
+rule = "K06"
+text = "Your time in current employment ({employment_months} months) is below our minimum of {min_months} months for your employment type."
+
+[[code]]
+code = "NO_CREDIT_HISTORY"
+rule = "R01"
+text = "We found no credit score for you, so a reviewer will assess your application."
+
+[[code]]
+code = "HIGH_RECENT_ENQUIRIES"
+rule = "R02"
+text = "You have {enquiries_6m} credit enquiries in the last 6 months, above our limit of {param.max_enquiries_6m}, so a reviewer will assess your application."
+allow_literals = ["6"]
+
+[[code]]
+code = "EMPLOYMENT_TYPE_REQUIRES_REVIEW"
+rule = "R03"
+text = "Your employment type needs a reviewer's assessment."
+
+[[code]]
+code = "HIGH_EXISTING_OBLIGATIONS"
+rule = "E01"
+text = "Your existing monthly loan payments are {existing_foir_pct}% of your income, above our limit of {param.max_existing_foir_pct}%."
+
+[[code]]
+code = "INSUFFICIENT_REPAYMENT_CAPACITY"
+rule = "A03"
+text = "Based on your income and existing payments, the most we can offer is {recommended_amount}, below our minimum loan of {param.min_amount}."
+
+[[code]]
+code = "AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY"
+rule = "A04"
+text = "We can offer {recommended_amount} instead of {requested_amount} because your income and existing payments limit the monthly instalment you can afford."
+
+[[code]]
+code = "AMOUNT_LIMITED_BY_INCOME_MULTIPLE"
+rule = "A04"
+text = "We can offer {recommended_amount} instead of {requested_amount} because our limit is {param.income_multiple_cap} times your monthly income."
+
+[[code]]
+code = "AMOUNT_LIMITED_BY_PRODUCT_MAXIMUM"
+rule = "A04"
+text = "We can offer {recommended_amount} instead of {requested_amount} because {param.max_amount} is the maximum for this loan."
+
+[[code]]
+code = "AGE_AT_MATURITY_LIMIT"
+rule = "X01"
+text = "Experimental rule X01 only. Text to be drafted if the rule is ever enabled in a real notice."
+
+[[code]]
+code = "REGIONAL_RISK_ADJUSTMENT"
+rule = "X02"
+text = "Experimental rule X02 only. Text to be drafted if the rule is ever enabled in a real notice."
+
+[[code]]
+code = "NO_RULE_APPLICABLE"
+rule = "default"
+text = "A reviewer will assess your application."
+

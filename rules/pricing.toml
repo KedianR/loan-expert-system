@@ -1,0 +1,16 @@
+layer = "pricing"
+
+[[rule]]
+id = "P01"
+layer = "pricing"
+description = "Attach indicative rate, rate range and 2% processing fee of the band"
+clause = "CP-4, CP-6.1"
+when = "no_blocking_outcome"
+outcome = "derive"
+calc = ["rate_lookup", "F7"]
+computes = ["indicative_rate", "fee"]
+owner = "credit-policy"
+effective_date = "2026-11-05"
+version = "0.1.0"
+status = "active"
+

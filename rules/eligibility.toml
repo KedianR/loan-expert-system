@@ -1,0 +1,29 @@
+layer = "eligibility"
+
+[[rule]]
+id = "E01"
+layer = "eligibility"
+description = "Existing FOIR is above 0.50"
+clause = "CP-3.2"
+when = "existing_foir > max_existing_foir"
+outcome = "ineligible"
+reason_code = "HIGH_EXISTING_OBLIGATIONS"
+owner = "credit-policy"
+effective_date = "2026-11-05"
+version = "0.1.0"
+status = "active"
+
+[[rule]]
+id = "E02"
+layer = "eligibility"
+description = "Assign band A, B or C using the band table; no band if no row matches"
+clause = "CP-4"
+when = "no_blocking_outcome"
+outcome = "derive"
+calc = ["band_lookup"]
+computes = ["band"]
+owner = "credit-policy"
+effective_date = "2026-11-05"
+version = "0.1.0"
+status = "active"
+

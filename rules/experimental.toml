@@ -1,0 +1,30 @@
+layer = "experimental"
+
+[[rule]]
+id = "X01"
+layer = "experimental"
+description = "Age at loan maturity is above 65"
+clause = "Experiment only"
+when = "age_at_maturity > max_age_at_maturity"
+outcome = "ineligible"
+reason_code = "AGE_AT_MATURITY_LIMIT"
+after = "K06"
+owner = "credit-policy"
+effective_date = "2026-11-05"
+version = "0.1.0"
+status = "disabled"
+
+[[rule]]
+id = "X02"
+layer = "experimental"
+description = "Region tier is 3: move the band down one step; band C becomes INELIGIBLE"
+clause = "Experiment only"
+when = "region_tier == high_risk_region_tier"
+outcome = "placeholder"
+reason_code = "REGIONAL_RISK_ADJUSTMENT"
+after = "E02"
+owner = "credit-policy"
+effective_date = "2026-11-05"
+version = "0.1.0"
+status = "disabled"
+

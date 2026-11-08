@@ -1,5 +1,5 @@
 {
-  "rule_set_version": "rules-0.1.0+params-0.1.0",
-  "rule_set_hash": "sha256:bfd0f63e6edd0815d28544e6a14cf4cd9ac33140d2d277d3fb8b3015bc12f031",
-  "_note": "Phase 1: params/params.toml and rules/fields.toml exist."
+  "rule_set_version": "rules-1.0.0+params-0.1.0",
+  "rule_set_hash": "sha256:eb7073a388817e0a455997c0c2ea86ccb25524cdff07faf8bf5ca98bb267be5a",
+  "_note": "Phase 2: rules/manifest.toml, fields.toml, reason_codes.toml, and 7 layer files exist."
 }

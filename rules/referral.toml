@@ -1,0 +1,41 @@
+layer = "referral"
+
+[[rule]]
+id = "R01"
+layer = "referral"
+description = "Credit score is null (no bureau history)"
+clause = "CP-5.2"
+when = "unknown(credit_score)"
+outcome = "refer"
+reason_code = "NO_CREDIT_HISTORY"
+owner = "credit-policy"
+effective_date = "2026-11-05"
+version = "0.1.0"
+status = "active"
+
+[[rule]]
+id = "R02"
+layer = "referral"
+description = "More than 5 credit enquiries in the last 6 months"
+clause = "CP-5.1"
+when = "enquiries_6m > max_enquiries_6m"
+outcome = "refer"
+reason_code = "HIGH_RECENT_ENQUIRIES"
+owner = "credit-policy"
+effective_date = "2026-11-05"
+version = "0.1.0"
+status = "active"
+
+[[rule]]
+id = "R03"
+layer = "referral"
+description = "Employment type is other"
+clause = "CP-5.3"
+when = "employment_type == other"
+outcome = "refer"
+reason_code = "EMPLOYMENT_TYPE_REQUIRES_REVIEW"
+owner = "credit-policy"
+effective_date = "2026-11-05"
+version = "0.1.0"
+status = "active"
+

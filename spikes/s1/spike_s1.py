@@ -82,32 +82,16 @@ def evaluate_toy_application_fresh(swipl: str, applicant_data: dict) -> dict | N
 
     toy_rules_prolog_path = str(TOY_PROLOG_FILE.resolve()).replace("\\", "/")
 
-    prolog_goal = f"""
-:- use_module(library(lists)).
-:- ['{toy_rules_prolog_path}'].
-
-:- 
-    Score = {score},
-    Income = {income},
-    MinScore = {min_score},
-    MinIncome = {min_income},
-    findall(Rule, fired_rule(Score, Income, MinScore, MinIncome, Rule), Fired),
-    (   Fired = [] 
-    ->  Decision = eligible 
-    ;   Decision = ineligible
-    ),
-    format('{{\"decision\": \"~w\", \"fired_rules\": ~w}}~n', [Decision, Fired]),
-    halt.
-"""
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".pl", delete=False, encoding="utf-8"
-    ) as f:
-        f.write(prolog_goal)
-        goal_path = f.name
+    goal = (
+        f"use_module(library(http/json)), ['{toy_rules_prolog_path}'], "
+        f"findall(Rule, fired_rule({score}, {income}, {min_score}, {min_income}, Rule), Fired), "
+        f"(Fired = [] -> Decision = eligible ; Decision = ineligible), "
+        f"json_write(current_output, json([decision=Decision, fired_rules=Fired])), nl, halt."
+    )
 
     try:
         proc = subprocess.run(
-            [swipl, "--quiet", goal_path],
+            [swipl, "-q", "-g", goal, "-t", "halt"],
             capture_output=True,
             text=True,
             timeout=5,
@@ -122,8 +106,6 @@ def evaluate_toy_application_fresh(swipl: str, applicant_data: dict) -> dict | N
         return None
     except (subprocess.TimeoutExpired, json.JSONDecodeError, OSError):
         return None
-    finally:
-        Path(goal_path).unlink(missing_ok=True)
 
 
 class PersistentPrologSession:
@@ -139,6 +121,7 @@ class PersistentPrologSession:
         toy_rules_path = str(self.rule_file.resolve()).replace("\\", "/")
         server_script = f"""
 :- use_module(library(lists)).
+:- use_module(library(http/json)).
 :- ['{toy_rules_path}'].
 
 server :-
@@ -148,7 +131,8 @@ server :-
     ;   (   term_string(eval(Score, Income, MinScore, MinIncome), Line)
         ->  findall(Rule, fired_rule(Score, Income, MinScore, MinIncome, Rule), Fired),
             (   Fired = [] -> Decision = eligible ; Decision = ineligible ),
-            format('{{\"decision\": \"~w\", \"fired_rules\": ~w}}~n', [Decision, Fired]),
+            json_write(current_output, json([decision=Decision, fired_rules=Fired])),
+            nl,
             flush_output
         ;   format('{{\"error\": \"invalid_input\"}}~n', []),
             flush_output
@@ -242,8 +226,8 @@ def run_spike() -> dict:
         results["outcome"] = f"FAILED: toy_rules.pl not found at {TOY_PROLOG_FILE}"
         return results
 
-    # 3. Evaluate one toy application (warmup / verification)
-    test_app = {"credit_score": 700, "monthly_income": 25000, "min_score": 650, "min_income": 15000}
+    # 3. Evaluate one toy application (firing k_score and k_income)
+    test_app = {"credit_score": 600, "monthly_income": 10000, "min_score": 650, "min_income": 15000}
     decision_result = evaluate_toy_application_fresh(swipl_path, test_app)
     results["single_decision_fresh"] = decision_result
 
@@ -251,10 +235,10 @@ def run_spike() -> dict:
         results["outcome"] = "FAILED: could not get valid decision and fired_rules from SWI-Prolog"
         return results
 
-    # 4. Measure Way 1: Fresh swipl process per decision (1,000 runs)
-    n = 1000
+    # 4. Measure Way 1: Fresh swipl process per decision (100 runs)
+    n_fresh = 100
     fresh_latencies_ms: list[float] = []
-    for _ in range(n):
+    for _ in range(n_fresh):
         t0 = time.perf_counter()
         res = evaluate_toy_application_fresh(swipl_path, test_app)
         t1 = time.perf_counter()
@@ -266,6 +250,7 @@ def run_spike() -> dict:
     results["fresh_process_stats"] = compute_stats_ms(fresh_latencies_ms)
 
     # 5. Measure Way 2: Persistent swipl process answering queries (1,000 runs)
+    n_persistent = 1000
     persistent_session = PersistentPrologSession(swipl_path, TOY_PROLOG_FILE)
     persistent_latencies_ms: list[float] = []
     try:
@@ -277,7 +262,7 @@ def run_spike() -> dict:
             results["outcome"] = "FAILED: persistent process failed to evaluate"
             return results
 
-        for _ in range(n):
+        for _ in range(n_persistent):
             t0 = time.perf_counter()
             res = persistent_session.evaluate(test_app)
             t1 = time.perf_counter()

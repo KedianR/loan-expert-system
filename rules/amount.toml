@@ -1,0 +1,56 @@
+layer = "amount"
+
+[[rule]]
+id = "A01"
+layer = "amount"
+description = "Compute the EMI-based maximum principal at the indicative rate and requested tenure"
+clause = "CP-4, Calc Spec"
+when = "no_blocking_outcome"
+outcome = "derive"
+calc = ["F4", "F5"]
+computes = ["max_emi", "max_principal_emi"]
+owner = "credit-policy"
+effective_date = "2026-11-05"
+version = "0.1.0"
+status = "active"
+
+[[rule]]
+id = "A02"
+layer = "amount"
+description = "Recommended amount is the lowest of requested, EMI-based maximum, income multiple cap and product maximum, rounded down to 5,000"
+clause = "CP-1.1, CP-1.2, CP-3.1"
+when = "no_blocking_outcome"
+outcome = "derive"
+calc = ["F6"]
+computes = ["recommended_amount", "binding_limit"]
+owner = "credit-policy"
+effective_date = "2026-11-05"
+version = "0.1.0"
+status = "active"
+
+[[rule]]
+id = "A03"
+layer = "amount"
+description = "Recommended amount is below 50,000"
+clause = "CP-1.1, CP-4"
+when = "recommended_amount < min_amount"
+outcome = "ineligible"
+reason_code = "INSUFFICIENT_REPAYMENT_CAPACITY"
+owner = "credit-policy"
+effective_date = "2026-11-05"
+version = "0.1.0"
+status = "active"
+
+[[rule]]
+id = "A04"
+layer = "amount"
+description = "The recommended amount is at least one step below the requested amount"
+clause = "CP-3.1, CP-4, CP-1.1"
+when = "no_blocking_outcome and recommended_amount + amount_step <= requested_amount"
+outcome = "reduced_offer"
+reason_code = { by = "binding_limit", capacity = "AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY", income_multiple = "AMOUNT_LIMITED_BY_INCOME_MULTIPLE", product_maximum = "AMOUNT_LIMITED_BY_PRODUCT_MAXIMUM" }
+owner = "credit-policy"
+effective_date = "2026-11-05"
+version = "0.1.0"
+status = "active"
+

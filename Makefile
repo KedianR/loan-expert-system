@@ -38,9 +38,9 @@ test:
 	$(PYTEST) tests/ -v
 
 # ---------------------------------------------------------------------------
-# WP-01: check — tests + float ban + lint + format + check-params + check-fields
+# WP-01: check — tests + float ban + lint + format + check-params + check-fields + check-rules
 # ---------------------------------------------------------------------------
-check: check-floats lint format test check-params check-fields
+check: check-floats lint format test check-params check-fields check-rules
 	@echo ""
 	@echo "=== make check complete ==="
 
@@ -55,6 +55,15 @@ check-params:
 # ---------------------------------------------------------------------------
 check-fields:
 	$(PYTHON) -m src.engine.field_loader $(FIELDS)
+
+# ---------------------------------------------------------------------------
+# WP-06: check-rules — load and validate rule files, hygiene checks, protected-attribute scan
+# ---------------------------------------------------------------------------
+check-rules:
+	$(PYTHON) -m src.engine.param_loader $(PARAMS)
+	$(PYTHON) -m src.engine.field_loader $(FIELDS)
+	$(PYTHON) -m src.engine.rule_loader rules $(PARAMS)
+	$(PYTHON) -m src.engine.hygiene
 
 # ---------------------------------------------------------------------------
 # WP-01/WP-04: check-floats — fail the build if any float is used in src/calc or src/facts
@@ -75,12 +84,14 @@ format:
 	$(RUFF) format --check src/ tests/ tools/
 
 # ---------------------------------------------------------------------------
+# WP-16a: oracle-diff — compare engine output on D1 with oracle expected output
+# ---------------------------------------------------------------------------
+oracle-diff:
+	$(PYTHON) tools/oracle_diff.py
+
+# ---------------------------------------------------------------------------
 # Stubs for later phases (added when each phase arrives)
 # ---------------------------------------------------------------------------
-
-check-rules:
-	@echo "check-rules: not yet implemented (Phase 2)"
-	@exit 1
 
 decide:
 	@echo "decide: not yet implemented (Phase 3)"
@@ -92,10 +103,6 @@ demo:
 
 replay:
 	@echo "replay: not yet implemented (Phase 3)"
-	@exit 1
-
-oracle-diff:
-	@echo "oracle-diff: not yet implemented (Phase 2)"
 	@exit 1
 
 baseline:

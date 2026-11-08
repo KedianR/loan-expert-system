@@ -62,3 +62,4 @@ Both options produce the same trace format and the same decisions, so the choice
 If SWI-Prolog is installed and the spike succeeds, the expected approach is:
 - **Phase 0–1:** subprocess with JSON (simple, no extra dependency).
 - **Phase 2+:** evaluate `janus-swi` (the official Python–SWI bridge) for better performance (no subprocess overhead). If `janus-swi` works, expect sub-millisecond per decision. If not, subprocess calls at ~5–20 ms each are still well within the 1-second NFR-06 target.
+

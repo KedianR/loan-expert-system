@@ -91,3 +91,4 @@ Per docs/08-datasets.md §2: "Use Home Credit for D2 and the fairness review. If
 Home Credit Default Risk is **feasible but requires documented assumptions** for every mapped field. Three mappings are weak and need sensitivity checks. Two fields (`kyc_verified`, `consent_given`) cannot be filled and are set to `true`. Column names and licence must be verified against the actual files in WP-15.
 
 **No data was downloaded. No mapping code was written. No raw data is committed.**
+

@@ -10,3 +10,4 @@ for f in HASH_FILE_ORDER:
     print(f"  {f}: {status}")
 h = compute_hash_from_root(root)
 print(f"\nHash (over present files only): {h}")
+

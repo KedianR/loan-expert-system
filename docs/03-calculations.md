@@ -72,7 +72,7 @@ P_{\mathrm{EMI}} = \mathrm{EMI}_{\max} \cdot \frac{(1+r)^{n}-1}{r\,(1+r)^{n}}
 P^{*} = 5000 \cdot \left\lfloor \frac{\min\left(R,\; P_{\mathrm{EMI}},\; 10\,I,\; 2500000\right)}{5000} \right\rfloor
 ```
 
-If P\* is below 50,000, the decision is INELIGIBLE with INSUFFICIENT\_REPAYMENT\_CAPACITY. If P\* is below R, the binding limit is the smallest of the three caps; report it as the matching AMOUNT\_LIMITED\_BY code. If two caps tie, report capacity first, then income multiple, then product maximum.
+If P\* is below 50,000, the decision is INELIGIBLE with INSUFFICIENT\_REPAYMENT\_CAPACITY. If P\* is below R, the binding limit is the smallest of the three caps; report it as the matching AMOUNT\_LIMITED\_BY code. If two caps tie, report capacity first, then income multiple, then product maximum. If the request is equal to or smaller than all three caps, the whole request fits: the binding limit is requested, even when a cap equals the request exactly.
 
 **F7. Fee, net disbursed amount and repayment**
 

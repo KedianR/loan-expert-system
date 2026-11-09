@@ -71,7 +71,7 @@ After E01, if no blocking outcome exists, E02 finds the band and A01 and A02 com
 
 **Decision DT-1 (found in Phase 2 preparation; catalog and format specification corrected).** As the catalog first stated A04, it also fired after A03, because A04 only read the recommended amount. TV6 and TV8 would then have reported both INSUFFICIENT_REPAYMENT_CAPACITY and AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY. A04 now reads `no_blocking_outcome and recommended_amount + amount_step <= requested_amount`.
 
-**Binding limit.** The smallest of the capacity limit, 10 times income and the product maximum; ties go to capacity, then income multiple, then product maximum (F6). The binding limit is `requested` when the request is the smallest. **AMOUNT_LIMITED_BY_PRODUCT_MAXIMUM cannot occur while V03 is active**, because V03 already rejects any request above the product maximum. The code stays in the catalog; the firing matrix marks it "unreachable by design" and no test may require it.
+**Binding limit.** The smallest of the capacity limit, 10 times income and the product maximum; ties between caps go to capacity, then income multiple, then product maximum (F6). The binding limit is `requested` whenever the request is equal to or smaller than all three caps, including when a cap equals the request exactly (decision DT-4). **AMOUNT_LIMITED_BY_PRODUCT_MAXIMUM cannot occur while V03 is active**, because V03 already rejects any request above the product maximum. The code stays in the catalog; the firing matrix marks it "unreachable by design" and no test may require it.
 
 ## 5. Firing and boundary cases (baseline parameters)
 
@@ -160,3 +160,4 @@ The loader runs the orphan and cycle checks. The analyser runs the other three o
 | DT-1 | A04 requires no blocking outcome. | Catalog (A04 row and notes), Format Specification (rule table, baseline TOML, point 6, condition language) |
 | DT-2 | `reason_codes` holds the codes of the fired rules of the winning outcome only; refer codes stay in the trace when INELIGIBLE wins. | This document; the oracle prompt |
 | DT-3 | AMOUNT_LIMITED_BY_PRODUCT_MAXIMUM is unreachable while V03 is active; kept in the catalog. | This document |
+| DT-4 | When the request equals the smallest cap, the whole request fits and the binding limit is `requested` (found in the Phase 2 oracle comparison, 9 November 2026). | Lending Calculations Specification, F6; the oracle prompt follow-up |

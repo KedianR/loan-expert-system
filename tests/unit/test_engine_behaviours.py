@@ -9,6 +9,7 @@ Behaviours:
   4. default REFER with NO_RULE_APPLICABLE (test-only parameter set)
   5. request of 777,777 (recommended 775,000, no A04)
   6. A03 and A04 never both firing (TV6, TV8)
+  7. DT-4: binding_limit is 'requested' when request equals the smallest cap (a04_tie_request_income)
 """
 
 from __future__ import annotations
@@ -198,3 +199,31 @@ class TestEngineBehaviours:
         assert "INSUFFICIENT_REPAYMENT_CAPACITY" in r8["reason_codes"]
         assert get_step(r8, "A03")["status"] == "fired"
         assert get_step(r8, "A04")["status"] == "skipped"
+
+    def test_dt4_binding_limit_requested_when_request_equals_cap(self, rule_set):
+        """DT-4: when request equals the smallest cap, binding_limit is 'requested' and A04 must not fire.
+
+        Case a04_tie_request_income: request 500,000, income 50,000 (10 x I = 500,000),
+        capacity cap well above request. P* = 500,000 = R, so the full request is granted;
+        A04 condition (recommended_amount + amount_step <= requested_amount) is false.
+        docs/03-calculations.md F6 and docs/decision-tables.md §4 (DT-4): binding_limit is 'requested'.
+
+        FR-08, docs/decision-tables.md §4 DT-4
+        """
+        app = {
+            **BASE_APPLICANT,
+            "applicant_id": "a04_tie_request_income",
+            "monthly_net_income": 50000,
+            "monthly_obligations": 0,
+            "credit_score": 720,
+            "requested_amount": 500000,
+            "requested_tenure_months": 60,
+        }
+        res = decide(app, rule_set)
+
+        assert res["decision"] == "eligible"
+        assert res["reason_codes"] == []
+        assert res["derived"]["binding_limit"] == "requested"
+        assert res["offer"]["amount"] == 500000
+        step_a04 = get_step(res, "A04")
+        assert step_a04["status"] == "not_fired"

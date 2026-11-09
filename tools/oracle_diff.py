@@ -235,7 +235,7 @@ def run_oracle_diff() -> int:
     if diffs:
         for d in diffs:
             print(f"  {d['case_id']}: {d['field']} engine=`{d['engine']}` oracle=`{d['oracle']}`")
-    return 0
+    return 1 if diffs else 0
 
 
 if __name__ == "__main__":

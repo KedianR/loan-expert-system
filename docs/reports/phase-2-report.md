@@ -37,7 +37,7 @@ All 122 unit, property, and golden vector tests pass cleanly under `make test`. 
 | Float-ban static checker passes | Yes | `tools/check_floats.py` scans `src/calc` and `src/facts` (5 files, 0 floats). |
 | `make check-rules` passes | Yes | Exits 0: loads params, fields, rules, runs hygiene checks and protected-attribute scan, outputs firing matrix. |
 | `make check` passes | Yes | Exits 0: float-ban, ruff lint, ruff format, 122 tests, check-params, check-fields, check-rules. |
-| `make oracle-diff` passes | Yes | Exits 0: compares 82 cases against `data/d1/oracle_expected.json`. |
+| `make oracle-diff` passes | Yes | Exits 0: 0 differences across 82 cases. Three binding_limit differences found before DT-4 were resolved by the oracle update (commit e10d32d). |
 
 ## 4. D1 Dataset and Rule Firing Matrix
 
@@ -76,15 +76,17 @@ AMOUNT_LIMITED_BY_PRODUCT_MAXIMUM | 0            | Unreachable by design (DT-3)
 
 Across all 82 D1 cases, decisions, reason codes, adverse fired rules, pricing bands, recommended amounts, indicative rates, EMIs, fees, total interest, post-loan FOIRs, and APRs (within 0.01 tolerance) match 100% between the engine and the reference oracle.
 
-Exactly **3 differences** were found, all on the `binding_limit` field:
+**Final result: 0 differences.** (`make oracle-diff` exits 0, diff report at `data/d1/oracle_diff.md`.)
 
-| Case ID | Input Summary | Engine Output | Oracle Output | Resolution |
+Three `binding_limit` differences were observed in the initial comparison run before owner decision DT-4 was recorded. After the oracle session updated its implementation to match DT-4 (committed `e10d32d`), all three resolved. The resolution is:
+
+- **DT-4 (owner decision):** When the requested amount equals the smallest cap, `binding_limit` is `"requested"`. This is stated in `docs/03-calculations.md` F6 and `docs/decision-tables.md` §4. The engine was already correct; the oracle was updated to match.
+
+| Case ID | Field | Before DT-4 (oracle) | After DT-4 | Resolution |
 | --- | --- | --- | --- | --- |
-| `a04_tie_request_income` | Request 500,000, Income 50,000 ($10 \times I = 500,000$) | `requested` | `income_multiple` | Documented in OQ-006 and `eval/oracle/NOTES.md`. Engine retains `src/calc` F6 behavior: when $P^{*} = R$, the applicant receives 100% of request, A04 does not fire, and `binding_limit` is `"requested"`. The oracle applied policy cap tie order on equality ($\min(\text{caps}) \le R$). |
-| `cap_tie_income_prodmax` | Request 2,500,000, Income 250,000, Product Max 2,500,000 | `requested` | `income_multiple` | Same as above. Full request granted ($P^{*} = R = 2,500,000$). |
-| `cap_tie_capacity_prodmax` | Request 2,500,000, Product Max 2,500,000, Capacity 4,480,927 | `requested` | `product_maximum` | Same as above. Full request granted ($P^{*} = R = 2,500,000$). |
-
-Both implementations agree on the loan offer and zero shortfall ($P^{*} = R$). The discrepancy stems from whether `binding_limit` applies only when a cap restricts the request ($P^{*} < R$) per `docs/03-calculations.md` F6, or also labels ties when $R = \text{cap}$.
+| `a04_tie_request_income` | `binding_limit` | `income_multiple` | `requested` | Oracle fixed per DT-4 |
+| `cap_tie_income_prodmax` | `binding_limit` | `income_multiple` | `requested` | Oracle fixed per DT-4 |
+| `cap_tie_capacity_prodmax` | `binding_limit` | `product_maximum` | `requested` | Oracle fixed per DT-4 |
 
 ## 6. Gate commands output
 
@@ -142,8 +144,6 @@ Pass. Output:
 
 ```text
 python tools/oracle_diff.py
-Diff report written to C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system\data\d1\oracle_diff.md (3 differences).
-  a04_tie_request_income: binding_limit engine=`requested` oracle=`income_multiple`
-  cap_tie_income_prodmax: binding_limit engine=`requested` oracle=`income_multiple`
-  cap_tie_capacity_prodmax: binding_limit engine=`requested` oracle=`product_maximum`
+Diff report written to C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system\data\d1\oracle_diff.md (0 differences).
 ```
+

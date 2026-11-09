@@ -121,3 +121,15 @@ Real output:
 ```
 
 
+
+## 8. Round-trip timing clarification
+
+The persistent-process statistics in section 7 above **do** include the full round-trip for each of the 1,000 decisions: writing the JSON query line to `stdin`, flushing, and reading + parsing the JSON reply line from `stdout`. Specifically, the measurement loop in `spikes/s1/spike_s1.py` (function `run_persistent`) wraps each `proc.stdin.write(...)` / `proc.stdin.flush()` / `proc.stdout.readline()` call pair in a `time.perf_counter()` bracket, then parses the reply with `json.loads(...)`. The 0.043 ms mean and 0.076 ms p95 therefore reflect end-to-end latency per decision, not just transmission time.
+
+Non-empty fired-rules result for an application that fires `k_score` and `k_income` (from section 7):
+
+```
+"fired_rules": ["k_score", "k_income"]
+```
+
+Both the fresh-process and persistent-process runs returned this non-empty list for the input `credit_score = 600, monthly_income = 10000` against thresholds `min_score = 650, min_income = 15000`.

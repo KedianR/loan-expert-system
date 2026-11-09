@@ -1,5 +1,5 @@
 """
-Hygiene analyser unit tests on seeded faults.
+Hygiene analyser unit tests on seeded faults and grid parameter sensitivity.
 
 Implements: docs/decision-tables.md §6
 Findings:
@@ -7,16 +7,22 @@ Findings:
   2. CONTRADICTION
   3. REDUNDANT_RULE
   4. PROTECTED_ATTRIBUTE_READ
+
+Also tests that the hygiene grid is built from loaded parameters (no hard-coded
+policy values), so a change to one parameter is reflected in the grid.
 """
 
 from __future__ import annotations
 
 import shutil
+from decimal import Decimal
 from pathlib import Path
 
 from src.engine.hygiene import (
+    _build_foir_obligations,
     check_completeness_and_redundancy,
     check_contradictions,
+    generate_hygiene_grid,
     scan_protected_attributes,
 )
 from src.engine.rule_loader import RuleDefinition, RuleLoader, RuleSet, load_rules
@@ -138,3 +144,70 @@ status = "active"
         assert len(findings) > 0
         finding_codes = [f.code for f in findings]
         assert "PROTECTED_ATTRIBUTE_READ" in finding_codes
+
+    # -------------------------------------------------------------------------
+    # Item 1 (Phase 2 closing patch): grid built from loaded parameters only.
+    # Implements: docs/decision-tables.md §6
+    # -------------------------------------------------------------------------
+
+    def test_grid_reflects_param_change(self, tmp_path: Path):
+        """
+        Changing max_existing_foir in a copy of params.toml from 0.50 to 0.45
+        must produce grid points just below, exactly at and just above 0.45.
+        No hard-coded FOIR threshold may appear in generate_hygiene_grid.
+        """
+        # --- copy params.toml and change max_existing_foir to 0.45 ---
+        orig_text = REAL_PARAMS_PATH.read_text(encoding="utf-8")
+        modified_text = orig_text.replace(
+            'max_existing_foir = "0.50"',
+            'max_existing_foir = "0.45"',
+        )
+        assert modified_text != orig_text, (
+            "Replacement failed; original params.toml may have changed"
+        )
+        tmp_params = tmp_path / "params.toml"
+        tmp_params.write_text(modified_text, encoding="utf-8")
+
+        # Load the rule set with the modified params
+        loader = RuleLoader(REAL_RULES_DIR, tmp_params)
+        rs = loader.load()
+        assert rs is not None, "Rule loader failed with modified params"
+
+        # Verify the loaded value
+        assert Decimal(str(rs.params["max_existing_foir"])) == Decimal("0.45"), (
+            "max_existing_foir was not changed in the loaded rule set"
+        )
+
+        # Build the grid from the modified rule set
+        grid = generate_hygiene_grid(rs)
+        assert len(grid) > 0
+
+        # The FOIR grid uses income = 1_000_000.
+        # At 0.45: obligations = 450_000.
+        # Just below: 449_999; just above: 450_001.
+        grid_income = 1_000_000
+        threshold = Decimal("0.45")
+        expected_obligations = _build_foir_obligations(grid_income, [threshold])
+        # Must contain at least the three boundary points
+        assert len(expected_obligations) >= 3
+        at_threshold = int((threshold * grid_income).to_integral_value())
+        assert at_threshold - 1 in expected_obligations
+        assert at_threshold in expected_obligations
+        assert at_threshold + 1 in expected_obligations
+
+        # Verify these obligation values appear in the hygiene grid
+        grid_obligations = {
+            pt["monthly_obligations"]
+            for pt in grid
+            if pt.get("monthly_net_income") == grid_income
+            and pt.get("monthly_obligations") is not None
+        }
+        assert at_threshold - 1 in grid_obligations, (
+            f"{at_threshold - 1} (just below 0.45 × {grid_income}) not in grid"
+        )
+        assert at_threshold in grid_obligations, (
+            f"{at_threshold} (at 0.45 × {grid_income}) not in grid"
+        )
+        assert at_threshold + 1 in grid_obligations, (
+            f"{at_threshold + 1} (just above 0.45 × {grid_income}) not in grid"
+        )

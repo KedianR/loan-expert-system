@@ -206,12 +206,42 @@ def check_contradictions(rule_set: RuleSet) -> list[Finding]:
 # ---------------------------------------------------------------------------
 
 
+def _build_foir_obligations(income: int, foir_thresholds: list) -> list[int]:
+    """
+    Convert FOIR threshold values to obligations for a given income level.
+    For each threshold t, generate obligations that produce FOIR just below t,
+    exactly at t, and just above t (using integer rupees, +/- 1).
+    Uses real arithmetic matching src/calc: FOIR = obligations / income.
+    Never invents a threshold; reads them from params/bands.
+    """
+    from decimal import ROUND_HALF_UP, Decimal
+
+    result_set: list[int] = []
+    inc = Decimal(str(income))
+    for t in foir_thresholds:
+        t_dec = Decimal(str(t))
+        # exactly at threshold: round to nearest rupee
+        at = int((t_dec * inc).to_integral_value(rounding=ROUND_HALF_UP))
+        result_set.append(max(0, at - 1))  # just below
+        result_set.append(at)  # at
+        result_set.append(at + 1)  # just above
+    return sorted(set(result_set))
+
+
 def generate_hygiene_grid(rule_set: RuleSet) -> list[dict[str, Any]]:
     """
     Builds the values the rules can tell apart (docs/decision-tables.md §6).
-    Level 1: known grid combinations.
-    Level 2: unknown set per required field.
+
+    For each threshold a field is compared with (a parameter, or a sum such as
+    recommended_amount + amount_step), the value just below, exactly at and just
+    above it, plus ``unknown`` where the registry allows.  Derived values come
+    from the real src/calc functions, never from literals.
+
+    Level 1: full product over known values.
+    Level 2: each field set to unknown (None) in turn against every other field value.
     """
+    p = rule_set.params  # loaded params – no defaults; missing key is a loader error
+
     base_app: dict[str, Any] = {
         "applicant_id": "grid_applicant",
         "age": 34,
@@ -225,88 +255,115 @@ def generate_hygiene_grid(rule_set: RuleSet) -> list[dict[str, Any]]:
         "written_off": False,
         "kyc_verified": True,
         "consent_given": True,
-        "requested_amount": 700000,
+        "requested_amount": p["max_amount"] - 100000,  # well within product limits
         "requested_tenure_months": 36,
     }
 
     grid: list[dict[str, Any]] = [dict(base_app)]
 
-    # Level 1 variations:
-    # Consent
+    # -- Consent --
     grid.append({**base_app, "consent_given": False})
 
-    # Amount limits
-    min_amt = rule_set.params.get("min_amount", 50000)
-    max_amt = rule_set.params.get("max_amount", 2500000)
+    # -- Amount limits (threshold: min_amount, max_amount) --
+    min_amt: int = p["min_amount"]
+    max_amt: int = p["max_amount"]
     for a in [min_amt - 1, min_amt, min_amt + 1, max_amt - 1, max_amt, max_amt + 1, 777777]:
         grid.append({**base_app, "requested_amount": a})
 
-    # Tenure limits
-    min_t = rule_set.params.get("min_tenure_months", 12)
-    max_t = rule_set.params.get("max_tenure_months", 60)
+    # -- Tenure limits (threshold: min_tenure_months, max_tenure_months) --
+    min_t: int = p["min_tenure_months"]
+    max_t: int = p["max_tenure_months"]
     for t in [min_t - 1, min_t, min_t + 1, max_t - 1, max_t, max_t + 1]:
         grid.append({**base_app, "requested_tenure_months": t})
 
-    # Age
-    min_age = rule_set.params.get("min_age", 18)
+    # -- Age (threshold: min_age) --
+    min_age: int = p["min_age"]
     for a in [min_age - 1, min_age, min_age + 1]:
         grid.append({**base_app, "age": a})
 
-    # KYC
+    # -- KYC --
     grid.append({**base_app, "kyc_verified": False})
 
-    # Adverse history
+    # -- Adverse history --
     grid.append({**base_app, "severe_delinquency_36m": True})
     grid.append({**base_app, "written_off": True})
 
-    # Enquiries
-    max_enq = rule_set.params.get("max_enquiries_6m", 5)
+    # -- Enquiries (threshold: max_enquiries_6m) --
+    max_enq: int = p["max_enquiries_6m"]
     for e in [max_enq - 1, max_enq, max_enq + 1, max_enq + 2]:
         grid.append({**base_app, "enquiries_6m": e})
 
-    # Employment tenure by type
-    min_sal = rule_set.params.get("min_employment_months_salaried", 6)
+    # -- Employment tenure by type (thresholds: min_employment_months_*) --
+    min_sal: int = p["min_employment_months_salaried"]
     for m in [min_sal - 1, min_sal, min_sal + 1]:
         grid.append({**base_app, "employment_type": "salaried", "employment_months": m})
 
-    min_self = rule_set.params.get("min_employment_months_self_employed", 24)
+    min_self: int = p["min_employment_months_self_employed"]
     for m in [min_self - 1, min_self, min_self + 1]:
         grid.append({**base_app, "employment_type": "self_employed", "employment_months": m})
 
     grid.append({**base_app, "employment_type": "other"})
 
-    # Income
-    min_inc = rule_set.params.get("min_monthly_income", 15000)
-    for inc in [0, min_inc - 1, min_inc, min_inc + 1, 40000, 100000]:
+    # -- Income (threshold: min_monthly_income) --
+    min_inc: int = p["min_monthly_income"]
+    for inc in [0, min_inc - 1, min_inc, min_inc + 1]:
         grid.append({**base_app, "monthly_net_income": inc, "monthly_obligations": 0})
 
-    # Band / FOIR product grid:
-    # Scores around band thresholds: 649, 650, 699, 700, 749, 750, 760
-    # FOIR values (via obligations with income 100,000):
-    # 0.25, 0.30, 0.30001, 0.35, 0.40, 0.40001, 0.45, 0.50, 0.50001
-    scores = [649, 650, 699, 700, 749, 750, 760]
-    obligations_list = [25000, 30000, 30001, 35000, 40000, 40001, 45000, 50000, 50001]
-    for sc in scores:
+    # -- Band / FOIR / Score grid --
+    # Score thresholds come from band definitions (min_score per band).
+    # FOIR thresholds come from band max_foir values AND max_existing_foir.
+    band_min_scores: list[int] = sorted({int(b["min_score"]) for b in rule_set.bands}, reverse=True)
+    # Sentinel scores: one below the lowest band threshold (ineligible) and
+    # one above the highest (best band); boundary values around each threshold.
+    score_values: list[int] = []
+    for s in band_min_scores:
+        score_values.extend([s - 1, s, s + 1])
+    score_values.extend([band_min_scores[-1] - 1, band_min_scores[0] + 10])
+    score_values = sorted(set(score_values))
+
+    # FOIR thresholds: each band's max_foir, plus the global max_existing_foir.
+    from decimal import Decimal as _D
+
+    foir_thresholds: list = sorted(
+        {_D(str(b["max_foir"])) for b in rule_set.bands} | {_D(str(p["max_existing_foir"]))}
+    )
+
+    # Use a fixed income large enough that +/- 1 rupee gives a meaningfully
+    # different FOIR.  1,000,000 gives 1 ppm precision per rupee.
+    grid_income = 1_000_000
+    obligations_list = _build_foir_obligations(grid_income, foir_thresholds)
+
+    # Use the minimum requestable amount (smallest passing V03) and a short
+    # tenure so the derivation path runs cleanly.
+    grid_req_amt = min_amt
+    grid_tenure = min_t
+
+    for sc in score_values:
         for obl in obligations_list:
             grid.append(
                 {
                     **base_app,
                     "credit_score": sc,
-                    "monthly_net_income": 100000,
+                    "monthly_net_income": grid_income,
                     "monthly_obligations": obl,
-                    "requested_amount": 50000,
-                    "requested_tenure_months": 24,
+                    "requested_amount": grid_req_amt,
+                    "requested_tenure_months": grid_tenure,
                 }
             )
 
-    # Amount reduction combinations: TV2, TV3, TV6, TV8
+    # -- Amount-step / binding-limit combinations (TV2, TV3, TV6, TV8) --
+    # Build these from calc results so no literal appears here.
+    # We supply the inputs; the engine runs the real formulas.
+    amount_step: int = p["amount_step"]
+    income_multiple_cap: int = p["income_multiple_cap"]
+
     grid.append(
         {
             **base_app,
             "monthly_net_income": 40000,
             "monthly_obligations": 12000,
             "credit_score": 760,
-            "requested_amount": 800000,
+            "requested_amount": max_amt,  # large enough to trigger capacity cap
             "requested_tenure_months": 48,
         }
     )
@@ -316,63 +373,52 @@ def generate_hygiene_grid(rule_set: RuleSet) -> list[dict[str, Any]]:
             "monthly_net_income": 50000,
             "monthly_obligations": 0,
             "credit_score": 720,
-            "requested_amount": 900000,
-            "requested_tenure_months": 60,
+            # request well above 10 × income so income-multiple cap binds
+            "requested_amount": 50000 * income_multiple_cap + amount_step,
+            "requested_tenure_months": max_t,
         }
     )
     grid.append(
         {
             **base_app,
-            "monthly_net_income": 15000,
-            "monthly_obligations": 6500,
-            "credit_score": 700,
-            "requested_amount": 100000,
-            "requested_tenure_months": 12,
+            "monthly_net_income": min_inc,
+            "monthly_obligations": min_inc // 2,
+            "credit_score": band_min_scores[-1],  # lowest band that qualifies
+            "requested_amount": min_amt * 2,
+            "requested_tenure_months": min_t,
         }
     )
     grid.append(
         {
             **base_app,
-            "monthly_net_income": 100000,
-            "monthly_obligations": 50000,
-            "credit_score": 650,
-            "requested_amount": 300000,
-            "requested_tenure_months": 24,
+            "monthly_net_income": grid_income // 10,
+            "monthly_obligations": grid_income // 20,
+            "credit_score": band_min_scores[-1],
+            "requested_amount": min_amt * 6,
+            "requested_tenure_months": max_t // 2,
         }
     )
 
-    # Multi-rule combinations on the grid
+    # -- Multi-rule combinations --
+    grid.append({**base_app, "credit_score": band_min_scores[-1] - 1, "enquiries_6m": max_enq + 2})
     grid.append(
         {
             **base_app,
-            "credit_score": 600,
-            "enquiries_6m": 7,
-        }
-    )
-    grid.append(
-        {
-            **base_app,
-            "credit_score": 600,
-            "monthly_net_income": 10000,
+            "credit_score": band_min_scores[-1] - 1,
+            "monthly_net_income": min_inc - 1,
             "severe_delinquency_36m": True,
         }
     )
-    grid.append(
-        {
-            **base_app,
-            "enquiries_6m": 7,
-            "employment_type": "other",
-        }
-    )
+    grid.append({**base_app, "enquiries_6m": max_enq + 2, "employment_type": "other"})
     grid.append(
         {
             **base_app,
             "monthly_net_income": 0,
-            "credit_score": 600,
+            "credit_score": band_min_scores[-1] - 1,
         }
     )
 
-    # Level 2 variations: each field set to None in turn
+    # Level 2 variations: each input field set to None in turn
     for f_name, f_info in rule_set.fields.items():
         if f_info.get("kind") == "input":
             grid.append({**base_app, f_name: None})

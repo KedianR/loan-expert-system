@@ -1640,6 +1640,66 @@
         "requested_amount": 999999,
         "requested_tenure_months": 36
       }
+    },
+    {
+      "case_id": "k03_delinq_true_written_off_missing",
+      "tests": "DT-5: severe_delinquency_36m true, written_off absent; K03 not_evaluated; REFER via V01",
+      "input": {
+        "applicant_id": "k03_delinq_true_written_off_missing",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 80000,
+        "monthly_obligations": 10000,
+        "credit_score": 735,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": true,
+        "written_off": null,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 700000,
+        "requested_tenure_months": 36
+      }
+    },
+    {
+      "case_id": "k03_written_off_true_delinq_missing",
+      "tests": "DT-5: written_off true, severe_delinquency_36m absent; K03 not_evaluated; REFER via V01",
+      "input": {
+        "applicant_id": "k03_written_off_true_delinq_missing",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 80000,
+        "monthly_obligations": 10000,
+        "credit_score": 735,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": null,
+        "written_off": true,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 700000,
+        "requested_tenure_months": 36
+      }
+    },
+    {
+      "case_id": "k06_employment_months_missing",
+      "tests": "DT-5: salaried, employment_months absent; K06 not_evaluated; REFER via V01",
+      "input": {
+        "applicant_id": "k06_employment_months_missing",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": null,
+        "monthly_net_income": 80000,
+        "monthly_obligations": 10000,
+        "credit_score": 735,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 700000,
+        "requested_tenure_months": 36
+      }
     }
   ]
 }

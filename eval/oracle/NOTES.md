@@ -24,7 +24,7 @@ However, in cases like `cap_tie_income_prodmax`, $10\,I = 2,500,000$ and $\mathr
   1. `capacity`
   2. `income_multiple`
   3. `product_maximum`
-- Per Owner Decision #1, rule A04 (reduced offer) fires only when $P^* + \text{amount\_step} \le R$. Thus, when $R$ equals the lowest cap (e.g., $R = 500,000$ and $10\,I = 500,000$ as in `a04_tie_request_income`, or $R = 2,500,000$ in `cap_tie_income_prodmax`), $P^* = R$, so no shortfall exists and A04 does not fire (`reason_codes: []`), while `binding_limit` faithfully records which cap was reached.
+- Per Owner Decision #1 and DT-4, rule A04 (reduced offer) fires only when $P^* + \text{amount\_step} \le R$. Thus, when $R$ equals the lowest cap (e.g., $R = 500,000$ and $10\,I = 500,000$ as in `a04_tie_request_income`, or $R = 2,500,000$ in `cap_tie_income_prodmax`), the entire request fits, $P^* = R$, so no shortfall exists, A04 does not fire (`reason_codes: []`), and `binding_limit` is `"requested"`.
 
 ---
 
@@ -47,23 +47,16 @@ It was ambiguous whether `binding_limit` or `recommended_amount` should be popul
 
 ---
 
-## 3. Handling Partial Unknowns in Multi-Field Rules (Rule K03)
+## 3. Multi-Field Rule Evaluation on Partial Information (Owner Decision DT-5)
 
-### Ambiguity / Silence
-`docs/04-predicates-and-facts.md` Section 1 states:
-> "A rule that needs a fact guarded by `unknown` must not run on it: the engine records the rule as not evaluated and states which fact was missing."
-
-And Owner Decision #3 states:
+### Rule / Decision
+Per Owner Decision DT-5, `docs/04-predicates-and-facts.md` Section 1, and Owner Decision #3:
 > "A rule that needs a field that is unknown (missing or null) is not evaluated and cannot fire."
 
-Rule K03 evaluates adverse repayment history across two input fields:
-`severe_delinquency_36m` and `written_off`.
-If one field is `True` while the other is missing/null, can K03 fire? Under classical logic ($A \lor B$), if $A$ is true, the disjunction is true regardless of $B$. But under a strict field-guard, the presence of an unknown field could prevent evaluation.
-
-### Choice & Clause Relied On
-- If either `severe_delinquency_36m is True` or `written_off is True`, adverse repayment history is provably present and K03 fires with `ADVERSE_REPAYMENT_HISTORY`.
-- If neither is `True`, but one or both are missing/null, K03 cannot prove adverse history and does not fire (while V01 fires for the missing required field).
-- Relied on `docs/02-policy-and-rules.md` Table 2 ("Any 90+ days past due in 36 months, or a written-off account") and `docs/04-predicates-and-facts.md` line 70.
+A rule that reads several fields is NOT evaluated if ANY of the fields it reads is unknown (missing or null), even when another field it reads is already adverse. A rule never fires on partial information:
+- Rule K03 reads both `severe_delinquency_36m` and `written_off`. If either field is missing or null, K03 is not evaluated and cannot fire, even if the other field is `True`. V01 fires instead and the decision is `refer` with `INCOMPLETE_APPLICATION`.
+- Rule K06 reads both `employment_type` and `employment_months`. If either field is missing or null, K06 is not evaluated and cannot fire.
+- Any other rule reading multiple fields likewise requires all fields it reads to be known before evaluating.
 
 ---
 

@@ -494,6 +494,42 @@
       "recommended_amount": null,
       "total_interest": null
     },
+    "k03_delinq_true_written_off_missing": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V01"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INCOMPLETE_APPLICATION"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
+    "k03_written_off_true_delinq_missing": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V01"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INCOMPLETE_APPLICATION"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
+    },
     "k04_649": {
       "apr": null,
       "band": null,
@@ -657,6 +693,24 @@
       "reason_codes": [],
       "recommended_amount": 700000,
       "total_interest": "167408.48"
+    },
+    "k06_employment_months_missing": {
+      "apr": null,
+      "band": null,
+      "binding_limit": null,
+      "decision": "refer",
+      "emi": null,
+      "fee": null,
+      "fired_rules": [
+        "V01"
+      ],
+      "indicative_rate": null,
+      "post_loan_foir": null,
+      "reason_codes": [
+        "INCOMPLETE_APPLICATION"
+      ],
+      "recommended_amount": null,
+      "total_interest": null
     },
     "k06_s5": {
       "apr": null,

@@ -136,12 +136,13 @@ def evaluate(application: dict, params: dict) -> dict:
             fired_ineligible.append(("K02", "KYC_NOT_VERIFIED"))
             all_fired_rules.append("K02")
 
-    # K03: Adverse repayment history
+    # K03: Adverse repayment history (DT-5: not evaluated if either field is unknown)
     severe_delinquency = application.get("severe_delinquency_36m")
     written_off = application.get("written_off")
-    if severe_delinquency is True or written_off is True:
-        fired_ineligible.append(("K03", "ADVERSE_REPAYMENT_HISTORY"))
-        all_fired_rules.append("K03")
+    if severe_delinquency is not None and written_off is not None:
+        if severe_delinquency is True or written_off is True:
+            fired_ineligible.append(("K03", "ADVERSE_REPAYMENT_HISTORY"))
+            all_fired_rules.append("K03")
 
     # K04: Credit score is known and below minimum (650)
     credit_score = application.get("credit_score")

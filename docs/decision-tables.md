@@ -43,6 +43,8 @@ Order of work for one application: V01 to V04, K01 to K06, R01 to R03, E01, E02,
 | E02, A01, A02, P01 | per the registry; need no blocking outcome | skipped when blocked; not_evaluated if an input is unknown |
 | A03, A04 | recommended_amount (A04 also requested_amount); A04 needs no blocking outcome | skipped when the derived field is absent or a blocking outcome exists |
 
+**Decision DT-5 (found by the oracle, 9 November 2026).** A rule that reads several fields is not evaluated if any one of them is unknown, even when another field it reads is already adverse. So K03 with `severe_delinquency_36m` true and `written_off` missing is `not_evaluated`, and the decision is REFER through V01, not INELIGIBLE. The same holds for K06. This keeps the condition language two-valued and uniform; a rule never fires on partial information.
+
 **Invariant I-1.** With the baseline parameters, whenever E02, A01, A02, A03, A04 or P01 get to run, every input they read is known. A missing required field fires V01, a null score fires R01, and zero income fires K05 (the minimum income is above zero), and each of those blocks. The completeness check (section 6) tests I-1. If a parameter change breaks it (for example a minimum income of 0, so that zero income passes K05), existing_foir stays unknown, E02 is not_evaluated, no band is found, and the decision defaults to REFER with NO_RULE_APPLICABLE; the check reports that as a gap.
 
 ## 3. Decision and reason codes
@@ -97,6 +99,8 @@ Each row changes the base applicant (TV1: age 34, salaried, 48 months employed, 
 | K02-a | K02 | KYC not verified | INELIGIBLE | KYC_NOT_VERIFIED | K02 | - | - |
 | K03-a | K03 | Severe delinquency true | INELIGIBLE | ADVERSE_REPAYMENT_HISTORY | K03 | - | - |
 | K03-b | K03 | Written off true | INELIGIBLE | ADVERSE_REPAYMENT_HISTORY | K03 | - | - |
+| K03-unk-a | K03 | Severe delinquency true, written_off missing: K03 is not_evaluated (DT-5) | REFER | INCOMPLETE_APPLICATION | V01 | - | - |
+| K03-unk-b | K03 | Written off true, severe_delinquency_36m missing: K03 is not_evaluated (DT-5) | REFER | INCOMPLETE_APPLICATION | V01 | - | - |
 | K04-649 | K04 | Credit score 649 | INELIGIBLE | CREDIT_SCORE_BELOW_MINIMUM | K04 | - | - |
 | K04-650 | K04 | Credit score 650 | ELIGIBLE | none | none | C | 700000 |
 | K05-14999 | K05 | Income 14,999, obligations 0 | INELIGIBLE | INCOME_BELOW_MINIMUM | K05 | - | - |
@@ -106,6 +110,7 @@ Each row changes the base applicant (TV1: age 34, salaried, 48 months employed, 
 | K06-s6 | K06 | Salaried, 6 months | ELIGIBLE | none | none | B | 700000 |
 | K06-e23 | K06 | Self-employed, 23 months | INELIGIBLE | EMPLOYMENT_TENURE_TOO_SHORT | K06 | - | - |
 | K06-e24 | K06 | Self-employed, 24 months | ELIGIBLE | none | none | B | 700000 |
+| K06-unk | K06 | Salaried, employment_months missing: K06 is not_evaluated | REFER | INCOMPLETE_APPLICATION | V01 | - | - |
 | R01-a | R01 | Credit score null | REFER | NO_CREDIT_HISTORY | R01 | - | - |
 | R02-5 | R02 | 5 enquiries | ELIGIBLE | none | none | B | 700000 |
 | R02-6 | R02 | 6 enquiries | REFER | HIGH_RECENT_ENQUIRIES | R02 | - | - |
@@ -161,3 +166,4 @@ The loader runs the orphan and cycle checks. The analyser runs the other three o
 | DT-2 | `reason_codes` holds the codes of the fired rules of the winning outcome only; refer codes stay in the trace when INELIGIBLE wins. | This document; the oracle prompt |
 | DT-3 | AMOUNT_LIMITED_BY_PRODUCT_MAXIMUM is unreachable while V03 is active; kept in the catalog. | This document |
 | DT-4 | When the request equals the smallest cap, the whole request fits and the binding limit is `requested` (found in the Phase 2 oracle comparison, 9 November 2026). | Lending Calculations Specification, F6; the oracle prompt follow-up |
+| DT-5 | A rule reading several fields is not evaluated if any of them is unknown (K03, K06); it never fires on partial information. | This document; the oracle follow-up |

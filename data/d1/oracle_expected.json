@@ -121,7 +121,7 @@
     "a04_tie_request_income": {
       "apr": "15.42",
       "band": "B",
-      "binding_limit": "income_multiple",
+      "binding_limit": "requested",
       "decision": "eligible",
       "emi": "11764.14",
       "fee": "10000.00",
@@ -231,7 +231,7 @@
     "cap_tie_capacity_prodmax": {
       "apr": "13.09",
       "band": "A",
-      "binding_limit": "product_maximum",
+      "binding_limit": "requested",
       "decision": "eligible",
       "emi": "65834.59",
       "fee": "50000.00",
@@ -245,7 +245,7 @@
     "cap_tie_income_prodmax": {
       "apr": "13.09",
       "band": "A",
-      "binding_limit": "income_multiple",
+      "binding_limit": "requested",
       "decision": "eligible",
       "emi": "65834.59",
       "fee": "50000.00",

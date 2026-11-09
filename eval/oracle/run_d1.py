@@ -60,3 +60,4 @@ def run_d1() -> int:
 
 if __name__ == "__main__":
     run_d1()
+

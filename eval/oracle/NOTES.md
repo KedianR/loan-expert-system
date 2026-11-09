@@ -18,8 +18,9 @@ In golden test vectors TV1, TV4, TV5, and TV9, $R$ is strictly less than all thr
 However, in cases like `cap_tie_income_prodmax`, $10\,I = 2,500,000$ and $\mathrm{product\_max} = 2,500,000$, while $R = 2,500,000$ (the maximum permitted requested amount under V03). If $R$ took precedence over caps on equality, `binding_limit` would evaluate to `"requested"`, and neither `income_multiple` nor `product_maximum` could ever be reported as a binding limit (and the stated tie-breaker between them could never be tested).
 
 ### Choice & Clause Relied On
-- If $R < \min(\text{caps})$, `binding_limit` is `"requested"`.
-- If $\min(\text{caps}) \le R$, the lowest cap is chosen using the tie order:
+- **Update (Owner Decision DT-4)**: Resolved by DT-4 — if the requested amount is equal to or smaller than all three caps, the whole request fits and `binding_limit` is `"requested"` (a cap is binding only when strictly below the request).
+- If $R \le \min(\text{caps})$, `binding_limit` is `"requested"`.
+- If $\min(\text{caps}) < R$, the lowest cap is chosen using the tie order:
   1. `capacity`
   2. `income_multiple`
   3. `product_maximum`
@@ -111,3 +112,4 @@ Owner Decision #2 provides explicit guidance on precedence:
 2. `reason_codes` lists the codes of fired rules for the winning outcome only, deduplicated, in rule layer order (V, K, R, E, A, P).
 3. `fired_rules` in `oracle_expected.json` lists all rule IDs that fired with outcome `ineligible`, `refer`, or `reduced_offer`, in canonical rule order.
 4. Default outcome when no rule determines an outcome is `refer` with reason code `NO_RULE_APPLICABLE`.
+

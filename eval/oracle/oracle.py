@@ -271,14 +271,14 @@ def evaluate(application: dict, params: dict) -> dict:
         min_val = min(r_req, cap_capacity, cap_income_multiple, cap_product_max)
         p_star = int((min_val // Decimal(amount_step)) * Decimal(amount_step))
 
-        # Binding limit selection with stated tie-breaking order
+        # Binding limit selection with stated tie-breaking order per DT-4
         caps = [
             ("capacity", cap_capacity),
             ("income_multiple", cap_income_multiple),
             ("product_maximum", cap_product_max),
         ]
         lowest_cap_name, lowest_cap_val = min(caps, key=lambda x: x[1])
-        if r_req < lowest_cap_val:
+        if r_req <= lowest_cap_val:
             binding_limit = "requested"
         else:
             binding_limit = lowest_cap_name
@@ -454,3 +454,4 @@ def evaluate(application: dict, params: dict) -> dict:
         "existing_foir": existing_foir_str,
         "offer": offer,
     }
+

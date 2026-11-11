@@ -1,0 +1,248 @@
+{
+  "decision_id": "d-0014",
+  "evaluated_at": "2026-11-11T05:39:49Z",
+  "rule_set_version": "rules-1.0.0+params-0.1.0",
+  "rule_set_hash": "sha256:eb7073a388817e0a455997c0c2ea86ccb25524cdff07faf8bf5ca98bb267be5a",
+  "decision": "refer",
+  "reason_codes": [
+    "NO_CREDIT_HISTORY"
+  ],
+  "offer": null,
+  "notice": {
+    "notice_version": "1.0.0",
+    "headline": "Your application needs a review by a credit officer.",
+    "reasons": [
+      {
+        "code": "NO_CREDIT_HISTORY",
+        "text": "We found no credit score for you, so a reviewer will assess your application."
+      }
+    ],
+    "guidance": [],
+    "basis": [],
+    "offer_summary": null
+  },
+  "trace": {
+    "applicant_ref": "sha256:8c961b44ee39fbe94f10c159f032c38e6fea55269fead03dac523152c1805f7c",
+    "input_hash": "sha256:1aba67dfeb4b6539aae71e351e3437a810e3052325f3a5db7a8c4ad4620bbb01",
+    "rule_set_version": "rules-1.0.0+params-0.1.0",
+    "rule_set_hash": "sha256:eb7073a388817e0a455997c0c2ea86ccb25524cdff07faf8bf5ca98bb267be5a",
+    "decision": "refer",
+    "steps": [
+      {
+        "order": 1,
+        "rule_id": "V01",
+        "rule_version": "0.1.0",
+        "layer": "validation",
+        "status": "not_fired",
+        "facts_used": {
+          "missing_fields": []
+        }
+      },
+      {
+        "order": 2,
+        "rule_id": "V02",
+        "rule_version": "0.1.0",
+        "layer": "validation",
+        "status": "not_fired",
+        "facts_used": {
+          "consent_given": true
+        }
+      },
+      {
+        "order": 3,
+        "rule_id": "V03",
+        "rule_version": "0.1.0",
+        "layer": "validation",
+        "status": "not_fired",
+        "facts_used": {
+          "requested_amount": 700000,
+          "min_amount": 50000,
+          "max_amount": 2500000
+        }
+      },
+      {
+        "order": 4,
+        "rule_id": "V04",
+        "rule_version": "0.1.0",
+        "layer": "validation",
+        "status": "not_fired",
+        "facts_used": {
+          "requested_tenure_months": 36,
+          "min_tenure_months": 12,
+          "max_tenure_months": 60
+        }
+      },
+      {
+        "order": 5,
+        "rule_id": "K01",
+        "rule_version": "0.1.0",
+        "layer": "knockout",
+        "status": "not_fired",
+        "facts_used": {
+          "age": 34,
+          "min_age": 18
+        }
+      },
+      {
+        "order": 6,
+        "rule_id": "K02",
+        "rule_version": "0.1.0",
+        "layer": "knockout",
+        "status": "not_fired",
+        "facts_used": {
+          "kyc_verified": true
+        }
+      },
+      {
+        "order": 7,
+        "rule_id": "K03",
+        "rule_version": "0.1.0",
+        "layer": "knockout",
+        "status": "not_fired",
+        "facts_used": {
+          "severe_delinquency_36m": false,
+          "written_off": false
+        }
+      },
+      {
+        "order": 8,
+        "rule_id": "K04",
+        "rule_version": "0.1.0",
+        "layer": "knockout",
+        "status": "not_evaluated",
+        "missing": [
+          "credit_score"
+        ]
+      },
+      {
+        "order": 9,
+        "rule_id": "K05",
+        "rule_version": "0.1.0",
+        "layer": "knockout",
+        "status": "not_fired",
+        "facts_used": {
+          "monthly_net_income": 80000,
+          "min_monthly_income": 15000
+        }
+      },
+      {
+        "order": 10,
+        "rule_id": "K06",
+        "rule_version": "0.1.0",
+        "layer": "knockout",
+        "status": "not_fired",
+        "facts_used": {
+          "employment_months": 48,
+          "employment_type": "salaried",
+          "min_employment_months_self_employed": 24,
+          "min_employment_months_salaried": 6
+        }
+      },
+      {
+        "order": 11,
+        "rule_id": "R01",
+        "rule_version": "0.1.0",
+        "layer": "referral",
+        "status": "fired",
+        "outcome": "refer",
+        "reason_code": "NO_CREDIT_HISTORY"
+      },
+      {
+        "order": 12,
+        "rule_id": "R02",
+        "rule_version": "0.1.0",
+        "layer": "referral",
+        "status": "not_fired",
+        "facts_used": {
+          "enquiries_6m": 2,
+          "max_enquiries_6m": 5
+        }
+      },
+      {
+        "order": 13,
+        "rule_id": "R03",
+        "rule_version": "0.1.0",
+        "layer": "referral",
+        "status": "not_fired",
+        "facts_used": {
+          "employment_type": "salaried"
+        }
+      },
+      {
+        "order": 14,
+        "rule_id": "E01",
+        "rule_version": "0.1.0",
+        "layer": "eligibility",
+        "status": "not_fired",
+        "facts_used": {
+          "existing_foir": "0.125",
+          "max_existing_foir": "0.50"
+        }
+      },
+      {
+        "order": 15,
+        "rule_id": "E02",
+        "rule_version": "0.1.0",
+        "layer": "eligibility",
+        "status": "skipped",
+        "skipped_reason": "blocking outcome"
+      },
+      {
+        "order": 16,
+        "rule_id": "A01",
+        "rule_version": "0.1.0",
+        "layer": "amount",
+        "status": "skipped",
+        "skipped_reason": "blocking outcome"
+      },
+      {
+        "order": 17,
+        "rule_id": "A02",
+        "rule_version": "0.1.0",
+        "layer": "amount",
+        "status": "skipped",
+        "skipped_reason": "blocking outcome"
+      },
+      {
+        "order": 18,
+        "rule_id": "A03",
+        "rule_version": "0.1.0",
+        "layer": "amount",
+        "status": "skipped",
+        "skipped_reason": "recommended_amount absent"
+      },
+      {
+        "order": 19,
+        "rule_id": "A04",
+        "rule_version": "0.1.0",
+        "layer": "amount",
+        "status": "skipped",
+        "skipped_reason": "blocking outcome"
+      },
+      {
+        "order": 20,
+        "rule_id": "P01",
+        "rule_version": "0.1.0",
+        "layer": "pricing",
+        "status": "skipped",
+        "skipped_reason": "blocking outcome"
+      }
+    ],
+    "derived": {
+      "existing_foir": "0.1250"
+    },
+    "reason_codes": [
+      "NO_CREDIT_HISTORY"
+    ],
+    "offer": null,
+    "decision_id": "d-0014",
+    "evaluated_at": "2026-11-11T05:39:49Z"
+  },
+  "review": {
+    "status": "pending",
+    "action_id": null,
+    "reviewer": null,
+    "reason": null,
+    "acted_at": null
+  }
+}

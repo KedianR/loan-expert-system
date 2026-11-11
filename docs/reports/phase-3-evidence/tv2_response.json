@@ -1,0 +1,357 @@
+{
+  "decision_id": "d-0012",
+  "evaluated_at": "2026-11-11T05:39:49Z",
+  "rule_set_version": "rules-1.0.0+params-0.1.0",
+  "rule_set_hash": "sha256:eb7073a388817e0a455997c0c2ea86ccb25524cdff07faf8bf5ca98bb267be5a",
+  "decision": "eligible",
+  "reason_codes": [
+    "AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY"
+  ],
+  "offer": {
+    "amount": 375000,
+    "tenure_months": 48,
+    "band": "A",
+    "rate_range": "11.0-13.0",
+    "indicative_rate": "12.0",
+    "emi": "9875.19",
+    "fee": "7500.00",
+    "total_interest": "99009.12",
+    "apr": "13.09",
+    "post_loan_foir": "0.5469"
+  },
+  "notice": {
+    "notice_version": "1.0.0",
+    "headline": "Your application is eligible, on reduced terms.",
+    "reasons": [
+      {
+        "code": "AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY",
+        "text": "We can offer 3,75,000 instead of 8,00,000 because your income and existing payments limit the monthly instalment you can afford."
+      }
+    ],
+    "guidance": [],
+    "basis": [
+      {
+        "label": "band",
+        "text": "Pricing band A: your credit score is 760 and your existing monthly payments are 30% of your income."
+      },
+      {
+        "label": "instalment_limit",
+        "text": "Your income and existing payments allow a monthly instalment of up to 10,000.00, which supports a loan of up to 3,79,739.59 at the requested tenure and the band's indicative rate."
+      },
+      {
+        "label": "after_loan",
+        "text": "After this loan, your total monthly payments would be 54.69% of your income."
+      },
+      {
+        "label": "binding_limit",
+        "text": "The amount is limited by the monthly instalment you can afford."
+      }
+    ],
+    "offer_summary": {
+      "rows": [
+        {
+          "label": "Loan amount",
+          "value": "INR 3,75,000"
+        },
+        {
+          "label": "Tenure",
+          "value": "48 months"
+        },
+        {
+          "label": "Interest band and yearly range",
+          "value": "A: 11.0% to 13.0%"
+        },
+        {
+          "label": "Indicative interest rate (yearly)",
+          "value": "12.0%"
+        },
+        {
+          "label": "Monthly instalment (EMI)",
+          "value": "INR 9,875.19"
+        },
+        {
+          "label": "Processing fee",
+          "value": "INR 7,500.00"
+        },
+        {
+          "label": "Total interest over the tenure",
+          "value": "INR 99,009.12"
+        },
+        {
+          "label": "Annual percentage rate (APR), including the fee",
+          "value": "13.09%"
+        }
+      ],
+      "disclaimer": "This is an indicative summary from an illustrative prototype that uses synthetic data. It is not a loan offer or a contract."
+    }
+  },
+  "trace": {
+    "applicant_ref": "sha256:db9f315e07a9f3413030e07416f4342c8104440365a2af77f3930fa90b1064ee",
+    "input_hash": "sha256:47c99c639d22f031bca34896ec42943ec750abccda5b20101c02664a1511caf3",
+    "rule_set_version": "rules-1.0.0+params-0.1.0",
+    "rule_set_hash": "sha256:eb7073a388817e0a455997c0c2ea86ccb25524cdff07faf8bf5ca98bb267be5a",
+    "decision": "eligible",
+    "steps": [
+      {
+        "order": 1,
+        "rule_id": "V01",
+        "rule_version": "0.1.0",
+        "layer": "validation",
+        "status": "not_fired",
+        "facts_used": {
+          "missing_fields": []
+        }
+      },
+      {
+        "order": 2,
+        "rule_id": "V02",
+        "rule_version": "0.1.0",
+        "layer": "validation",
+        "status": "not_fired",
+        "facts_used": {
+          "consent_given": true
+        }
+      },
+      {
+        "order": 3,
+        "rule_id": "V03",
+        "rule_version": "0.1.0",
+        "layer": "validation",
+        "status": "not_fired",
+        "facts_used": {
+          "requested_amount": 800000,
+          "min_amount": 50000,
+          "max_amount": 2500000
+        }
+      },
+      {
+        "order": 4,
+        "rule_id": "V04",
+        "rule_version": "0.1.0",
+        "layer": "validation",
+        "status": "not_fired",
+        "facts_used": {
+          "requested_tenure_months": 48,
+          "min_tenure_months": 12,
+          "max_tenure_months": 60
+        }
+      },
+      {
+        "order": 5,
+        "rule_id": "K01",
+        "rule_version": "0.1.0",
+        "layer": "knockout",
+        "status": "not_fired",
+        "facts_used": {
+          "age": 34,
+          "min_age": 18
+        }
+      },
+      {
+        "order": 6,
+        "rule_id": "K02",
+        "rule_version": "0.1.0",
+        "layer": "knockout",
+        "status": "not_fired",
+        "facts_used": {
+          "kyc_verified": true
+        }
+      },
+      {
+        "order": 7,
+        "rule_id": "K03",
+        "rule_version": "0.1.0",
+        "layer": "knockout",
+        "status": "not_fired",
+        "facts_used": {
+          "severe_delinquency_36m": false,
+          "written_off": false
+        }
+      },
+      {
+        "order": 8,
+        "rule_id": "K04",
+        "rule_version": "0.1.0",
+        "layer": "knockout",
+        "status": "not_fired",
+        "facts_used": {
+          "credit_score": 760,
+          "min_credit_score": 650
+        }
+      },
+      {
+        "order": 9,
+        "rule_id": "K05",
+        "rule_version": "0.1.0",
+        "layer": "knockout",
+        "status": "not_fired",
+        "facts_used": {
+          "monthly_net_income": 40000,
+          "min_monthly_income": 15000
+        }
+      },
+      {
+        "order": 10,
+        "rule_id": "K06",
+        "rule_version": "0.1.0",
+        "layer": "knockout",
+        "status": "not_fired",
+        "facts_used": {
+          "employment_months": 48,
+          "employment_type": "salaried",
+          "min_employment_months_self_employed": 24,
+          "min_employment_months_salaried": 6
+        }
+      },
+      {
+        "order": 11,
+        "rule_id": "R01",
+        "rule_version": "0.1.0",
+        "layer": "referral",
+        "status": "not_fired",
+        "facts_used": {
+          "credit_score": 760
+        }
+      },
+      {
+        "order": 12,
+        "rule_id": "R02",
+        "rule_version": "0.1.0",
+        "layer": "referral",
+        "status": "not_fired",
+        "facts_used": {
+          "enquiries_6m": 2,
+          "max_enquiries_6m": 5
+        }
+      },
+      {
+        "order": 13,
+        "rule_id": "R03",
+        "rule_version": "0.1.0",
+        "layer": "referral",
+        "status": "not_fired",
+        "facts_used": {
+          "employment_type": "salaried"
+        }
+      },
+      {
+        "order": 14,
+        "rule_id": "E01",
+        "rule_version": "0.1.0",
+        "layer": "eligibility",
+        "status": "not_fired",
+        "facts_used": {
+          "existing_foir": "0.3",
+          "max_existing_foir": "0.50"
+        }
+      },
+      {
+        "order": 15,
+        "rule_id": "E02",
+        "rule_version": "0.1.0",
+        "layer": "eligibility",
+        "status": "fired",
+        "outcome": "derive",
+        "derived": {
+          "band": "A"
+        },
+        "facts_used": {
+          "credit_score": 760,
+          "existing_foir": "0.3"
+        }
+      },
+      {
+        "order": 16,
+        "rule_id": "A01",
+        "rule_version": "0.1.0",
+        "layer": "amount",
+        "status": "fired",
+        "outcome": "derive",
+        "derived": {
+          "max_emi": "10000.00",
+          "max_principal_emi": "379739.59"
+        }
+      },
+      {
+        "order": 17,
+        "rule_id": "A02",
+        "rule_version": "0.1.0",
+        "layer": "amount",
+        "status": "fired",
+        "outcome": "derive",
+        "derived": {
+          "recommended_amount": 375000,
+          "binding_limit": "capacity"
+        }
+      },
+      {
+        "order": 18,
+        "rule_id": "A03",
+        "rule_version": "0.1.0",
+        "layer": "amount",
+        "status": "not_fired",
+        "facts_used": {
+          "recommended_amount": 375000,
+          "min_amount": 50000
+        }
+      },
+      {
+        "order": 19,
+        "rule_id": "A04",
+        "rule_version": "0.1.0",
+        "layer": "amount",
+        "status": "fired",
+        "outcome": "reduced_offer",
+        "reason_code": "AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY",
+        "facts_used": {
+          "recommended_amount": 375000,
+          "requested_amount": 800000,
+          "amount_step": 5000
+        }
+      },
+      {
+        "order": 20,
+        "rule_id": "P01",
+        "rule_version": "0.1.0",
+        "layer": "pricing",
+        "status": "fired",
+        "outcome": "derive",
+        "derived": {
+          "indicative_rate": "12.0",
+          "fee": "7500.00"
+        }
+      }
+    ],
+    "derived": {
+      "existing_foir": "0.3000",
+      "band": "A",
+      "max_emi": "10000.00",
+      "max_principal_emi": "379739.59",
+      "recommended_amount": 375000,
+      "binding_limit": "capacity",
+      "indicative_rate": "12.0",
+      "fee": "7500.00",
+      "emi": "9875.19",
+      "total_interest": "99009.12",
+      "post_loan_foir": "0.5469",
+      "apr": "13.09"
+    },
+    "reason_codes": [
+      "AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY"
+    ],
+    "offer": {
+      "amount": 375000,
+      "tenure_months": 48,
+      "band": "A",
+      "rate_range": "11.0-13.0",
+      "indicative_rate": "12.0",
+      "emi": "9875.19",
+      "fee": "7500.00",
+      "total_interest": "99009.12",
+      "apr": "13.09",
+      "post_loan_foir": "0.5469"
+    },
+    "decision_id": "d-0012",
+    "evaluated_at": "2026-11-11T05:39:49Z"
+  }
+}

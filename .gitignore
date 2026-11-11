@@ -34,6 +34,10 @@ data/raw/
 .coverage
 htmlcov/
 
+# Local reports & audit databases
+reports/reviewer/
+data/audit/
+
 # Ruff cache
 .ruff_cache/
 

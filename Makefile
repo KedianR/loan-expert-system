@@ -23,7 +23,8 @@ PARAMS = params/params.toml
 FIELDS = rules/fields.toml
 
 .PHONY: setup test check check-params check-fields check-floats lint format \
-        check-rules decide demo replay oracle-diff baseline compare fairness reproduce
+        check-rules decide demo replay replay-all audit-verify review-report serve \
+        oracle-diff baseline compare fairness reproduce
 
 # ---------------------------------------------------------------------------
 # WP-02: setup — install pinned dependencies
@@ -68,8 +69,10 @@ check-rules:
 # ---------------------------------------------------------------------------
 # WP-01/WP-04: check-floats — fail the build if any float is used in src/calc or src/facts
 # ---------------------------------------------------------------------------
+# WP-01/WP-04/WP-12: check-floats — fail the build if any float is used in src/calc, src/facts, src/explain
+# ---------------------------------------------------------------------------
 check-floats:
-	$(PYTHON) tools/check_floats.py src/calc src/facts
+	$(PYTHON) tools/check_floats.py src/calc src/facts src/explain
 
 # ---------------------------------------------------------------------------
 # Lint: ruff check
@@ -90,20 +93,33 @@ oracle-diff:
 	$(PYTHON) tools/oracle_diff.py
 
 # ---------------------------------------------------------------------------
-# Stubs for later phases (added when each phase arrives)
+# Phase 3 targets (WP-11 to WP-14)
 # ---------------------------------------------------------------------------
 
 decide:
-	@echo "decide: not yet implemented (Phase 3)"
-	@exit 1
+	$(PYTHON) -m src.api.decide $(INPUT)
 
 demo:
-	@echo "demo: not yet implemented (Phase 3)"
-	@exit 1
+	$(PYTHON) tools/demo.py
+
+audit-verify:
+	$(PYTHON) -m src.audit.verify
+
+replay-all:
+	$(PYTHON) -m src.audit.replay_all
 
 replay:
-	@echo "replay: not yet implemented (Phase 3)"
-	@exit 1
+	$(PYTHON) -m src.audit.replay_all
+
+review-report:
+	$(PYTHON) -m src.api.review_report
+
+serve:
+	$(PYTHON) -m uvicorn src.api.app:app --host 127.0.0.1 --port 8000
+
+# ---------------------------------------------------------------------------
+# Stubs for later phases (added when each phase arrives)
+# ---------------------------------------------------------------------------
 
 baseline:
 	@echo "baseline: not yet implemented (Phase 4)"

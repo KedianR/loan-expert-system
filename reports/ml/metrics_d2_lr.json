@@ -1,0 +1,315 @@
+{
+  "dataset": "d2",
+  "model": "lr",
+  "seed": 192429597,
+  "split_file_hash": "b4d17251eb41042137be01ea4e2363fae78b206ccedc2d87bcc6b89a95e19f47",
+  "dataset_hash": "44de1b821cd3c4831b485b39435998e53c3f10754c7a069046bbca0f0ca6eae4",
+  "library_versions": {
+    "python": "3.14.2",
+    "pandas": "3.1.1",
+    "numpy": "2.5.4",
+    "scikit_learn": "1.9.1",
+    "joblib": "1.6.0"
+  },
+  "class_balance": {
+    "train": {
+      "count": 215257,
+      "positive": 17377,
+      "positive_share": 0.0807
+    },
+    "validation": {
+      "count": 46127,
+      "positive": 3724,
+      "positive_share": 0.0807
+    },
+    "test": {
+      "count": 46127,
+      "positive": 3724,
+      "positive_share": 0.0807
+    }
+  },
+  "validation_metrics": {
+    "auc": 0.7244
+  },
+  "test_metrics": {
+    "auc": 0.7248,
+    "brier_score": 0.2105,
+    "reliability_table": [
+      {
+        "bin": 1,
+        "range": [
+          0.0,
+          0.1
+        ],
+        "count": 53,
+        "mean_pred": 0.086,
+        "mean_true": 0.0
+      },
+      {
+        "bin": 2,
+        "range": [
+          0.1,
+          0.2
+        ],
+        "count": 3363,
+        "mean_pred": 0.1683,
+        "mean_true": 0.0205
+      },
+      {
+        "bin": 3,
+        "range": [
+          0.2,
+          0.3
+        ],
+        "count": 8729,
+        "mean_pred": 0.2523,
+        "mean_true": 0.0272
+      },
+      {
+        "bin": 4,
+        "range": [
+          0.3,
+          0.4
+        ],
+        "count": 9608,
+        "mean_pred": 0.3504,
+        "mean_true": 0.0437
+      },
+      {
+        "bin": 5,
+        "range": [
+          0.4,
+          0.5
+        ],
+        "count": 8392,
+        "mean_pred": 0.4484,
+        "mean_true": 0.0667
+      },
+      {
+        "bin": 6,
+        "range": [
+          0.5,
+          0.6
+        ],
+        "count": 6858,
+        "mean_pred": 0.5476,
+        "mean_true": 0.1038
+      },
+      {
+        "bin": 7,
+        "range": [
+          0.6,
+          0.7
+        ],
+        "count": 4712,
+        "mean_pred": 0.6464,
+        "mean_true": 0.1396
+      },
+      {
+        "bin": 8,
+        "range": [
+          0.7,
+          0.8
+        ],
+        "count": 2918,
+        "mean_pred": 0.745,
+        "mean_true": 0.207
+      },
+      {
+        "bin": 9,
+        "range": [
+          0.8,
+          0.9
+        ],
+        "count": 1370,
+        "mean_pred": 0.8409,
+        "mean_true": 0.2949
+      },
+      {
+        "bin": 10,
+        "range": [
+          0.9,
+          1.0
+        ],
+        "count": 124,
+        "mean_pred": 0.9153,
+        "mean_true": 0.4839
+      }
+    ]
+  },
+  "operating_points": {
+    "matched_approval_rate": {
+      "threshold": 0.1479,
+      "approval_rate": 0.0156,
+      "default_rate_among_approved": 0.0139,
+      "precision": 0.0818,
+      "recall": 0.9973,
+      "f1": 0.1512,
+      "confusion": {
+        "tn": 710,
+        "fp": 41693,
+        "fn": 10,
+        "tp": 3714
+      },
+      "cost_per_applicant": {
+        "cost_3": 0.9045,
+        "cost_5": 0.905,
+        "cost_10": 0.906
+      },
+      "target_approval_rate": 0.0167
+    },
+    "cost_based_primary": {
+      "threshold": 0.6684,
+      "approval_rate": 0.876,
+      "default_rate_among_approved": 0.0606,
+      "precision": 0.2227,
+      "recall": 0.3421,
+      "f1": 0.2698,
+      "confusion": {
+        "tn": 37956,
+        "fp": 4447,
+        "fn": 2450,
+        "tp": 1274
+      },
+      "cost_per_applicant": {
+        "cost_3": 0.2558,
+        "cost_5": 0.362,
+        "cost_10": 0.6276
+      },
+      "primary_cost_ratio": 5
+    },
+    "rule_system": {
+      "treatment_A": {
+        "approval_rate": 0.0168,
+        "default_rate_among_approved": 0.0335,
+        "precision": 0.0815,
+        "recall": 0.993,
+        "f1": 0.1507,
+        "confusion": {
+          "tn": 750,
+          "fp": 41653,
+          "fn": 26,
+          "tp": 3698
+        },
+        "cost_per_applicant": {
+          "cost_3": 0.9047,
+          "cost_5": 0.9058,
+          "cost_10": 0.9086
+        },
+        "description": "refer counts as not approved"
+      },
+      "treatment_B": {
+        "approval_rate": 0.0184,
+        "default_rate_among_approved": 0.0335,
+        "precision": 0.087,
+        "recall": 0.9928,
+        "f1": 0.1599,
+        "confusion": {
+          "tn": 750,
+          "fp": 37705,
+          "fn": 26,
+          "tp": 3591
+        },
+        "cost_per_applicant": {
+          "cost_3": 0.8981,
+          "cost_5": 0.8993,
+          "cost_10": 0.9024
+        },
+        "description": "refer rows excluded",
+        "n_excluded_refer": 4055
+      }
+    }
+  },
+  "explanations_sample": [
+    {
+      "applicant_id": "hc-100006",
+      "score": 0.3294,
+      "top_3_contributions": [
+        {
+          "feature": "credit_score",
+          "contribution": -0.6845
+        },
+        {
+          "feature": "written_off",
+          "contribution": 0.1099
+        },
+        {
+          "feature": "employment_type",
+          "contribution": 0.0788
+        }
+      ]
+    },
+    {
+      "applicant_id": "hc-100012",
+      "score": 0.2331,
+      "top_3_contributions": [
+        {
+          "feature": "credit_score",
+          "contribution": -1.1545
+        },
+        {
+          "feature": "written_off",
+          "contribution": 0.1099
+        },
+        {
+          "feature": "employment_type",
+          "contribution": 0.0788
+        }
+      ]
+    },
+    {
+      "applicant_id": "hc-100018",
+      "score": 0.3282,
+      "top_3_contributions": [
+        {
+          "feature": "credit_score",
+          "contribution": -0.8384
+        },
+        {
+          "feature": "employment_months",
+          "contribution": 0.1998
+        },
+        {
+          "feature": "written_off",
+          "contribution": 0.1099
+        }
+      ]
+    },
+    {
+      "applicant_id": "hc-100026",
+      "score": 0.5216,
+      "top_3_contributions": [
+        {
+          "feature": "credit_score",
+          "contribution": 0.4905
+        },
+        {
+          "feature": "instalment_to_income",
+          "contribution": -0.1629
+        },
+        {
+          "feature": "employment_months",
+          "contribution": -0.1453
+        }
+      ]
+    },
+    {
+      "applicant_id": "hc-100027",
+      "score": 0.261,
+      "top_3_contributions": [
+        {
+          "feature": "credit_score",
+          "contribution": -0.6683
+        },
+        {
+          "feature": "employment_type",
+          "contribution": -0.1878
+        },
+        {
+          "feature": "instalment_to_income",
+          "contribution": 0.1627
+        }
+      ]
+    }
+  ]
+}

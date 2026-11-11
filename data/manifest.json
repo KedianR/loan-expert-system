@@ -1,0 +1,30 @@
+{
+  "raw_files": {
+    "data/raw/application_train.csv": "52e96b895b1112e1c853f670e58372719c8441c5ed1c57ac2f7fad559d784f5f",
+    "data/raw/bureau.csv": "9d799143423f280720cf51c1bfbbab2a0422da8ff2763335bb30bf43155494f7",
+    "data/raw/bureau_balance.csv": "33e09f06174c26f0be6b8b7398886c69e7bf0abbb29b4122f7841ffe545729a9"
+  },
+  "d2_mapped": {
+    "path": "data/mapped/d2_mapped.csv",
+    "sha256": "44de1b821cd3c4831b485b39435998e53c3f10754c7a069046bbca0f0ca6eae4"
+  },
+  "d3_population": {
+    "path": "data/synthetic/d3_population.csv",
+    "sha256": "2311690bfaf45d7e944f5e572bdd50d0f5a768494480d54d78a88b1b8ed619ef"
+  },
+  "splits": {
+    "d2": {
+      "path": "data/splits/d2_split.csv",
+      "sha256": "b4d17251eb41042137be01ea4e2363fae78b206ccedc2d87bcc6b89a95e19f47"
+    },
+    "d3": {
+      "path": "data/splits/d3_split.csv",
+      "sha256": "6f3b92f0ff0fa837e335eb779eadcb47253c108954d007bab8ae2446d0c08c6e"
+    }
+  },
+  "policy": {
+    "params_sha256": "4c2698607ae7ea824fc62f39a84ac52fa69db1b59c0657ffeb152b0960885373",
+    "rule_set_hash": "sha256:eb7073a388817e0a455997c0c2ea86ccb25524cdff07faf8bf5ca98bb267be5a",
+    "rule_set_version": "rules-1.0.0+params-0.1.0"
+  }
+}

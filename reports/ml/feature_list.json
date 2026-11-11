@@ -1,0 +1,36 @@
+{
+  "numeric": [
+    "employment_months",
+    "monthly_net_income",
+    "monthly_obligations",
+    "credit_score",
+    "enquiries_6m",
+    "requested_amount",
+    "requested_tenure_months"
+  ],
+  "categorical": [
+    "employment_type",
+    "obligations_source"
+  ],
+  "tri_state": [
+    "severe_delinquency_36m",
+    "written_off"
+  ],
+  "derived": [
+    "existing_foir",
+    "amount_to_annual_income",
+    "instalment_to_income"
+  ],
+  "missing_indicators": [
+    "employment_months_missing",
+    "monthly_net_income_missing",
+    "monthly_obligations_missing",
+    "credit_score_missing",
+    "enquiries_6m_missing",
+    "requested_amount_missing",
+    "requested_tenure_months_missing",
+    "existing_foir_missing",
+    "amount_to_annual_income_missing",
+    "instalment_to_income_missing"
+  ]
+}

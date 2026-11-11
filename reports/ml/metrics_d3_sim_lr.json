@@ -1,0 +1,246 @@
+{
+  "dataset": "d3_sim",
+  "model": "lr",
+  "seed": 192429597,
+  "split_file_hash": "6f3b92f0ff0fa837e335eb779eadcb47253c108954d007bab8ae2446d0c08c6e",
+  "dataset_hash": "2311690bfaf45d7e944f5e572bdd50d0f5a768494480d54d78a88b1b8ed619ef",
+  "library_versions": {
+    "python": "3.14.2",
+    "pandas": "3.1.1",
+    "numpy": "2.5.4",
+    "scikit_learn": "1.9.1",
+    "joblib": "1.6.0"
+  },
+  "class_balance": {
+    "train": {
+      "count": 14000,
+      "positive": 1174,
+      "positive_share": 0.0839
+    },
+    "validation": {
+      "count": 3000,
+      "positive": 254,
+      "positive_share": 0.0847
+    },
+    "test": {
+      "count": 3000,
+      "positive": 244,
+      "positive_share": 0.0813
+    }
+  },
+  "validation_metrics": {
+    "auc": 0.7294
+  },
+  "test_metrics": {
+    "auc": 0.7444,
+    "brier_score": 0.2063,
+    "reliability_table": [
+      {
+        "bin": 1,
+        "range": [
+          0.0,
+          0.1
+        ],
+        "count": 17,
+        "mean_pred": 0.0863,
+        "mean_true": 0.0
+      },
+      {
+        "bin": 2,
+        "range": [
+          0.1,
+          0.2
+        ],
+        "count": 217,
+        "mean_pred": 0.1626,
+        "mean_true": 0.0184
+      },
+      {
+        "bin": 3,
+        "range": [
+          0.2,
+          0.3
+        ],
+        "count": 474,
+        "mean_pred": 0.2529,
+        "mean_true": 0.0295
+      },
+      {
+        "bin": 4,
+        "range": [
+          0.3,
+          0.4
+        ],
+        "count": 675,
+        "mean_pred": 0.3505,
+        "mean_true": 0.037
+      },
+      {
+        "bin": 5,
+        "range": [
+          0.4,
+          0.5
+        ],
+        "count": 605,
+        "mean_pred": 0.4483,
+        "mean_true": 0.0645
+      },
+      {
+        "bin": 6,
+        "range": [
+          0.5,
+          0.6
+        ],
+        "count": 444,
+        "mean_pred": 0.5454,
+        "mean_true": 0.0766
+      },
+      {
+        "bin": 7,
+        "range": [
+          0.6,
+          0.7
+        ],
+        "count": 312,
+        "mean_pred": 0.6457,
+        "mean_true": 0.1731
+      },
+      {
+        "bin": 8,
+        "range": [
+          0.7,
+          0.8
+        ],
+        "count": 171,
+        "mean_pred": 0.7444,
+        "mean_true": 0.2339
+      },
+      {
+        "bin": 9,
+        "range": [
+          0.8,
+          0.9
+        ],
+        "count": 74,
+        "mean_pred": 0.8452,
+        "mean_true": 0.3784
+      },
+      {
+        "bin": 10,
+        "range": [
+          0.9,
+          1.0
+        ],
+        "count": 11,
+        "mean_pred": 0.9176,
+        "mean_true": 0.5455
+      }
+    ]
+  },
+  "operating_point_0_5": {
+    "threshold": 0.5,
+    "agreement_rate": 0.6893,
+    "precision": 0.1601,
+    "recall": 0.6639,
+    "f1": 0.258,
+    "confusion": {
+      "tn": 1906,
+      "fp": 850,
+      "fn": 82,
+      "tp": 162
+    },
+    "disagreements_by_true_class": {}
+  },
+  "explanations_sample": [
+    {
+      "applicant_id": "syn-00014",
+      "score": 0.5324,
+      "top_3_contributions": [
+        {
+          "feature": "credit_score",
+          "contribution": 0.4475
+        },
+        {
+          "feature": "monthly_net_income",
+          "contribution": -0.1674
+        },
+        {
+          "feature": "existing_foir",
+          "contribution": -0.1567
+        }
+      ]
+    },
+    {
+      "applicant_id": "syn-00026",
+      "score": 0.4934,
+      "top_3_contributions": [
+        {
+          "feature": "existing_foir",
+          "contribution": 0.1752
+        },
+        {
+          "feature": "amount_to_annual_income",
+          "contribution": -0.175
+        },
+        {
+          "feature": "requested_amount",
+          "contribution": 0.1454
+        }
+      ]
+    },
+    {
+      "applicant_id": "syn-00030",
+      "score": 0.565,
+      "top_3_contributions": [
+        {
+          "feature": "credit_score",
+          "contribution": 0.6026
+        },
+        {
+          "feature": "severe_delinquency_36m",
+          "contribution": -0.0711
+        },
+        {
+          "feature": "monthly_net_income",
+          "contribution": -0.0688
+        }
+      ]
+    },
+    {
+      "applicant_id": "syn-00035",
+      "score": 0.2977,
+      "top_3_contributions": [
+        {
+          "feature": "credit_score",
+          "contribution": -0.3862
+        },
+        {
+          "feature": "existing_foir",
+          "contribution": -0.1287
+        },
+        {
+          "feature": "monthly_net_income",
+          "contribution": -0.0765
+        }
+      ]
+    },
+    {
+      "applicant_id": "syn-00043",
+      "score": 0.5023,
+      "top_3_contributions": [
+        {
+          "feature": "credit_score",
+          "contribution": 0.4572
+        },
+        {
+          "feature": "existing_foir",
+          "contribution": -0.2071
+        },
+        {
+          "feature": "severe_delinquency_36m",
+          "contribution": -0.0711
+        }
+      ]
+    }
+  ]
+}

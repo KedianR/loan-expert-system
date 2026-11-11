@@ -24,7 +24,8 @@ FIELDS = rules/fields.toml
 
 .PHONY: setup test check check-params check-fields check-floats lint format \
         check-rules decide demo replay replay-all audit-verify review-report serve \
-        oracle-diff baseline compare fairness reproduce
+        oracle-diff data-d2 data-d3 decide-d3 decide-d2 split baseline phase4 \
+        compare fairness reproduce
 
 # ---------------------------------------------------------------------------
 # WP-02: setup — install pinned dependencies
@@ -72,7 +73,7 @@ check-rules:
 # WP-01/WP-04/WP-12: check-floats — fail the build if any float is used in src/calc, src/facts, src/explain
 # ---------------------------------------------------------------------------
 check-floats:
-	$(PYTHON) tools/check_floats.py src/calc src/facts src/explain
+	$(PYTHON) tools/check_floats.py src/calc src/facts src/explain src/data/d2_map.py
 
 # ---------------------------------------------------------------------------
 # Lint: ruff check
@@ -118,12 +119,35 @@ serve:
 	$(PYTHON) -m uvicorn src.api.app:app --host 127.0.0.1 --port 8000
 
 # ---------------------------------------------------------------------------
-# Stubs for later phases (added when each phase arrives)
+# Phase 4 targets (WP-15, WP-16b, WP-17)
 # ---------------------------------------------------------------------------
 
+data-d2:
+	$(PYTHON) -m src.data.d2_map
+
+data-d3:
+	$(PYTHON) data/synthetic/d3_generator.py
+
+decide-d3:
+	$(PYTHON) -m src.data.batch_decide --dataset d3
+
+decide-d2:
+	$(PYTHON) -m src.data.batch_decide --dataset d2
+
+split:
+	$(PYTHON) -m src.data.split
+
 baseline:
-	@echo "baseline: not yet implemented (Phase 4)"
-	@exit 1
+	$(PYTHON) -m src.ml.baseline
+
+phase4: data-d2 data-d3 decide-d3 split decide-d2 baseline
+	$(PYTHON) -m src.data.manifest
+	$(PYTHON) -m src.data.group_sizes
+	@echo "=== Phase 4 complete ==="
+
+# ---------------------------------------------------------------------------
+# Stubs for later phases (added when each phase arrives)
+# ---------------------------------------------------------------------------
 
 compare:
 	@echo "compare: not yet implemented (Phase 5)"

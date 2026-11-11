@@ -1,0 +1,37 @@
+# D2 Mapping Table (Home Credit Default Risk)
+
+This table documents the mapping from Home Credit Default Risk to the loan expert system fact schema.
+Total applicants mapped: 307511.
+
+## Policy Fit Counts
+
+- Rows failing V03 (requested amount outside policy range [50000, 2500000]): 922
+- Rows failing V04 (requested tenure outside policy range [12, 60]): 34671
+- Rows failing K05 (monthly income below minimum threshold): 190865
+
+## Fact Mapping and Coverage
+
+| Fact | Source Columns | Transformation | Assumption | Strength | Observed | Derived | Fallback | Unknown |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `age` | DAYS_BIRTH | floor(-DAYS_BIRTH / 365.25) | None | Strong | 0 | 307511 | 0 | 0 |
+| `employment_type` | NAME_INCOME_TYPE | salaried/self_employed/other mapping | ASM-D1 | Medium | 307511 | 0 | 0 | 0 |
+| `employment_months` | DAYS_EMPLOYED | floor(-DAYS_EMPLOYED / 30.4); 365243 -> null | ASM-D2 | Medium | 0 | 252137 | 0 | 55374 |
+| `monthly_net_income` | AMT_INCOME_TOTAL | AMT_INCOME_TOTAL / 12 round half-up | ASM-D3 | Medium | 0 | 307511 | 0 | 0 |
+| `monthly_obligations` | bureau (AMT_ANNUITY, CREDIT_ACTIVE) | Active annuities sum, 0 if no active, Beta fallback | ASM-D4 | Weak | 0 | 107687 | 199824 | 0 |
+| `credit_score` | EXT_SOURCE_1, 2, 3 | 300 + 600 * mean(ext sources) round half-up | ASM-D5 | Weak | 0 | 307339 | 0 | 172 |
+| `enquiries_6m` | AMT_REQ_CREDIT_BUREAU_MON, QRT | Sum of monthly and quarterly enquiries | ASM-D6 | Medium | 0 | 265992 | 0 | 41519 |
+| `severe_delinquency_36m` | bureau_balance (STATUS, MONTHS_BALANCE) | Status 4/5 in last 36m -> true; false if balance rows; null if none | ASM-D7 | Medium | 0 | 92231 | 0 | 215280 |
+| `written_off` | bureau (CREDIT_ACTIVE) | 'Bad debt' -> true; false if bureau rows; null if none | ASM-D8 | Medium | 0 | 263491 | 0 | 44020 |
+| `kyc_verified` | None | Constant true | ASM-D9 | N/A | 307511 | 0 | 0 | 0 |
+| `consent_given` | None | Constant true | ASM-D9 | N/A | 307511 | 0 | 0 | 0 |
+| `requested_amount` | AMT_CREDIT | AMT_CREDIT round half-up | ASM-D10 | Medium | 0 | 307511 | 0 | 0 |
+| `requested_tenure_months` | AMT_CREDIT, AMT_ANNUITY | AMT_CREDIT / AMT_ANNUITY round half-up | ASM-D11 | Weak | 0 | 307499 | 0 | 12 |
+| `region_tier` | REGION_RATING_CLIENT | 1-3 rating as int | ASM-D12 | Medium | 307511 | 0 | 0 | 0 |
+
+## Raw Columns Not Used
+
+Total unused application_train columns: 105.
+
+```text
+AMT_GOODS_PRICE, AMT_REQ_CREDIT_BUREAU_DAY, AMT_REQ_CREDIT_BUREAU_HOUR, AMT_REQ_CREDIT_BUREAU_WEEK, AMT_REQ_CREDIT_BUREAU_YEAR, APARTMENTS_AVG, APARTMENTS_MEDI, APARTMENTS_MODE, BASEMENTAREA_AVG, BASEMENTAREA_MEDI, BASEMENTAREA_MODE, CNT_CHILDREN, CNT_FAM_MEMBERS, COMMONAREA_AVG, COMMONAREA_MEDI, COMMONAREA_MODE, DAYS_ID_PUBLISH, DAYS_LAST_PHONE_CHANGE, DAYS_REGISTRATION, DEF_30_CNT_SOCIAL_CIRCLE, DEF_60_CNT_SOCIAL_CIRCLE, ELEVATORS_AVG, ELEVATORS_MEDI, ELEVATORS_MODE, EMERGENCYSTATE_MODE, ENTRANCES_AVG, ENTRANCES_MEDI, ENTRANCES_MODE, FLAG_CONT_MOBILE, FLAG_DOCUMENT_10, FLAG_DOCUMENT_11, FLAG_DOCUMENT_12, FLAG_DOCUMENT_13, FLAG_DOCUMENT_14, FLAG_DOCUMENT_15, FLAG_DOCUMENT_16, FLAG_DOCUMENT_17, FLAG_DOCUMENT_18, FLAG_DOCUMENT_19, FLAG_DOCUMENT_2, FLAG_DOCUMENT_20, FLAG_DOCUMENT_21, FLAG_DOCUMENT_3, FLAG_DOCUMENT_4, FLAG_DOCUMENT_5, FLAG_DOCUMENT_6, FLAG_DOCUMENT_7, FLAG_DOCUMENT_8, FLAG_DOCUMENT_9, FLAG_EMAIL, FLAG_EMP_PHONE, FLAG_MOBIL, FLAG_OWN_CAR, FLAG_OWN_REALTY, FLAG_PHONE, FLAG_WORK_PHONE, FLOORSMAX_AVG, FLOORSMAX_MEDI, FLOORSMAX_MODE, FLOORSMIN_AVG, FLOORSMIN_MEDI, FLOORSMIN_MODE, FONDKAPREMONT_MODE, HOUR_APPR_PROCESS_START, HOUSETYPE_MODE, LANDAREA_AVG, LANDAREA_MEDI, LANDAREA_MODE, LIVE_CITY_NOT_WORK_CITY, LIVE_REGION_NOT_WORK_REGION, LIVINGAPARTMENTS_AVG, LIVINGAPARTMENTS_MEDI, LIVINGAPARTMENTS_MODE, LIVINGAREA_AVG, LIVINGAREA_MEDI, LIVINGAREA_MODE, NAME_CONTRACT_TYPE, NAME_HOUSING_TYPE, NAME_TYPE_SUITE, NONLIVINGAPARTMENTS_AVG, NONLIVINGAPARTMENTS_MEDI, NONLIVINGAPARTMENTS_MODE, NONLIVINGAREA_AVG, NONLIVINGAREA_MEDI, NONLIVINGAREA_MODE, OBS_30_CNT_SOCIAL_CIRCLE, OBS_60_CNT_SOCIAL_CIRCLE, OCCUPATION_TYPE, ORGANIZATION_TYPE, OWN_CAR_AGE, REGION_POPULATION_RELATIVE, REGION_RATING_CLIENT_W_CITY, REG_CITY_NOT_LIVE_CITY, REG_CITY_NOT_WORK_CITY, REG_REGION_NOT_LIVE_REGION, REG_REGION_NOT_WORK_REGION, TOTALAREA_MODE, WALLSMATERIAL_MODE, WEEKDAY_APPR_PROCESS_START, YEARS_BEGINEXPLUATATION_AVG, YEARS_BEGINEXPLUATATION_MEDI, YEARS_BEGINEXPLUATATION_MODE, YEARS_BUILD_AVG, YEARS_BUILD_MEDI, YEARS_BUILD_MODE
+```

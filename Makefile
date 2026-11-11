@@ -141,6 +141,12 @@ baseline:
 	$(PYTHON) -m src.ml.baseline
 
 phase4: data-d2 data-d3 decide-d3 split decide-d2 baseline
+	$(PYTHON) tools/check_floats.py src/calc src/facts src/explain src/data/d2_map.py
+	$(PYTHON) -m src.engine.param_loader $(PARAMS)
+	$(PYTHON) -m src.engine.field_loader $(FIELDS)
+	$(PYTHON) -m src.engine.rule_loader rules $(PARAMS)
+	$(PYTHON) -m src.engine.hygiene
+	$(PYTHON) tools/oracle_diff.py
 	$(PYTHON) -m src.data.manifest
 	$(PYTHON) -m src.data.group_sizes
 	@echo "=== Phase 4 complete ==="

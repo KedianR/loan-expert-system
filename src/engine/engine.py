@@ -178,6 +178,8 @@ def decide(application: dict[str, Any], rule_set: RuleSet) -> dict[str, Any]:
         step_record: dict[str, Any] = {
             "order": order,
             "rule_id": rule.id,
+            "rule_version": rule.version,
+            "layer": rule.layer,
             "status": "not_fired",
             "facts_used": {},
         }
@@ -195,6 +197,17 @@ def decide(application: dict[str, Any], rule_set: RuleSet) -> dict[str, Any]:
             if rp in rule_set.params:
                 val = rule_set.params[rp]
                 step_record["facts_used"][rp] = str(val) if isinstance(val, Decimal) else val
+
+        # Special facts_used for V01 and E02
+        if rule.id == "V01":
+            req_missing = [f for f in env.get("__required_fields__", []) if f in unknown_fields]
+            step_record["facts_used"]["missing_fields"] = req_missing
+
+        if rule.id == "E02":
+            if "credit_score" in env:
+                step_record["facts_used"]["credit_score"] = env["credit_score"]
+            if "existing_foir" in env:
+                step_record["facts_used"]["existing_foir"] = str(env["existing_foir"])
 
         # Check unknown inputs
         # Rules that check unknown() or any_required_unknown are exempt
@@ -226,6 +239,7 @@ def decide(application: dict[str, Any], rule_set: RuleSet) -> dict[str, Any]:
         if needs_no_block and blocking_outcome_occurred:
             step_record["status"] = "skipped"
             step_record["skipped_reason"] = "blocking outcome"
+            del step_record["facts_used"]
             steps.append(step_record)
             continue
 
@@ -233,18 +247,21 @@ def decide(application: dict[str, Any], rule_set: RuleSet) -> dict[str, Any]:
         if rule.id == "A01" and "band" not in env:
             step_record["status"] = "skipped"
             step_record["skipped_reason"] = "band absent"
+            del step_record["facts_used"]
             steps.append(step_record)
             continue
 
         if rule.id == "A02" and "max_principal_emi" not in env:
             step_record["status"] = "skipped"
             step_record["skipped_reason"] = "max_principal_emi absent"
+            del step_record["facts_used"]
             steps.append(step_record)
             continue
 
         if rule.id in ("A03", "A04") and "recommended_amount" not in env:
             step_record["status"] = "skipped"
             step_record["skipped_reason"] = "recommended_amount absent"
+            del step_record["facts_used"]
             steps.append(step_record)
             continue
 

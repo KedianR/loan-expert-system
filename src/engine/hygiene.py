@@ -367,14 +367,15 @@ def generate_hygiene_grid(rule_set: RuleSet) -> list[dict[str, Any]]:
             "requested_tenure_months": 48,
         }
     )
+    income_multiple_test_income = (max_amt - amount_step) // income_multiple_cap
     grid.append(
         {
             **base_app,
-            "monthly_net_income": 50000,
+            "monthly_net_income": income_multiple_test_income,
             "monthly_obligations": 0,
             "credit_score": 720,
-            # request well above 10 × income so income-multiple cap binds
-            "requested_amount": 50000 * income_multiple_cap + amount_step,
+            # request at product maximum with income scaled so income_multiple_cap binds
+            "requested_amount": max_amt,
             "requested_tenure_months": max_t,
         }
     )

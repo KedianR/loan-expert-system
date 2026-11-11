@@ -60,3 +60,4 @@ Placeholders in catalog templates (`rules/reason_codes.toml`) and notice frames 
 - **Triggers**: Computed only when `reason_codes` contains solely `HIGH_EXISTING_OBLIGATIONS` (E01) or `INSUFFICIENT_REPAYMENT_CAPACITY` (A03).
 - **Algorithm**: Binary search for minimal integer reduction $r \in [1, \text{monthly\_obligations}]$ such that re-running `decide()` returns `eligible`.
 - **Integrity**: Probing re-runs `decide()` without touching the audit log; verifies monotonic transition at $r$ vs $r - 1$.
+

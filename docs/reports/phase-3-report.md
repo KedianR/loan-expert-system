@@ -245,3 +245,4 @@ Full JSON response records and execution outputs are preserved in `docs/reports/
 - `docs/reports/phase-3-evidence/demo_output.txt`: Full console output of `tools/demo.py`.
 - `docs/reports/phase-3-evidence/audit_verify_output.txt`: Full output of `make audit-verify`.
 - `docs/reports/phase-3-evidence/audit_records_first3.json`: Database row dump of sequences 1, 2, and 3.
+

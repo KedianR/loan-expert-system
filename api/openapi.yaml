@@ -1,0 +1,190 @@
+openapi: 3.1.0
+info:
+  title: Loan Eligibility Decision API
+  version: 0.1.0
+  summary: Rule-based decision, explanation, audit and review for an illustrative unsecured personal loan in INR.
+  description: |
+    Academic prototype on synthetic data. Local use only: no authentication, binds to 127.0.0.1.
+    This file is the contract. Body schemas live in ../schemas/response.schema.json and
+    ../schemas/trace.schema.json and are referenced here, never copied (FR-01, FR-10 to FR-16).
+    Failure behaviour is fail closed: an error body never contains a decision.
+servers:
+  - url: http://127.0.0.1:8000
+paths:
+  /v1/decisions:
+    post:
+      operationId: createDecision
+      summary: Decide one application
+      description: |
+        Validates the body against the input schema, evaluates the rules, builds the trace and the
+        notice, appends the audit record, then returns the response (docs/audit-log-spec.md section 6).
+        Sending the same body twice creates two audit records with different decision_id and evaluated_at
+        and identical content otherwise.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/input.schema.json
+            examples:
+              tv2:
+                summary: TV2, eligible on reduced terms
+                value:
+                  applicant_id: tv2
+                  age: 34
+                  employment_type: salaried
+                  employment_months: 48
+                  monthly_net_income: 40000
+                  monthly_obligations: 12000
+                  credit_score: 760
+                  enquiries_6m: 2
+                  severe_delinquency_36m: false
+                  written_off: false
+                  kyc_verified: true
+                  consent_given: true
+                  requested_amount: 800000
+                  requested_tenure_months: 48
+      responses:
+        "200":
+          description: A decision was made and recorded.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/response.schema.json
+        "422":
+          description: Malformed body or value. No decision, no audit record (FR-01).
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/response.schema.json#/$defs/validation_error_response
+        "500":
+          description: Internal error in a rule or calculation. No decision; route the case to a person.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/response.schema.json#/$defs/error_response
+        "503":
+          description: The audit record could not be written, or the audit chain is broken. No decision is returned.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/response.schema.json#/$defs/error_response
+  /v1/decisions/{decision_id}:
+    get:
+      operationId: getDecision
+      summary: Fetch a stored decision
+      description: Returns the stored decision exactly as it was returned when it was made, plus the current review status for refer decisions.
+      parameters:
+        - $ref: "#/components/parameters/DecisionId"
+      responses:
+        "200":
+          description: The stored response.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/response.schema.json
+        "404":
+          description: No such decision.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/response.schema.json#/$defs/error_response
+  /v1/decisions/{decision_id}/replay:
+    post:
+      operationId: replayDecision
+      summary: Re-run a stored decision and compare (FR-16)
+      description: Writes nothing. Compares decision, reason codes, offer and trace, ignoring decision_id and evaluated_at.
+      parameters:
+        - $ref: "#/components/parameters/DecisionId"
+      responses:
+        "200":
+          description: Replay result. match is false when anything differs, including after a rule or parameter change.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/response.schema.json#/$defs/replay_result
+        "404":
+          description: No such decision.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/response.schema.json#/$defs/error_response
+  /v1/decisions/{decision_id}/review:
+    post:
+      operationId: recordReviewAction
+      summary: Record a reviewer action with a mandatory reason (FR-14)
+      description: Allowed actions per decision are in docs/human-oversight-policy.md section 4.
+      parameters:
+        - $ref: "#/components/parameters/DecisionId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../schemas/response.schema.json#/$defs/review_request
+      responses:
+        "200":
+          description: The action was recorded.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/response.schema.json#/$defs/review_response
+        "404":
+          description: No such decision.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/response.schema.json#/$defs/error_response
+        "409":
+          description: The decision already has a reviewer action (ALREADY_REVIEWED).
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/response.schema.json#/$defs/error_response
+        "422":
+          description: Reason missing or too short (REASON_REQUIRED), action not allowed for this decision (ACTION_NOT_ALLOWED), or malformed body (INVALID_REQUEST).
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: ../schemas/response.schema.json#/$defs/error_response
+                  - $ref: ../schemas/response.schema.json#/$defs/validation_error_response
+  /v1/review/queue:
+    get:
+      operationId: getReviewQueue
+      summary: List refer decisions with no reviewer action yet
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+          description: Maximum items; the default is queue_default_limit in config/app.toml.
+      responses:
+        "200":
+          description: The queue, oldest first.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/response.schema.json#/$defs/queue_response
+  /v1/health:
+    get:
+      operationId: getHealth
+      summary: Rule-set identity and audit chain state
+      responses:
+        "200":
+          description: Service is up.
+          content:
+            application/json:
+              schema:
+                $ref: ../schemas/response.schema.json#/$defs/health_response
+components:
+  parameters:
+    DecisionId:
+      name: decision_id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: "^d-[0-9]{4,}$"

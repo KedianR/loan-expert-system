@@ -68,13 +68,14 @@ Five stores, each with one writer and a clear reader list. Table and field names
 | --- | --- | --- | --- |
 | Rule and parameter files | Rules, thresholds, bands, fees, reason code catalog | Policy owner, through Git | Rule loader only |
 | Decision audit log | `decision_id`, input hash, rule-set version, timestamp, decision, full trace, offer, system flags | Audit component, append-only | Reviewer view, replay, evaluation |
+| Replay input store | The validated input, keyed by input hash (synthetic data only) | Audit component, append-only, same transaction as the decision record | Replay only |
 | Reviewer actions | `decision_id`, reviewer, action (approve, deny, override), reason, timestamp | Reviewer view | Evaluation, audit reports |
 | Protected-attribute store | `applicant_ref`, gender, religion, caste and other audit-only fields | Data loader, once per dataset | Fairness module only |
 | Experiment outputs | ML models, metrics, comparison and fairness reports, with seeds and versions | Evaluation and ML packages | Report generation |
 
 **Design rules**
 
-- The audit log holds an input hash, not raw personal fields, plus the full trace. Raw synthetic test inputs live in test data files, not in the audit log (DR-03).
+- The audit log holds an input hash, not raw personal fields, plus the full trace. The validated input is kept in a separate replay input store that only replay reads, because replay (FR-16) needs it; the audit log table itself holds no raw fields (DR-03; decision P3-3, see the audit log specification).
 - Audit records cannot be updated or deleted through the application. For a SQL store, use insert-only permissions; for a file store, an append-only file with a hash chain so edits are detectable (NFR-08).
 - The protected-attribute store is keyed by `applicant_ref`, which matches the audit log's reference, so fairness analysis can join outcomes to groups without the engine ever seeing the groups (DR-02).
 - Default storage is SQLite for the audit log and reviewer actions, and plain files for rules and experiment outputs. This is enough for the prototype and keeps setup to one command (NFR-10).

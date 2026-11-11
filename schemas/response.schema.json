@@ -1,0 +1,259 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "loan-decision-response.schema.json",
+  "title": "Decision API response",
+  "description": "The root schema is the success response of POST /v1/decisions (FR-01, FR-10 to FR-13, NFR-01). $defs holds every other body the API returns, so one file covers the whole contract (api/openapi.yaml). The trace is referenced by $id from loan-decision-trace.schema.json. The top-level decision fields repeat values that are inside the trace; a test checks they are equal. The notice is generated only from the trace (AGENTS.md rule 5, docs/data-dictionary.md section 4).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["decision_id", "evaluated_at", "rule_set_version", "rule_set_hash", "decision", "reason_codes", "offer", "notice", "trace"],
+  "properties": {
+    "decision_id": { "type": "string", "pattern": "^d-[0-9]{4,}$" },
+    "evaluated_at": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$" },
+    "rule_set_version": { "type": "string" },
+    "rule_set_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "decision": { "type": "string", "enum": ["eligible", "ineligible", "refer"] },
+    "reason_codes": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" }, "uniqueItems": true },
+    "offer": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "loan-decision-trace.schema.json#/$defs/offer" }
+      ],
+      "description": "Same object as trace.offer; null unless the decision is eligible."
+    },
+    "notice": { "$ref": "#/$defs/notice" },
+    "review": {
+      "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/review_status" }],
+      "description": "Present (and not null) only for refer decisions: the state of the human review."
+    },
+    "trace": { "$ref": "loan-decision-trace.schema.json" }
+  },
+  "$defs": {
+    "notice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["notice_version", "headline", "reasons", "guidance", "basis", "offer_summary"],
+      "properties": {
+        "notice_version": { "type": "string", "minLength": 1, "description": "The version field of config/notice_frame.toml." },
+        "headline": { "type": "string", "minLength": 1 },
+        "reasons": {
+          "type": "array",
+          "description": "One entry per code in reason_codes, same order. text is the catalog template for that code with its placeholders filled from the trace (docs/data-dictionary.md section 4).",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["code", "text"],
+            "properties": {
+              "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+              "text": { "type": "string", "minLength": 1, "not": { "pattern": "[{}]" } }
+            }
+          }
+        },
+        "guidance": {
+          "type": "array",
+          "description": "Counterfactual guidance (FR-12). Each statement was verified by re-running the engine (decision P3-5). Empty when none can be computed.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["code", "text", "verified_decision"],
+            "properties": {
+              "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$", "description": "The reason code the guidance relates to." },
+              "text": { "type": "string", "minLength": 1, "not": { "pattern": "[{}]" } },
+              "verified_decision": { "type": "string", "enum": ["eligible"], "description": "The engine's decision for the changed input." }
+            }
+          }
+        },
+        "basis": {
+          "type": "array",
+          "description": "The numbers behind the amount and the band, as label and text lines built only from values in the trace. Empty unless the decision is eligible.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label", "text"],
+            "properties": {
+              "label": { "type": "string", "minLength": 1 },
+              "text": { "type": "string", "minLength": 1, "not": { "pattern": "[{}]" } }
+            }
+          }
+        },
+        "offer_summary": {
+          "description": "KFS-style summary (FR-13, CR-02). Null unless the decision is eligible.",
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["rows", "disclaimer"],
+              "properties": {
+                "rows": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["label", "value"],
+                    "properties": {
+                      "label": { "type": "string", "minLength": 1 },
+                      "value": { "type": "string", "minLength": 1 }
+                    }
+                  }
+                },
+                "disclaimer": { "type": "string", "minLength": 1 }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "review_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "type": "string", "enum": ["pending", "approved", "denied"] },
+        "action_id": { "type": ["integer", "null"] },
+        "reviewer": { "type": ["string", "null"] },
+        "reason": { "type": ["string", "null"] },
+        "acted_at": { "type": ["string", "null"], "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$" }
+      }
+    },
+    "field_error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field", "code", "message"],
+      "properties": {
+        "field": { "type": "string", "minLength": 1, "description": "Input field name, or \"$\" for a problem with the whole body." },
+        "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$", "description": "Error codes come from the Phase 1 validator (docs/data-dictionary.md section 5)." },
+        "message": { "type": "string", "minLength": 1 }
+      }
+    },
+    "validation_error_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["error"],
+      "properties": {
+        "error": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["code", "message", "fields"],
+          "properties": {
+            "code": { "const": "INVALID_REQUEST" },
+            "message": { "type": "string" },
+            "fields": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/field_error" } }
+          }
+        }
+      },
+      "description": "HTTP 422. No decision was made and no audit record was written (docs/05-architecture.md section 3, step 1)."
+    },
+    "error_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["error"],
+      "properties": {
+        "error": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["code", "message"],
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": ["SYSTEM_ERROR", "AUDIT_UNAVAILABLE", "NOT_FOUND", "ALREADY_REVIEWED", "REASON_REQUIRED", "ACTION_NOT_ALLOWED", "NOT_REVIEWABLE"]
+            },
+            "message": { "type": "string" },
+            "suggested_route": {
+              "type": "string",
+              "enum": ["refer"],
+              "description": "Present for SYSTEM_ERROR and AUDIT_UNAVAILABLE: the case must go to a human. The body never contains a decision field (fail closed)."
+            }
+          }
+        }
+      },
+      "not": { "required": ["decision"] }
+    },
+    "replay_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision_id", "match", "rule_set_version_recorded", "rule_set_hash_recorded", "rule_set_hash_current", "differences", "notice_match"],
+      "properties": {
+        "decision_id": { "type": "string", "pattern": "^d-[0-9]{4,}$" },
+        "match": { "type": "boolean", "description": "True only when decision, reason_codes, offer and the whole trace (ignoring decision_id and evaluated_at) are identical." },
+        "rule_set_version_recorded": { "type": "string" },
+        "rule_set_hash_recorded": { "type": "string" },
+        "rule_set_hash_current": { "type": "string" },
+        "differences": {
+          "type": "array",
+          "description": "One entry per differing path. Empty when match is true.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "recorded", "replayed"],
+            "properties": {
+              "path": { "type": "string" },
+              "recorded": {},
+              "replayed": {}
+            }
+          }
+        },
+        "notice_match": { "type": "boolean" },
+        "note": { "type": "string" }
+      }
+    },
+    "review_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewer", "action", "reason"],
+      "properties": {
+        "reviewer": { "type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[A-Za-z0-9_.-]+$" },
+        "action": { "type": "string", "enum": ["approve", "deny", "override"] },
+        "reason": { "type": "string", "description": "Mandatory. Rejected with REASON_REQUIRED when empty or shorter than the configured minimum after trimming." }
+      }
+    },
+    "review_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision_id", "action_id", "reviewer", "action", "reason", "acted_at", "effective_outcome"],
+      "properties": {
+        "decision_id": { "type": "string", "pattern": "^d-[0-9]{4,}$" },
+        "action_id": { "type": "integer", "minimum": 1 },
+        "reviewer": { "type": "string" },
+        "action": { "type": "string", "enum": ["approve", "deny", "override"] },
+        "reason": { "type": "string", "minLength": 1 },
+        "acted_at": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$" },
+        "effective_outcome": { "type": "string", "enum": ["approved", "denied"], "description": "What the reviewer's action means for the application (docs/human-oversight-policy.md section 4)." }
+      }
+    },
+    "queue_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["items", "total_pending"],
+      "properties": {
+        "total_pending": { "type": "integer", "minimum": 0 },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["decision_id", "evaluated_at", "applicant_ref", "reason_codes", "rule_set_version"],
+            "properties": {
+              "decision_id": { "type": "string", "pattern": "^d-[0-9]{4,}$" },
+              "evaluated_at": { "type": "string" },
+              "applicant_ref": { "type": "string" },
+              "reason_codes": { "type": "array", "items": { "type": "string" } },
+              "rule_set_version": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "health_response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "rule_set_version", "rule_set_hash", "audit_chain_ok"],
+      "properties": {
+        "status": { "type": "string", "enum": ["ok"] },
+        "rule_set_version": { "type": "string" },
+        "rule_set_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+        "audit_chain_ok": { "type": "boolean" }
+      }
+    }
+  }
+}

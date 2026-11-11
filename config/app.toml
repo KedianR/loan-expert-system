@@ -1,0 +1,10 @@
+# Operational settings. Not policy: nothing here changes a decision.
+# No secrets in this file (NFR-08). Overridable by environment variables named APP_<KEY>.
+
+audit_db_path = "data/audit/audit.sqlite"
+store_input_snapshot = true      # replay needs it (docs/audit-log-spec.md section 1)
+host = "127.0.0.1"               # local only; the prototype has no authentication
+port = 8000
+min_reason_length = 10           # characters after trimming, for a reviewer's reason (FR-14)
+queue_default_limit = 50
+review_report_dir = "reports/reviewer"

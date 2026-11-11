@@ -1,0 +1,373 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "loan-decision-trace.schema.json",
+  "title": "Decision trace",
+  "description": "Decision trace (docs/04-predicates-and-facts.md section 5; FR-10, FR-11, FR-16, NFR-01). The trace is the single source for the audit log, the applicant notice, the reviewer view and the explanation tests. Rules: (1) steps list every ACTIVE rule in layer order, each exactly once, with a status; (2) money and ratios are strings holding exact decimals, whole-rupee amounts are integers, and no JSON number with a fractional part is allowed anywhere; (3) every code in reason_codes has a fired step with the same reason_code, and no other fired step supplies a code (DT-2: reason_codes holds the codes of the winning outcome's fired rules, in step order); (4) decision_id and evaluated_at are added by the API layer after the decision is computed and are the only fields replay ignores (docs/audit-log-spec.md section 5). Schema checks structure only; the checks in (1) and (3) are tests, not schema keywords.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "decision_id",
+    "applicant_ref",
+    "input_hash",
+    "rule_set_version",
+    "rule_set_hash",
+    "evaluated_at",
+    "decision",
+    "steps",
+    "derived",
+    "reason_codes"
+  ],
+  "properties": {
+    "decision_id": {
+      "type": "string",
+      "pattern": "^d-[0-9]{4,}$",
+      "description": "Unique ID for this decision, assigned by the API layer. Format d-0001, d-0002 and so on (a counter in the audit store, never random, never derived from the input)."
+    },
+    "applicant_ref": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "SHA-256 of the UTF-8 bytes of applicant_id, prefixed sha256:. Stable per applicant; the join key to the audit-only attribute store (DR-02). Decision P3-2."
+    },
+    "input_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "SHA-256 of the canonical JSON of the validated input (docs/audit-log-spec.md section 3), prefixed sha256:."
+    },
+    "rule_set_version": {
+      "type": "string",
+      "pattern": "^rules-[^+\\s]+\\+params-[^+\\s]+$",
+      "description": "Tag of all rule and parameter files, for example rules-1.0.0+params-0.1.0. Includes the experimental switches."
+    },
+    "rule_set_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "SHA-256 over the normalised rule and parameter files (docs/09-file-formats.md section 7). Must equal the value in tests/golden/rule_set_pin.json for the baseline rule set."
+    },
+    "evaluated_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+      "description": "UTC timestamp, whole seconds, set by the API layer after the decision is computed."
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "eligible",
+        "ineligible",
+        "refer"
+      ]
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/step"
+      },
+      "description": "Every active rule in layer order. order starts at 1 and increases by 1."
+    },
+    "derived": {
+      "type": "object",
+      "description": "Every computed value that is not a rule outcome: existing FOIR, EMI, post-loan FOIR, APR and similar. Exact decimals as strings.",
+      "additionalProperties": {
+        "$ref": "#/$defs/value"
+      }
+    },
+    "reason_codes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9_]*$"
+      },
+      "uniqueItems": true,
+      "description": "Reason codes of the winning outcome's fired rules, in step order (DT-2). Empty for an eligible decision with no reduced-offer rule. For the default REFER (CP-8.1) it is [\"NO_RULE_APPLICABLE\"]."
+    },
+    "offer": {
+      "description": "Present only for eligible decisions.",
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/offer"
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "decision": {
+            "const": "eligible"
+          }
+        },
+        "required": [
+          "decision"
+        ]
+      },
+      "then": {
+        "required": [
+          "offer"
+        ],
+        "properties": {
+          "offer": {
+            "$ref": "#/$defs/offer"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "offer": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "value": {
+      "description": "A fact or derived value: whole-rupee integers and counts are integers; money with paise, ratios, rates and enumerations are strings; flags are booleans; null means unknown. No fractional JSON numbers.",
+      "type": [
+        "string",
+        "integer",
+        "boolean",
+        "null",
+        "array"
+      ],
+      "items": {
+        "type": [
+          "string",
+          "integer",
+          "boolean"
+        ]
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "order",
+        "rule_id",
+        "rule_version",
+        "layer",
+        "status"
+      ],
+      "properties": {
+        "order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "rule_id": {
+          "type": "string",
+          "pattern": "^[A-Z][0-9]{2}$"
+        },
+        "rule_version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The version field of the rule's metadata (FR-10)."
+        },
+        "layer": {
+          "type": "string",
+          "enum": [
+            "validation",
+            "knockout",
+            "referral",
+            "eligibility",
+            "amount",
+            "pricing",
+            "experimental"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "fired",
+            "not_fired",
+            "not_evaluated",
+            "skipped"
+          ]
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "ineligible",
+            "refer",
+            "derive",
+            "reduced_offer"
+          ],
+          "description": "Present only when status is fired."
+        },
+        "reason_code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$",
+          "description": "Present only when status is fired and the rule has a reason code."
+        },
+        "facts_used": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/value"
+          },
+          "description": "Names and values of the facts and parameters the rule read. For not_fired and fired steps. Never contains a protected attribute."
+        },
+        "missing": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Present only when status is not_evaluated: the unknown fields (DT-5: every unknown field the rule reads)."
+        },
+        "skipped_reason": {
+          "type": "string",
+          "description": "Present only when status is skipped: why, for example blocked by an earlier INELIGIBLE or REFER outcome."
+        },
+        "derived": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/value"
+          },
+          "description": "Values this rule derived (band, caps, recommended amount, rate)."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "fired"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "outcome"
+            ]
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "outcome"
+                  ]
+                },
+                {
+                  "required": [
+                    "reason_code"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "not_evaluated"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "missing"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "missing"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "skipped"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "skipped_reason"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "skipped_reason"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "offer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "amount",
+        "tenure_months",
+        "band",
+        "rate_range",
+        "indicative_rate",
+        "emi",
+        "fee",
+        "total_interest",
+        "apr"
+      ],
+      "properties": {
+        "amount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "tenure_months": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "band": {
+          "type": "string",
+          "pattern": "^[A-Z]$"
+        },
+        "rate_range": {
+          "type": "string",
+          "pattern": "^[0-9]+(\\.[0-9]+)?-[0-9]+(\\.[0-9]+)?$"
+        },
+        "indicative_rate": {
+          "type": "string",
+          "pattern": "^[0-9]+(\\.[0-9]+)?$"
+        },
+        "emi": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]{2}$"
+        },
+        "fee": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]{2}$"
+        },
+        "total_interest": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]{2}$"
+        },
+        "apr": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]{2}$"
+        },
+        "post_loan_foir": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]{4}$"
+        }
+      }
+    }
+  }
+}

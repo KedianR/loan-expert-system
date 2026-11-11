@@ -1,0 +1,46 @@
+# Wording around the reason-code texts. Not policy: no threshold, rate or fee appears here.
+# The reason-code texts themselves live in rules/reason_codes.toml (catalog section 3) and are
+# never copied into this file. Placeholders in {braces} are filled from the trace only
+# (docs/data-dictionary.md section 4). Change the version when any text here changes.
+
+[meta]
+version = "1.0.0"
+
+[headline]
+eligible = "Your application is eligible."
+eligible_reduced = "Your application is eligible, on reduced terms."
+ineligible = "We are unable to offer you this loan."
+refer = "Your application needs a review by a credit officer."
+
+# Counterfactual guidance (FR-12). {reduction} and {new_obligations} are whole rupees, grouped
+# the Indian way. Only these two codes have guidance. Each statement is shown only if a re-run
+# of the engine with the changed input returns ELIGIBLE (docs/data-dictionary.md section 6).
+[guidance]
+INSUFFICIENT_REPAYMENT_CAPACITY = "If your existing monthly payments were {reduction} lower, at {new_obligations}, and everything else stayed the same, your application would be eligible. The amount we could offer may be lower than the amount you asked for."
+HIGH_EXISTING_OBLIGATIONS = "If your existing monthly payments were {reduction} lower, at {new_obligations}, and everything else stayed the same, your application would be eligible. The amount we could offer may be lower than the amount you asked for."
+
+# "How we reached this" lines for an eligible decision. Each line is shown only if every
+# placeholder in it is present in the trace.
+[basis]
+band = "Pricing band {band}: your credit score is {credit_score} and your existing monthly payments are {existing_foir_pct}% of your income."
+instalment_limit = "Your income and existing payments allow a monthly instalment of up to {max_emi}, which supports a loan of up to {max_principal_emi} at the requested tenure and the band's indicative rate."
+after_loan = "After this loan, your total monthly payments would be {post_loan_foir_pct}% of your income."
+
+[basis_binding]
+requested = "We can offer the full amount you asked for."
+capacity = "The amount is limited by the monthly instalment you can afford."
+income_multiple = "The amount is limited by a multiple of your monthly income."
+product_maximum = "The amount is limited by the maximum for this loan."
+
+[offer_summary]
+disclaimer = "This is an indicative summary from an illustrative prototype that uses synthetic data. It is not a loan offer or a contract."
+
+[offer_summary.labels]
+amount = "Loan amount"
+tenure = "Tenure"
+rate_band = "Interest band and yearly range"
+indicative_rate = "Indicative interest rate (yearly)"
+emi = "Monthly instalment (EMI)"
+fee = "Processing fee"
+total_interest = "Total interest over the tenure"
+apr = "Annual percentage rate (APR), including the fee"

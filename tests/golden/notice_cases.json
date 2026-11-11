@@ -1,0 +1,606 @@
+{
+  "_comment": "Expected applicant notices for the notice tests. Derived by hand from rules/reason_codes.toml wording (catalog section 3), config/notice_frame.toml and docs/data-dictionary.md section 4. For N-TV7 the exact ratio is 0.50001, so the text says 50.01 (ceiling); if the trace only holds 0.5000 the notice cannot be right and the agent must stop and report (prompt step 0). Never edit to make a test pass. Fields starting with an underscore are for the reader and are ignored by the test.",
+  "cases": [
+    {
+      "id": "N-TV1",
+      "description": "Typical eligible case in band B; the requested amount is the binding limit.",
+      "input": {
+        "applicant_id": "tv1",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 80000,
+        "monthly_obligations": 10000,
+        "credit_score": 735,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 700000,
+        "requested_tenure_months": 36
+      },
+      "expected": {
+        "decision": "eligible",
+        "reason_codes": [],
+        "notice": {
+          "headline": "Your application is eligible.",
+          "reasons": [],
+          "guidance": [],
+          "basis": [
+            {
+              "label": "band",
+              "text": "Pricing band B: your credit score is 735 and your existing monthly payments are 12.5% of your income."
+            },
+            {
+              "label": "instalment_limit",
+              "text": "Your income and existing payments allow a monthly instalment of up to 30,000.00, which supports a loan of up to 8,71,561.54 at the requested tenure and the band's indicative rate."
+            },
+            {
+              "label": "after_loan",
+              "text": "After this loan, your total monthly payments would be 42.62% of your income."
+            },
+            {
+              "label": "binding_limit",
+              "text": "We can offer the full amount you asked for."
+            }
+          ],
+          "offer_summary": {
+            "rows": [
+              {
+                "label": "Loan amount",
+                "value": "INR 7,00,000"
+              },
+              {
+                "label": "Tenure",
+                "value": "36 months"
+              },
+              {
+                "label": "Interest band and yearly range",
+                "value": "B: 13.0% to 16.0%"
+              },
+              {
+                "label": "Indicative interest rate (yearly)",
+                "value": "14.5%"
+              },
+              {
+                "label": "Monthly instalment (EMI)",
+                "value": "INR 24,094.68"
+              },
+              {
+                "label": "Processing fee",
+                "value": "INR 14,000.00"
+              },
+              {
+                "label": "Total interest over the tenure",
+                "value": "INR 1,67,408.48"
+              },
+              {
+                "label": "Annual percentage rate (APR), including the fee",
+                "value": "15.93%"
+              }
+            ],
+            "disclaimer": "This is an indicative summary from an illustrative prototype that uses synthetic data. It is not a loan offer or a contract."
+          }
+        }
+      }
+    },
+    {
+      "id": "N-TV2",
+      "description": "Band A boundary: FOIR is exactly 0.30. Amount is limited by repayment capacity (rule A04).",
+      "input": {
+        "applicant_id": "tv2",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 40000,
+        "monthly_obligations": 12000,
+        "credit_score": 760,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 800000,
+        "requested_tenure_months": 48
+      },
+      "expected": {
+        "decision": "eligible",
+        "reason_codes": [
+          "AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY"
+        ],
+        "notice": {
+          "headline": "Your application is eligible, on reduced terms.",
+          "reasons": [
+            {
+              "code": "AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY",
+              "text": "We can offer 3,75,000 instead of 8,00,000 because your income and existing payments limit the monthly instalment you can afford."
+            }
+          ],
+          "guidance": [],
+          "basis": [
+            {
+              "label": "band",
+              "text": "Pricing band A: your credit score is 760 and your existing monthly payments are 30% of your income."
+            },
+            {
+              "label": "instalment_limit",
+              "text": "Your income and existing payments allow a monthly instalment of up to 10,000.00, which supports a loan of up to 3,79,739.59 at the requested tenure and the band's indicative rate."
+            },
+            {
+              "label": "after_loan",
+              "text": "After this loan, your total monthly payments would be 54.69% of your income."
+            },
+            {
+              "label": "binding_limit",
+              "text": "The amount is limited by the monthly instalment you can afford."
+            }
+          ],
+          "offer_summary": {
+            "rows": [
+              {
+                "label": "Loan amount",
+                "value": "INR 3,75,000"
+              },
+              {
+                "label": "Tenure",
+                "value": "48 months"
+              },
+              {
+                "label": "Interest band and yearly range",
+                "value": "A: 11.0% to 13.0%"
+              },
+              {
+                "label": "Indicative interest rate (yearly)",
+                "value": "12.0%"
+              },
+              {
+                "label": "Monthly instalment (EMI)",
+                "value": "INR 9,875.19"
+              },
+              {
+                "label": "Processing fee",
+                "value": "INR 7,500.00"
+              },
+              {
+                "label": "Total interest over the tenure",
+                "value": "INR 99,009.12"
+              },
+              {
+                "label": "Annual percentage rate (APR), including the fee",
+                "value": "13.09%"
+              }
+            ],
+            "disclaimer": "This is an indicative summary from an illustrative prototype that uses synthetic data. It is not a loan offer or a contract."
+          }
+        }
+      }
+    },
+    {
+      "id": "N-TV3",
+      "description": "Zero obligations. Amount is limited by the income multiple cap (10 x income).",
+      "input": {
+        "applicant_id": "tv3",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 50000,
+        "monthly_obligations": 0,
+        "credit_score": 720,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 900000,
+        "requested_tenure_months": 60
+      },
+      "expected": {
+        "decision": "eligible",
+        "reason_codes": [
+          "AMOUNT_LIMITED_BY_INCOME_MULTIPLE"
+        ],
+        "notice": {
+          "headline": "Your application is eligible, on reduced terms.",
+          "reasons": [
+            {
+              "code": "AMOUNT_LIMITED_BY_INCOME_MULTIPLE",
+              "text": "We can offer 5,00,000 instead of 9,00,000 because our limit is 10 times your monthly income."
+            }
+          ],
+          "guidance": [],
+          "basis": [
+            {
+              "label": "band",
+              "text": "Pricing band B: your credit score is 720 and your existing monthly payments are 0% of your income."
+            },
+            {
+              "label": "instalment_limit",
+              "text": "Your income and existing payments allow a monthly instalment of up to 25,000.00, which supports a loan of up to 10,62,551.06 at the requested tenure and the band's indicative rate."
+            },
+            {
+              "label": "after_loan",
+              "text": "After this loan, your total monthly payments would be 23.53% of your income."
+            },
+            {
+              "label": "binding_limit",
+              "text": "The amount is limited by a multiple of your monthly income."
+            }
+          ],
+          "offer_summary": {
+            "rows": [
+              {
+                "label": "Loan amount",
+                "value": "INR 5,00,000"
+              },
+              {
+                "label": "Tenure",
+                "value": "60 months"
+              },
+              {
+                "label": "Interest band and yearly range",
+                "value": "B: 13.0% to 16.0%"
+              },
+              {
+                "label": "Indicative interest rate (yearly)",
+                "value": "14.5%"
+              },
+              {
+                "label": "Monthly instalment (EMI)",
+                "value": "INR 11,764.14"
+              },
+              {
+                "label": "Processing fee",
+                "value": "INR 10,000.00"
+              },
+              {
+                "label": "Total interest over the tenure",
+                "value": "INR 2,05,848.40"
+              },
+              {
+                "label": "Annual percentage rate (APR), including the fee",
+                "value": "15.42%"
+              }
+            ],
+            "disclaimer": "This is an indicative summary from an illustrative prototype that uses synthetic data. It is not a loan offer or a contract."
+          }
+        }
+      }
+    },
+    {
+      "id": "N-TV6",
+      "description": "Existing FOIR exactly 0.50 is allowed (E01 must NOT fire); no room left for any EMI, so A03 fires.",
+      "input": {
+        "applicant_id": "tv6",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 100000,
+        "monthly_obligations": 50000,
+        "credit_score": 650,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 300000,
+        "requested_tenure_months": 24
+      },
+      "expected": {
+        "decision": "ineligible",
+        "reason_codes": [
+          "INSUFFICIENT_REPAYMENT_CAPACITY"
+        ],
+        "notice": {
+          "headline": "We are unable to offer you this loan.",
+          "reasons": [
+            {
+              "code": "INSUFFICIENT_REPAYMENT_CAPACITY",
+              "text": "Based on your income and existing payments, the most we can offer is 0, below our minimum loan of 50,000."
+            }
+          ],
+          "guidance": [
+            {
+              "code": "INSUFFICIENT_REPAYMENT_CAPACITY",
+              "text": "If your existing monthly payments were 7,497 lower, at 42,503, and everything else stayed the same, your application would be eligible. The amount we could offer may be lower than the amount you asked for.",
+              "verified_decision": "eligible",
+              "_reduction": 7497
+            }
+          ],
+          "basis": [],
+          "offer_summary": null
+        }
+      }
+    },
+    {
+      "id": "N-TV7",
+      "description": "Existing FOIR just above 0.50 (50001/100000 = 0.50001; it prints as 0.5000 at 4 decimals, but the comparison must use the unrounded value): E01 fires. All later rules are skipped.",
+      "input": {
+        "applicant_id": "tv7",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 100000,
+        "monthly_obligations": 50001,
+        "credit_score": 700,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 300000,
+        "requested_tenure_months": 24
+      },
+      "expected": {
+        "decision": "ineligible",
+        "reason_codes": [
+          "HIGH_EXISTING_OBLIGATIONS"
+        ],
+        "notice": {
+          "headline": "We are unable to offer you this loan.",
+          "reasons": [
+            {
+              "code": "HIGH_EXISTING_OBLIGATIONS",
+              "text": "Your existing monthly loan payments are 50.01% of your income, above our limit of 50%."
+            }
+          ],
+          "guidance": [
+            {
+              "code": "HIGH_EXISTING_OBLIGATIONS",
+              "text": "If your existing monthly payments were 7,498 lower, at 42,503, and everything else stayed the same, your application would be eligible. The amount we could offer may be lower than the amount you asked for.",
+              "verified_decision": "eligible",
+              "_reduction": 7498
+            }
+          ],
+          "basis": [],
+          "offer_summary": null
+        }
+      }
+    },
+    {
+      "id": "N-TV8",
+      "description": "Band C with almost no spare EMI: recommended amount is below the 50,000 minimum, so A03 fires.",
+      "input": {
+        "applicant_id": "tv8",
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 15000,
+        "monthly_obligations": 6500,
+        "credit_score": 700,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 100000,
+        "requested_tenure_months": 12
+      },
+      "expected": {
+        "decision": "ineligible",
+        "reason_codes": [
+          "INSUFFICIENT_REPAYMENT_CAPACITY"
+        ],
+        "notice": {
+          "headline": "We are unable to offer you this loan.",
+          "reasons": [
+            {
+              "code": "INSUFFICIENT_REPAYMENT_CAPACITY",
+              "text": "Based on your income and existing payments, the most we can offer is 0, below our minimum loan of 50,000."
+            }
+          ],
+          "guidance": [
+            {
+              "code": "INSUFFICIENT_REPAYMENT_CAPACITY",
+              "text": "If your existing monthly payments were 3,502 lower, at 2,998, and everything else stayed the same, your application would be eligible. The amount we could offer may be lower than the amount you asked for.",
+              "verified_decision": "eligible",
+              "_reduction": 3502
+            }
+          ],
+          "basis": [],
+          "offer_summary": null
+        }
+      }
+    },
+    {
+      "id": "N-R01",
+      "description": "Credit score null: refer, no credit history.",
+      "input": {
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 80000,
+        "monthly_obligations": 10000,
+        "credit_score": null,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 700000,
+        "requested_tenure_months": 36,
+        "applicant_id": "n-r01"
+      },
+      "expected": {
+        "decision": "refer",
+        "reason_codes": [
+          "NO_CREDIT_HISTORY"
+        ],
+        "notice": {
+          "headline": "Your application needs a review by a credit officer.",
+          "reasons": [
+            {
+              "code": "NO_CREDIT_HISTORY",
+              "text": "We found no credit score for you, so a reviewer will assess your application."
+            }
+          ],
+          "guidance": [],
+          "basis": [],
+          "offer_summary": null
+        }
+      }
+    },
+    {
+      "id": "N-V01",
+      "description": "Monthly net income missing: refer, incomplete application.",
+      "input": {
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": null,
+        "monthly_obligations": 10000,
+        "credit_score": 735,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 700000,
+        "requested_tenure_months": 36,
+        "applicant_id": "n-v01"
+      },
+      "expected": {
+        "decision": "refer",
+        "reason_codes": [
+          "INCOMPLETE_APPLICATION"
+        ],
+        "notice": {
+          "headline": "Your application needs a review by a credit officer.",
+          "reasons": [
+            {
+              "code": "INCOMPLETE_APPLICATION",
+              "text": "We could not decide because these details are missing: monthly net income."
+            }
+          ],
+          "guidance": [],
+          "basis": [],
+          "offer_summary": null
+        }
+      }
+    },
+    {
+      "id": "N-R02",
+      "description": "Six enquiries in six months: refer.",
+      "input": {
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 80000,
+        "monthly_obligations": 10000,
+        "credit_score": 735,
+        "enquiries_6m": 6,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 700000,
+        "requested_tenure_months": 36,
+        "applicant_id": "n-r02"
+      },
+      "expected": {
+        "decision": "refer",
+        "reason_codes": [
+          "HIGH_RECENT_ENQUIRIES"
+        ],
+        "notice": {
+          "headline": "Your application needs a review by a credit officer.",
+          "reasons": [
+            {
+              "code": "HIGH_RECENT_ENQUIRIES",
+              "text": "You have 6 credit enquiries in the last 6 months, above our limit of 5, so a reviewer will assess your application."
+            }
+          ],
+          "guidance": [],
+          "basis": [],
+          "offer_summary": null
+        }
+      }
+    },
+    {
+      "id": "N-K3",
+      "description": "Three adverse knock-outs together (FR-05): consent, KYC and credit score.",
+      "input": {
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 48,
+        "monthly_net_income": 80000,
+        "monthly_obligations": 10000,
+        "credit_score": 600,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": false,
+        "consent_given": false,
+        "requested_amount": 700000,
+        "requested_tenure_months": 36,
+        "applicant_id": "n-k3"
+      },
+      "expected": {
+        "decision": "ineligible",
+        "reason_codes": [
+          "CONSENT_NOT_GIVEN",
+          "KYC_NOT_VERIFIED",
+          "CREDIT_SCORE_BELOW_MINIMUM"
+        ],
+        "notice": {
+          "headline": "We are unable to offer you this loan.",
+          "reasons": [
+            {
+              "code": "CONSENT_NOT_GIVEN",
+              "text": "We cannot process your application without your recorded consent to use your data."
+            },
+            {
+              "code": "KYC_NOT_VERIFIED",
+              "text": "Your identity verification is not complete."
+            },
+            {
+              "code": "CREDIT_SCORE_BELOW_MINIMUM",
+              "text": "Your credit score (600) is below our minimum of 650."
+            }
+          ],
+          "guidance": [],
+          "basis": [],
+          "offer_summary": null
+        }
+      }
+    },
+    {
+      "id": "N-K06",
+      "description": "Salaried with 3 months in current employment.",
+      "input": {
+        "age": 34,
+        "employment_type": "salaried",
+        "employment_months": 3,
+        "monthly_net_income": 80000,
+        "monthly_obligations": 10000,
+        "credit_score": 735,
+        "enquiries_6m": 2,
+        "severe_delinquency_36m": false,
+        "written_off": false,
+        "kyc_verified": true,
+        "consent_given": true,
+        "requested_amount": 700000,
+        "requested_tenure_months": 36,
+        "applicant_id": "n-k06"
+      },
+      "expected": {
+        "decision": "ineligible",
+        "reason_codes": [
+          "EMPLOYMENT_TENURE_TOO_SHORT"
+        ],
+        "notice": {
+          "headline": "We are unable to offer you this loan.",
+          "reasons": [
+            {
+              "code": "EMPLOYMENT_TENURE_TOO_SHORT",
+              "text": "Your time in current employment (3 months) is below our minimum of 6 months for your employment type."
+            }
+          ],
+          "guidance": [],
+          "basis": [],
+          "offer_summary": null
+        }
+      }
+    }
+  ]
+}

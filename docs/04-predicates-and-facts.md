@@ -210,11 +210,13 @@ The trace is the single source for the audit log, the applicant notice, the revi
 | Field | Meaning |
 | --- | --- |
 | `decision_id` | Unique ID for this decision |
-| `applicant_ref` | Hash of the input, not raw personal fields |
+| `applicant_ref` | SHA-256 of the applicant ID (prefixed sha256:); a stable, non-raw reference that joins the audit log to the audit-only attribute store |
+| `input_hash` | SHA-256 of the canonical JSON of the validated input (prefixed sha256:); the key to the replay input snapshot (see the audit log specification) |
 | `rule_set_version` | Tag of all rule and parameter files, including experimental switches; a separate field rule\_set\_hash holds their SHA-256 (see the Rule File and Parameter File Format Specification) |
 | `evaluated_at` | UTC timestamp |
 | `decision` | `eligible`, `ineligible` or `refer` |
 | `steps` | Every active rule in layer order, each with a status |
+| `steps[].rule_version, steps[].layer` | The rule's version and layer from its metadata, on every step (FR-10) |
 | `steps[].status` | `fired`, `not_fired`, `not_evaluated` or `skipped` |
 | `steps[].facts_used` | Names and values of the facts the rule read |
 | `steps[].missing` | For `not_evaluated`, the unknown field |

@@ -24,7 +24,7 @@ The build runs in six phases. Each phase ends at a gate: a check that must pass 
 | 2 | WP-06 to WP-10, WP-16a |
 | 3 | WP-11 to WP-14 |
 | 4 | WP-15, WP-16b, WP-17 |
-| 5 | WP-18 to WP-20 |
+| 5 | WP-18 to WP-20, WP-22 (optional) |
 | 6 | WP-21 and the final checks |
 
 The work packages themselves and their "done when" checks are unchanged. Where this plan's phase table and the playbook group the work differently, the playbook governs.
@@ -65,6 +65,7 @@ WP IDs are permanent. Size is S, M or L as defined above. "Done when" is the che
 | WP-19 | 5 | Comparison on the four criteria with evidence | WP-18 | M | FR-22 | Scoring table filled with links to evidence |
 | WP-20 | 5 | Fairness review: group metrics, confidence intervals, rule-level audit, experimental rules on and off | WP-14, WP-17 | L | FR-23, FR-26, CR-06 | Report covers both systems; primary metric stated; limits written |
 | WP-21 | 5 | Final report, README, demo script, slides, `make reproduce` | WP-19, WP-20 | L | NFR-03 | Clean checkout reproduces every reported number |
+| WP-22 | 5 | Demo front end (optional): one page with an application form, the applicant notice view and the reviewer view, calling the existing API only | WP-14, WP-21 | M | None (scope addition approved by the owner on 2026-11-11; outside the SRS) | TV2, TV7 and a REFER case can be run from the page; it adds no decision or explanation logic and shows only what the API returns; no gate waits for it |
 
 **Critical path:** WP-01, WP-02, WP-03, WP-06, WP-07, WP-08, WP-09, WP-10, WP-11, WP-12, WP-14, WP-18, WP-19, WP-21. The data and ML work (WP-15 to WP-17) and the fairness review (WP-20) run beside it and join at phase 5.
 

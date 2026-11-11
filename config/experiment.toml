@@ -1,0 +1,61 @@
+# Experiment settings for Phase 4 (docs/experiment-protocol.md).
+# These are evaluation settings, not policy values. Change one only with an entry in docs/open-questions.md.
+# Never change a value after results have been viewed without a logged amendment.
+
+[seeds]
+# One master seed. Every other seed is derived by name:
+#   seed(name) = int(sha256(f"{master}:{name}").hexdigest(), 16) % 2**32
+# Names used: "split_d2", "split_d3", "d3_population", "d3_bias", "d3_sim_outcome",
+#             "fallback_obligations", "model_lr", "model_gb".
+master = 20261112
+
+[splits]
+train = 0.70
+validation = 0.15
+test = 0.15
+stratify = true
+# Split by applicant. For D2 the key is SK_ID_CURR (applicant_id "hc-<SK_ID_CURR>").
+
+[d2]
+raw_dir = "data/raw"
+checksum_file = "data/checksums/home_credit.sha256"
+mapped_path = "data/mapped/d2_mapped.csv"
+protected_path = "data/protected/d2_protected.csv"
+mapping_table = "docs/datasheets/d2-mapping-table.md"
+
+[d3]
+size = 20000
+mapped_path = "data/synthetic/d3_population.csv"
+protected_path = "data/protected/d3_protected.csv"
+# Bias injection is for the planted-bias test in Phase 5. Keep it off here.
+bias_mode = false
+
+[decisions]
+# Batch evaluation runs call the engine directly. They are not audited decisions and write nothing to the audit store.
+d2_splits = ["validation", "test"]
+# D3: every row (the decision is the label).
+d3_splits = "all"
+output_dir = "data/decisions"
+
+[compare]
+# How rule approvals and ML approvals are compared (docs/experiment-protocol.md section 4).
+refer_treatments = ["A_refer_not_approved", "B_refer_excluded"]
+threshold_match_split = "validation"
+
+[cost]
+# Cost of a false approval (approved, then payment difficulty) relative to a false denial
+# (denied, would have repaid). Placeholder values chosen by the reviewer; the owner may change them before results are viewed.
+ratios = [3, 5, 10]
+primary = 5
+
+[fairness]
+# D-06. Used here only to build the group-size tables.
+min_group_size = 100
+# Guard. Phase 4 must not compute any outcome metric by protected group.
+# The fairness plan is committed before any group result is seen (Phase 5).
+group_outcome_metrics = false
+
+[outputs]
+metrics_dir = "reports/ml"
+models_dir = "models"
+manifest = "data/manifest.json"

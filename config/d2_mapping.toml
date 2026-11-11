@@ -1,0 +1,95 @@
+# D2 mapping constants (docs/08-datasets.md section 3). Assumption IDs refer to that table.
+# No number in the mapping code: every constant used by the mapping is here and is read with Decimal or int, never float.
+# Column names are from public documentation and are checked in WP-15 before use.
+
+[rounding]
+mode = "ROUND_HALF_UP"
+# Used wherever the input schema needs a whole number and the mapped value is not one. Every use is counted in the mapping table (ASM-D13).
+
+[age]                              # none
+days_per_year = "365.25"
+source = "DAYS_BIRTH"
+# age = floor(-DAYS_BIRTH / days_per_year)
+
+[employment_type]                  # ASM-D1
+source = "NAME_INCOME_TYPE"
+salaried = ["Working", "State servant"]
+self_employed = ["Commercial associate"]
+other_default = "other"
+
+[employment_months]                # ASM-D2
+source = "DAYS_EMPLOYED"
+days_per_month = "30.4"
+unknown_sentinel = 365243
+# employment_months = floor(-DAYS_EMPLOYED / days_per_month); the sentinel becomes unknown.
+
+[monthly_net_income]               # ASM-D3
+source = "AMT_INCOME_TOTAL"
+months_per_year = 12
+# Gross, not net. Divide by months_per_year, then round per [rounding].
+
+[monthly_obligations]              # ASM-D4 (weak)
+bureau_amount_column = "AMT_ANNUITY"
+bureau_status_column = "CREDIT_ACTIVE"
+active_value = "Active"
+# Rule per applicant (docs/phase-4-prompt.md decision P4-3):
+#   no bureau rows                                  -> fallback, source "fallback_no_bureau"
+#   bureau rows, no active credit                   -> 0, source "bureau_zero"
+#   active credits, at least one annuity value      -> sum of the non-missing annuities,
+#                                                      source "bureau" (all present) or "bureau_partial"
+#   active credits, every annuity missing           -> fallback, source "fallback_missing_annuity"
+# The fallback is a share of monthly_net_income drawn from [obligations_fallback] in config/generator.toml.
+
+[credit_score]                     # ASM-D5 (weak)
+sources = ["EXT_SOURCE_1", "EXT_SOURCE_2", "EXT_SOURCE_3"]
+base = 300
+span = 600
+# credit_score = base + span * mean(non-missing sources), rounded per [rounding]; unknown (null) if all three are missing.
+
+[enquiries_6m]                     # ASM-D6
+sources = ["AMT_REQ_CREDIT_BUREAU_MON", "AMT_REQ_CREDIT_BUREAU_QRT"]
+# Sum of the two. Covers about 3 months, not 6. Unknown if both are missing; if one is missing, use the other and mark the row.
+
+[severe_delinquency_36m]           # ASM-D7
+source_table = "bureau_balance"
+status_column = "STATUS"
+months_column = "MONTHS_BALANCE"
+bad_statuses = ["4", "5"]
+window_months = 36
+# true if any bad status with MONTHS_BALANCE >= -window_months; false if the applicant has balance rows and none match;
+# unknown if the applicant has no balance rows at all (no bureau history).
+
+[written_off]                      # ASM-D8
+source_table = "bureau"
+status_column = "CREDIT_ACTIVE"
+bad_value = "Bad debt"
+# true if any credit has the value; false if the applicant has bureau rows and none match; unknown if no bureau rows.
+
+[kyc_consent]                      # ASM-D9
+kyc_verified = true
+consent_given = true
+
+[requested_amount]                 # ASM-D10
+source = "AMT_CREDIT"
+# Used as is; rounded per [rounding] only if the schema needs a whole number.
+
+[requested_tenure_months]          # ASM-D11 (weak)
+numerator = "AMT_CREDIT"
+denominator = "AMT_ANNUITY"
+# Round per [rounding] of AMT_CREDIT / AMT_ANNUITY. Unknown if AMT_ANNUITY is missing or zero. Ignores interest, so tenure is understated.
+
+[region_tier]                      # ASM-D12 (only used when experimental rule X02 is on; off in the baseline)
+source = "REGION_RATING_CLIENT"
+
+[applicant_id]
+prefix = "hc-"
+# applicant_id = prefix + SK_ID_CURR
+
+[protected_store]
+# Audit-only. Read by the mapping module to WRITE the protected store, and by src/eval later. Nothing else.
+columns = ["CODE_GENDER", "NAME_EDUCATION_TYPE", "NAME_FAMILY_STATUS", "REGION_RATING_CLIENT"]
+age_band_edges = [21, 30, 40, 50, 60]     # bands "21-29", "30-39", "40-49", "50-59", "60+"; below 21 goes to "under-21"
+
+[flags]
+# One flag column per fact: observed, derived, fallback or unknown.
+values = ["observed", "derived", "fallback", "unknown"]

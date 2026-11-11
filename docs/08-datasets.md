@@ -10,7 +10,7 @@ No public dataset has the fields the rules need (credit score, requested tenure,
 | --- | --- | --- | --- | --- |
 | D1. Rule-coverage set | Synthetic, deterministic | Exercise every rule and every threshold boundary; feed the golden and boundary tests | Expected decision from the reference oracle (section 4) | WP-07 to WP-11 |
 | D2. Mapped public set | One public credit dataset mapped to the fact schema | Real-world comparison of rules and ML, and the group-level fairness review | Observed repayment outcome in the dataset | WP-15, WP-17, WP-18, WP-20 |
-| D3. Synthetic population | Synthetic, seeded | Large, controlled population for the policy-label experiment and for validating the fairness pipeline | Policy decision (oracle), with an optional simulated outcome | WP-16, WP-17, WP-20 |
+| D3. Synthetic population | Synthetic, seeded | Large, controlled population for the policy-label experiment and for validating the fairness pipeline | Policy decision (engine, decision P4-2), with an optional simulated outcome | WP-16, WP-17, WP-20 |
 
 **Why two kinds of label.** The SRS leaves open what "eligible" means. The plan answers it by running two experiments, and the report must keep them apart:
 
@@ -46,7 +46,7 @@ Each row maps one fact in the Predicate and Fact Schema to dataset columns. The 
 | `employment_type` | `NAME_INCOME_TYPE` | `Working` and `State servant` become `salaried`; `Commercial associate` becomes `self_employed`; all other values become `other` | ASM-D1 | Medium |
 | `employment_months` | `DAYS_EMPLOYED` | Floor of `-DAYS_EMPLOYED / 30.4`; the sentinel value 365243 (not employed or pensioner) becomes unknown | ASM-D2 | Medium |
 | `monthly_net_income` | `AMT_INCOME_TOTAL` (annual total income) | Divide by 12; this is gross, not net | ASM-D3 | Medium |
-| `monthly_obligations` | Not in the main table; `bureau` table `AMT_ANNUITY` for active credits | Sum for each applicant; where the bureau value is missing, draw from the fallback distribution in section 4, flagged per row | ASM-D4 | **Weak** |
+| `monthly_obligations` | Not in the main table; `bureau` table `AMT_ANNUITY` for active credits | Sum of the annuities of the applicant's active credits. No bureau rows, or every active annuity missing: draw from the fallback distribution in section 4 (the D3 obligations share), flagged per row. Bureau rows with no active credit: 0 (refinement P4-3, config/d2\_mapping.toml) | ASM-D4 | **Weak** |
 | `credit_score` | `EXT_SOURCE_1`, `EXT_SOURCE_2`, `EXT_SOURCE_3` (normalised external scores, 0 to 1) | Mean of the non-missing values, then `300 + 600 * mean`; unknown if all three are missing | ASM-D5 | **Weak** |
 | `enquiries_6m` | `AMT_REQ_CREDIT_BUREAU_MON`, `AMT_REQ_CREDIT_BUREAU_QRT` | Sum, which covers about 3 months; the 6-month window is not available | ASM-D6 | Medium |
 | `severe_delinquency_36m` | `bureau_balance` `STATUS` and `MONTHS_BALANCE` | True if any status of 4 or 5 (90+ days past due) with `MONTHS_BALANCE` of -36 or later; false if the applicant has records but none match; unknown if no bureau history | ASM-D7 | Medium |
@@ -56,8 +56,11 @@ Each row maps one fact in the Predicate and Fact Schema to dataset columns. The 
 | `requested_amount` | `AMT_CREDIT` | Use as is | ASM-D10 | Medium |
 | `requested_tenure_months` | `AMT_CREDIT`, `AMT_ANNUITY` | Round `AMT_CREDIT / AMT_ANNUITY`; ignores interest, so tenure is understated | ASM-D11 | **Weak** |
 | `region_tier` (only for X02) | `REGION_RATING_CLIENT` | Use the 1 to 3 rating as is | ASM-D12 | Medium |
+| all whole-number facts | AMT\_INCOME\_TOTAL, AMT\_CREDIT, AMT\_ANNUITY, EXT\_SOURCE columns | Round half up with Decimal wherever the input schema needs a whole number and the value is not one; count the rows changed | ASM-D13 | Medium |
 
 **Audit-only fields (never in the fact base):** `CODE_GENDER`, age band (derived from `age`), `NAME_EDUCATION_TYPE`, `NAME_FAMILY_STATUS`. They are stored by `applicant_ref` for the fairness module. `REGION_RATING_CLIENT`, occupation and education are also proxy candidates and appear in the proxy review list for the ML model.
+
+**Phase 4 refinements (2026-11-12).** `written_off` is unknown, not false, when the applicant has no bureau rows; `severe_delinquency_36m` is unknown when the applicant has no balance rows. `age` is not an ML feature (decision P4-4). All mapping constants live in `config/d2_mapping.toml`. The full list of Phase 4 decisions, P4-1 to P4-12, is in the Experiment Protocol.
 
 **Handling of rows that do not fit the product**
 
@@ -116,7 +119,7 @@ Default size is 20,000 applicants. Make the correlations simple and documented (
 | --- | --- | --- |
 | D1 | Not used for ML | Expected decision from the oracle, for tests only |
 | D2 | Observed payment difficulty or default in the dataset's target column | Policy approvals are compared against it; ML trains on it |
-| D3 | Policy decision `eligible` versus not, from the oracle | Three-way (`eligible`, `ineligible`, `refer`) kept for analysis; the ML baseline predicts eligible versus not |
+| D3 | Policy decision `eligible` versus not, from the engine (decision P4-2: the oracle is test code and is not used to build data) | Three-way (`eligible`, `ineligible`, `refer`) kept for analysis; the ML baseline predicts eligible versus not |
 
 The `refer` outcome has no ML equivalent. Report it separately and do not count it as a denial or an approval when comparing approval rates, or show both treatments.
 
@@ -152,9 +155,9 @@ The `refer` outcome has no ML equivalent. Report it separately and do not count 
 
 **Open items**
 
-- [ ] Confirm Home Credit as D2, or choose Give Me Some Credit as the fallback
+- [x] Confirm Home Credit as D2, or choose Give Me Some Credit as the fallback
 - [ ] Verify every column name and the licence in WP-15
-- [ ] Decide whether to rescale amounts to INR, and by what rule
-- [ ] Set the generator's placeholder distributions in WP-16
+- [x] Decide whether to rescale amounts to INR, and by what rule
+- [x] Set the generator's placeholder distributions in WP-16
 - [x] Minimum group size for fairness reporting set to 100 applicants per group (default accepted 2026-11-06)
-- [ ] Decide whether D3 includes the simulated outcome
+- [x] Decide whether D3 includes the simulated outcome

@@ -1,0 +1,99 @@
+# D3 synthetic population generator (docs/08-datasets.md section 4).
+# EVERY VALUE HERE IS A PLACEHOLDER, not a claim about real borrowers. Accepted by the owner on 2026-11-12.
+# Product limits (min and max amount, amount step, min and max tenure) are read from params/params.toml, never copied here.
+# Floats are allowed inside random draws. Every output field is an integer, a boolean, a string or null.
+
+[population]
+size_from = "config/experiment.toml:d3.size"   # 20000
+
+[age]
+min = 21
+max = 60
+distribution = "uniform"
+
+[employment_type]
+salaried = 0.70
+self_employed = 0.25
+other = 0.05
+
+[employment_months]
+# Exponential draw with this mean, capped at 12 * (age - 18). Longer for older applicants through the cap.
+mean = 60
+floor = 0
+
+[income]
+# Log-normal. median_at_age_40 is the median monthly net income at age 40 and 60 months of employment.
+median_at_age_40 = 40000
+sigma = 0.6
+age_coef_per_year = 0.010
+tenure_coef_per_month = 0.002
+floor = 8000
+rounding = "whole_rupees_half_up"
+
+[obligations]
+# Share of income. Zero for a fraction of applicants, otherwise Beta(alpha, beta) with mean alpha / (alpha + beta).
+zero_fraction = 0.25
+beta_alpha = 2.0
+beta_beta = 8.0
+
+[obligations_fallback]
+# Used by the D2 mapping when a bureau obligation value is missing (ASM-D4). Same shape as [obligations].
+# One draw per applicant, seeded from the applicant key (docs/experiment-protocol.md section 1).
+zero_fraction = 0.25
+beta_alpha = 2.0
+beta_beta = 8.0
+
+[credit_score]
+mean = 700
+std = 70
+min = 300
+max = 900
+null_fraction = 0.05
+
+[enquiries_6m]
+poisson_mean = 2
+
+[delinquency]
+# p = min(cap, base * exp(-slope * (credit_score - 700))). Null score uses base.
+base = 0.06
+slope = 0.01
+cap = 0.50
+
+[written_off]
+p = 0.01
+
+[kyc_consent]
+kyc_verified_p = 0.98
+consent_given_p = 0.99
+
+[request]
+multiple_min = 2
+multiple_max = 15
+round_to = "amount_step"      # read from params
+clip_to = "product_range"     # read from params
+tenure_choices = [12, 24, 36, 48, 60]
+
+[protected]
+# Audit-only store. Drawn independently of every other field, so no group effect exists by default.
+gender = { F = 0.5, M = 0.5 }
+region_tier = { "1" = 0.3, "2" = 0.5, "3" = 0.2 }
+age_bands = ["21-29", "30-39", "40-49", "50-59", "60+"]   # same edges as config/d2_mapping.toml
+
+[bias]
+# Planted-bias switch for the Phase 5 test. OFF in every reported experiment.
+# When on: monthly net income of the named group is multiplied by (1 + income_shift_pct / 100) before rounding.
+enabled = false
+group_attribute = "gender"
+group_value = "F"
+income_shift_pct = -15
+
+[sim_outcome]
+# Optional simulated repayment, D3 only, to check that the pipeline runs on a dataset with an outcome label.
+# Never reported as evidence about real lending.
+enabled = true
+intercept = -3.0
+score_coef = -0.01            # per credit-score point above 700
+foir_coef = 2.0               # on existing FOIR
+delinquency_coef = 1.0        # on severe_delinquency_36m true
+# P(sim_default = 1) = 1 / (1 + exp(-(intercept + score_coef*(score-700) + foir_coef*foir + delinquency_coef*delinq)))
+# Null score uses 700.

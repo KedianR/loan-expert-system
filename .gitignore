@@ -29,6 +29,18 @@ build/
 # Data: never commit raw data (AGENTS.md Hard Rule 9)
 data/raw/
 
+# Phase 4 data artifacts (excluded per spec)
+data/mapped/
+data/protected/
+data/splits/
+data/decisions/
+data/synthetic/d3_*
+models/
+
+# Keep reports/ml/ and data/manifest.json tracked
+!reports/ml/
+!data/manifest.json
+
 # Test caches
 .pytest_cache/
 .coverage

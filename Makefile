@@ -169,14 +169,7 @@ fairness-pin:
 	$(PYTHON) -m src.eval.fairness_guard
 
 compare:
-	@echo "# ---------------------------------------------------------------------------
-# Phase 5 targets (WP-18 to WP-22)
-# ---------------------------------------------------------------------------
-
-fairness-pin:
-	$(PYTHON) -m src.eval.fairness_guard
-
-compare: not yet implemented (Phase 5)"
+	@echo "compare: not yet implemented (Phase 5)"
 	@exit 1
 
 fairness:

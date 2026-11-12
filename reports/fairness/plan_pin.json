@@ -1,0 +1,6 @@
+{
+  "plan_file": "docs/fairness-audit-plan.md",
+  "plan_sha256": "f0c16d1411d720be34749a4da6a5c2b38f67de5294ea212d178bf6ab7c53ccdc",
+  "config_file": "config/fairness.toml",
+  "config_sha256": "10854cc77c7295269ce214fd61a4b8ffcf50a6c59e357a6c3f00ae2cdee81510"
+}

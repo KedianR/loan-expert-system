@@ -5,3 +5,4 @@ Any modification to the pinned plan or configuration must be documented here wit
 
 | ID | Date | What changed | Reason | Results viewed? |
 |---|---|---|---|---|
+| A-01 | 2026-11-13 | Guard released after plan pin: group_outcome_metrics set to true in config/experiment.toml | Part A step 4 pre-registered protocol step | No |

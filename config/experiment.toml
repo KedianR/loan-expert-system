@@ -51,9 +51,8 @@ primary = 5
 [fairness]
 # D-06. Used here only to build the group-size tables.
 min_group_size = 100
-# Guard. Phase 4 must not compute any outcome metric by protected group.
-# The fairness plan is committed before any group result is seen (Phase 5).
-group_outcome_metrics = false
+# Guard released after plan pin (commit e6117ee). Logged in docs/fairness-amendments.md.
+group_outcome_metrics = true
 
 [bootstrap]
 # Phase 4 close-out amendment (P4-13). Logged in docs/open-questions.md.

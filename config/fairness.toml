@@ -1,0 +1,61 @@
+# Fairness plan settings (docs/fairness-audit-plan.md). Fixed BEFORE any group result is viewed.
+# `make fairness-pin` records the SHA-256 of this file and of the plan in reports/fairness/plan_pin.json.
+# `make fairness` refuses to run if the pin is missing or either file changed (unless docs/fairness-amendments.md logs the change).
+# Values marked PLACEHOLDER were chosen by the reviewer; the owner may change them before the pin, never after.
+
+[plan]
+version = "1.0.0"
+
+[population]
+d2 = "test"            # D2 test split only (validation is never used for group results)
+d3 = "test"            # D3 headline and ML. The planted-bias test uses all D3 rows, rules only.
+refer_treatments = ["A_refer_not_approved", "B_refer_excluded"]   # both reported; A is the headline
+
+[groups.d2]
+primary = ["gender", "age_band", "region_rating"]
+secondary = ["employment_type", "income_band"]
+intersections = [["gender", "age_band"]]
+# Not analysed (stated as a limit): education, family status, occupation.
+
+[groups.d3]
+primary = ["gender", "age_band", "region_tier"]
+secondary = ["employment_type", "income_band"]
+intersections = [["gender", "age_band"]]
+
+[metrics]
+d2_primary = "equal_opportunity_difference"   # D-05: approval-rate gap among applicants who repay (TARGET = 0)
+d3_primary = "selection_rate_difference"      # D-05: no repayment truth on D3
+screening = [
+  "selection_rate_ratio",
+  "selection_rate_difference",
+  "false_approval_rate_difference",           # approval rate among TARGET = 1
+  "default_rate_among_approved",              # rule system's calibration analogue
+  "calibration_by_group",                     # model only: mean score vs observed default rate, 5 equal-count score bins
+  "brier_by_group",                           # model only
+]
+
+[flagging]
+reference_group = "largest"      # per attribute, the group with the most applicants in the evaluated population
+ci_level_family_alpha = 0.05     # per attribute; divided by the number of non-reference groups (Bonferroni)
+four_fifths_ratio = 0.80         # screening signal only, never a finding on its own (D-05)
+min_group_size = 100             # D-06: smaller groups are listed as too small and not scored
+min_events = 20                  # PLACEHOLDER: fewer approvals (or approved repayers for EOD) in a group, or in the reference group, is "unstable" and not flagged
+flag_rule = "difference to reference group has a bootstrap CI that excludes 0"
+
+[bootstrap]
+seed_name = "bootstrap"          # derived from the master seed like every other seed
+resamples = 1000                 # same as config/experiment.toml [bootstrap]; resample applicants, not rows of a group
+
+[planted_bias_test]
+dataset = "d3_all_rows_rules_only"
+attribute = "gender"
+metric = "selection_rate_difference"
+expected_flag = true             # bias run: F lower than M, CI excludes 0
+expected_flag_control = false    # control run: bias off, same seed
+# Do not change the planted shift (config/generator.toml [bias]) to make the test pass. If the bias is not detected, STOP and report.
+
+[hand_check]
+fixture = "tests/fixtures/fairness_hand_check.csv"   # 12 rows, answers worked out by hand in the test file
+
+[mitigation]
+apply = false                    # options are listed in the plan; none is applied in Phase 5 or 6

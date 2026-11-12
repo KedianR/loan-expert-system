@@ -43,7 +43,7 @@ def test_DR05_filtered_comparison_files_exist():
     reason="Run make baseline-filtered first",
 )
 def test_filtered_no_group_outcome_metrics():
-    """No comparison file may contain outcome metrics by protected group (DR-06)."""
+    """No comparison file may contain outcome metrics by protected group (D-06)."""
     for fname in COMPARISON_FILES:
         p = METRICS_DIR / fname
         data = json.loads(p.read_text(encoding="utf-8"))

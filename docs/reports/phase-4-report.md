@@ -56,11 +56,11 @@ All 29 Phase 4 tests pass under `pytest` (full project test suite: 160 passed, 0
 | `test_feature_list_file_exists` | `tests/unit/test_ml_metrics.py` | WP-17: `reports/ml/feature_list.json` exists with complete groups | PASS |
 | `test_split_leakage_shuffle_test_labels` | `tests/unit/test_ml_split.py` | docs/ml-baseline-spec.md §10: Zero leakage; test split never used in training | PASS |
 | `test_split_files_integrity` | `tests/unit/test_ml_split.py` | WP-16b: D2 and D3 split ratios match 70/15/15 target | PASS |
-| `test_group_sizes_never_reads_decisions_or_outcomes` | `tests/unit/test_no_group_outcome.py` | DR-06: Group sizing never imports or reads decisions or labels | PASS |
-| `test_group_size_tables_have_no_outcome_columns` | `tests/unit/test_no_group_outcome.py` | DR-06: Group size output tables contain no outcome columns | PASS |
+| `test_group_sizes_never_reads_decisions_or_outcomes` | `tests/unit/test_no_group_outcome.py` | D-06: Group sizing never imports or reads decisions or labels | PASS |
+| `test_group_size_tables_have_no_outcome_columns` | `tests/unit/test_no_group_outcome.py` | D-06: Group size output tables contain no outcome columns | PASS |
 | `test_protected_store_isolation_static_scan` | `tests/unit/test_protected_store_isolation.py` | DR-02: `src/` modules (except mappers) never reference protected store | PASS |
 | `test_DR05_filtered_comparison_files_exist` | `tests/unit/test_baseline_filtered.py` | P4-14: `comparison_main.json`, `comparison_f1.json`, `comparison_f2.json` exist | PASS |
-| `test_filtered_no_group_outcome_metrics` | `tests/unit/test_baseline_filtered.py` | DR-06: Filtered comparisons compute no outcome metric by group | PASS |
+| `test_filtered_no_group_outcome_metrics` | `tests/unit/test_baseline_filtered.py` | D-06: Filtered comparisons compute no outcome metric by group | PASS |
 | `test_filtered_lr_and_gb_note_no_retrain` | `tests/unit/test_baseline_filtered.py` | P4-14: Model entries state no retraining occurred | PASS |
 | `test_filtered_f1_f2_subsets_labelled` | `tests/unit/test_baseline_filtered.py` | P4-14: Filtered outputs explicitly labeled as "filtered subset" | PASS |
 | `test_filtered_rule_note_mechanical_approval` | `tests/unit/test_baseline_filtered.py` | P4-14: Rule system notes mechanical increase in approval rate | PASS |

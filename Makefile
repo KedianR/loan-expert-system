@@ -172,8 +172,7 @@ edge-cases:
 	$(PYTHON) -m src.eval.edge_cases
 
 compare:
-	@echo "compare: not yet implemented (Phase 5)"
-	@exit 1
+	$(PYTHON) -m src.eval.compare
 
 fairness:
 	@echo "fairness: not yet implemented (Phase 5)"

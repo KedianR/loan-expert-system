@@ -77,3 +77,24 @@ A change to this protocol, to `config/experiment.toml` or to `config/ml.toml` af
 | P4-10 | Explanations for the logistic regression are exact linear contributions; no SHAP package is required |
 | P4-11 | Every mapping constant is in `config/d2_mapping.toml`; none is typed into the mapping code |
 | P4-12 | Cost ratios 3, 5 and 10, primary 5, are placeholders the owner may change before results are viewed |
+| P4-13 | Added seed name "bootstrap" to config/experiment.toml and section [bootstrap] with resamples = 1000 and ci = 0.95 |
+| P4-14 | Filtered subsets F1 and F2 pre-registered after viewing reason-code frequencies and before viewing any filtered outcome result |
+
+## 9. Decisions taken for Phase 5 (Fairness and Evaluation)
+
+| ID | Decision |
+|---|---|
+| P5-1 | Groups as in `config/fairness.toml`. D2 primary: gender, age band, region rating. D3 primary: gender, age band, region tier. Secondary on both: employment type and income band (quartiles of `monthly_net_income` fixed on the train split). One intersection: gender by age band, only cells of 100 or more |
+| P5-2 | D2 group results use the test split only (N = 46,127). D3 headline uses the D3 test split. Validation rows are never used for a group result |
+| P5-3 | Both refer treatments (A: refer is not approved; B: refer rows left out for both systems) are reported. A is the headline |
+| P5-4 | Flag rule: per attribute, compare each group with the largest group; difference with a percentile bootstrap CI (1,000 resamples of applicants, derived seed `bootstrap`) at level 1 minus 0.05 divided by the number of non-reference groups. Flag only if the CI excludes 0. The four-fifths ratio below 0.80 is shown next to it as a screening signal and never flags on its own. The largest max-minus-min gap is reported descriptively and is never a test statistic |
+| P5-5 | Groups under 100 are listed as too small and not scored (D-06). A group, or the reference group, with fewer than 20 approvals (for EOD, fewer than 20 approved repayers) is "unstable": its numbers are shown and it is not flagged (placeholder value) |
+| P5-6 | Model metrics use the operating points chosen on validation in Phase 4: matched approval rate (headline) and cost-based (secondary). No per-group threshold, because that would use the protected attribute in a decision |
+| P5-7 | D2 primary metric: equal opportunity difference = approval rate among applicants with `TARGET = 0` in the group minus the same rate in the reference group. D3 primary metric: selection-rate difference. `sim_default` is never used for a fairness finding |
+| P5-8 | Rule-system calibration analogue: default rate among approved, by group, with a bootstrap CI. Model calibration: Brier score and mean score against observed default rate in 5 equal-count score bins (bins from the whole test split), by group |
+| P5-9 | Counterfactual swap: replace the protected store with a shuffled copy and rerun 1,000 D3 rows through the engine and through both D3 models. Decisions must be identical (the rule engine by FR-20, the models because the feature list excludes protected columns). Also report how well a logistic regression on the D2 model features predicts gender (AUC on the test split), as a proxy signal. Report only |
+| P5-10 | Mitigation options are listed in section 6. None is applied in this project. Applying one is a rule or model change and needs the catalog, a new hash and a new plan version |
+| P5-11 | The pipeline test (section 5) runs on D3, all rows, rules only |
+| P5-12 | The demo UI is a small separate app in `src/ui/` with static files, no framework, no new dependency, and no change to `src/api`, `src/engine`, `src/calc`, `src/explain` or `src/audit` (`docs/ui-spec.md`). It meets FR-25 (rule trace and ML score side by side). The reviewer page's ML block stays as Phase 4 left it |
+| P5-13 | Edge cases run the rule system through the service function in process and the D3-trained models (logistic regression main, gradient boosting second); expected behavior is written from the Rule Catalog before the first run (`docs/edge-case-catalog.md`) |
+

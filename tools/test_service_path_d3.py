@@ -14,21 +14,23 @@ Checks:
   - Trace existence for every decision
   - R-05 compliance: no reason code lacking a trace entry in fired rules
 """
+
 from __future__ import annotations
 
+import sys
 import tempfile
 import time
-import sys
 from pathlib import Path
+
 import pandas as pd
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from src.api.service import DecisionService
-from src.audit.store import AuditStore
-from src.facts.fact_builder import get_validator
+from src.api.service import DecisionService  # noqa: E402
+from src.audit.store import AuditStore  # noqa: E402
+from src.facts.fact_builder import get_validator  # noqa: E402
 
 
 def main():
@@ -63,10 +65,24 @@ def main():
                     continue
                 if pd.isna(val) or val is None or str(val).strip() in ("", "nan", "none", "null"):
                     app_dict[col] = None
-                elif col in ("age", "employment_months", "monthly_net_income", "monthly_obligations",
-                             "credit_score", "enquiries_6m", "requested_amount", "requested_tenure_months", "region_tier"):
+                elif col in (
+                    "age",
+                    "employment_months",
+                    "monthly_net_income",
+                    "monthly_obligations",
+                    "credit_score",
+                    "enquiries_6m",
+                    "requested_amount",
+                    "requested_tenure_months",
+                    "region_tier",
+                ):
                     app_dict[col] = int(val)
-                elif col in ("severe_delinquency_36m", "written_off", "kyc_verified", "consent_given"):
+                elif col in (
+                    "severe_delinquency_36m",
+                    "written_off",
+                    "kyc_verified",
+                    "consent_given",
+                ):
                     if isinstance(val, bool):
                         app_dict[col] = val
                     else:
@@ -86,15 +102,19 @@ def main():
                 # Check R-05: no reason code lacking a trace entry
                 # Response has decision, reason_codes, and trace is saved in audit record
                 reason_codes = res.get("reason_codes", [])
-                
+
                 # Retrieve trace from audit store
                 dec_id = res.get("decision_id")
                 rec = temp_audit_store.get_decision(dec_id)
                 trace = rec.get("trace", {})
-                
+
                 # Check that every reason code in reason_codes has a corresponding step in trace
                 trace_steps = trace.get("steps", [])
-                fired_codes = {s.get("reason_code") for s in trace_steps if s.get("status") == "fired" and s.get("reason_code")}
+                fired_codes = {
+                    s.get("reason_code")
+                    for s in trace_steps
+                    if s.get("status") == "fired" and s.get("reason_code")
+                }
                 for rc in reason_codes:
                     if rc not in fired_codes:
                         r05_violations += 1
@@ -106,7 +126,7 @@ def main():
         elapsed = time.perf_counter() - start_time
         rows_per_sec = total_rows / elapsed if elapsed > 0 else 0
 
-        print(f"Results for 1,000 D3 rows:")
+        print("Results for 1,000 D3 rows:")
         print(f"  Rows processed: {total_rows}")
         print(f"  Failures: {failures}")
         print(f"  Elapsed time: {elapsed:.2f} s")

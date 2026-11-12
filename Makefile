@@ -25,7 +25,7 @@ FIELDS = rules/fields.toml
 .PHONY: setup test check check-params check-fields check-floats lint format \
         check-rules decide demo replay replay-all audit-verify review-report serve \
         oracle-diff data-d2 data-d3 decide-d3 decide-d2 split baseline baseline-filtered phase4 \
-        compare fairness reproduce
+        fairness-pin compare fairness reproduce
 
 # ---------------------------------------------------------------------------
 # WP-02: setup — install pinned dependencies
@@ -161,8 +161,22 @@ phase4: data-d2 data-d3 decide-d3 split decide-d2 baseline baseline-filtered
 # Stubs for later phases (added when each phase arrives)
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Phase 5 targets (WP-18 to WP-22)
+# ---------------------------------------------------------------------------
+
+fairness-pin:
+	$(PYTHON) -m src.eval.fairness_guard
+
 compare:
-	@echo "compare: not yet implemented (Phase 5)"
+	@echo "# ---------------------------------------------------------------------------
+# Phase 5 targets (WP-18 to WP-22)
+# ---------------------------------------------------------------------------
+
+fairness-pin:
+	$(PYTHON) -m src.eval.fairness_guard
+
+compare: not yet implemented (Phase 5)"
 	@exit 1
 
 fairness:

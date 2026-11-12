@@ -1,0 +1,65 @@
+case_id,category,description,expected_decision,expected_reason_codes,expected_rule_notes,expected_ml_notes
+EC-MD-01,MD,Income missing (null),refer,INCOMPLETE_APPLICATION,"Rule V01 fires on missing required field, outcome refer",ML imputes missing income with train median (no schema check)
+EC-MD-02,MD,Credit score null (thin file),refer,NO_CREDIT_HISTORY,"Rule R01 fires on unknown credit score, outcome refer",ML imputes missing credit score with indicator and median
+EC-MD-03,MD,Income is zero,ineligible,INCOME_BELOW_MINIMUM,Rule K05 fires on income below min_monthly_income,ML assigns very low score due to zero income
+EC-MD-04,MD,Obligations greater than income (FOIR > 1.0),ineligible,HIGH_EXISTING_OBLIGATIONS,Rule E01 fires when existing FOIR exceeds max_existing_foir,ML assigns low score due to high debt-to-income ratio
+EC-MD-05,MD,Employment months missing (null),refer,INCOMPLETE_APPLICATION,Rule V01 fires on missing employment_months,ML imputes missing employment months with median
+EC-MD-06,MD,Requested amount missing (null),refer,INCOMPLETE_APPLICATION,Rule V01 fires on missing requested_amount,ML imputes missing requested amount with median
+EC-MD-07,MD,Consent false,ineligible,CONSENT_NOT_GIVEN,"Rule V02 fires on not consent_given, outcome ineligible",ML model does not evaluate consent; evaluates financial features
+EC-MD-08,MD,KYC verified false,ineligible,KYC_NOT_VERIFIED,"Rule K02 fires on not kyc_verified, outcome ineligible",ML model does not evaluate KYC compliance; evaluates financial features
+EC-MD-09,MD,Field with wrong type (string for integer income),validation_error,SCHEMA_VALIDATION_ERROR,Input schema rejects non-integer; service flags validation error,ML has no input schema validator; requires pipeline error handling
+EC-TB-01,TB,Age below min_age (17),ineligible,LEGAL_CAPACITY_NOT_MET,Rule K01 fires: age < min_age,Age excluded from ML features (DR-02); ML score unaffected by age
+EC-TB-02,TB,Age at min_age (18),eligible,,Rule K01 does not fire: age >= min_age,Age excluded from ML features (DR-02)
+EC-TB-03,TB,Age above min_age (19),eligible,,Rule K01 does not fire,Age excluded from ML features (DR-02)
+EC-TB-04,TB,Monthly income below min (14999),ineligible,INCOME_BELOW_MINIMUM,Rule K05 fires: monthly_net_income < min_monthly_income,ML scores low income with lower probability
+EC-TB-05,TB,Monthly income at min (15000),eligible,,Rule K05 does not fire: income >= min_monthly_income,ML evaluates low income smoothly
+EC-TB-06,TB,Monthly income above min (15001),eligible,,Rule K05 does not fire,ML evaluates low income smoothly
+EC-TB-07,TB,Credit score below min (649),ineligible,CREDIT_SCORE_BELOW_MINIMUM,Rule K04 fires: credit_score < min_credit_score,ML assigns lower score for sub-650 credit score
+EC-TB-08,TB,Credit score at min (650),eligible,,Rule K04 does not fire; Band C lookup,ML assigns moderate score near decision boundary
+EC-TB-09,TB,Credit score above min (651),eligible,,Rule K04 does not fire; Band C lookup,ML assigns moderate score
+EC-TB-10,TB,Salaried employment months below min (5),ineligible,EMPLOYMENT_TENURE_TOO_SHORT,Rule K06 fires on salaried employment < 6 months,ML evaluates low tenure smoothly
+EC-TB-11,TB,Salaried employment months at min (6),eligible,,Rule K06 does not fire: employment >= 6,ML evaluates tenure smoothly
+EC-TB-12,TB,Salaried employment months above min (7),eligible,,Rule K06 does not fire,ML evaluates tenure smoothly
+EC-TB-13,TB,Self-employed tenure below min (23),ineligible,EMPLOYMENT_TENURE_TOO_SHORT,Rule K06 fires on self-employed tenure < 24 months,ML has separate self-employed dummy; evaluates tenure smoothly
+EC-TB-14,TB,Self-employed tenure at min (24),eligible,,Rule K06 does not fire: tenure >= 24,ML evaluates tenure smoothly
+EC-TB-15,TB,Self-employed tenure above min (25),eligible,,Rule K06 does not fire,ML evaluates tenure smoothly
+EC-TB-16,TB,FOIR below cap (obligations 39999),eligible,,Rule E01 does not fire: FOIR < 0.50,ML evaluates debt ratio smoothly
+EC-TB-17,TB,FOIR exactly at cap (obligations 40000),eligible,,Rule E01 condition is FOIR > max_foir; does not fire at exact cap,ML evaluates debt ratio smoothly
+EC-TB-18,TB,FOIR above cap (obligations 40001),ineligible,HIGH_EXISTING_OBLIGATIONS,Rule E01 fires: FOIR > max_existing_foir,ML penalises high debt ratio
+EC-TB-19,TB,Enquiries below max (4),eligible,,Rule R02 does not fire,ML evaluates low enquiry count favourably
+EC-TB-20,TB,Enquiries at max (5),eligible,,Rule R02 condition is enquiries > max_enquiries; does not fire at 5,ML evaluates enquiries smoothly
+EC-TB-21,TB,Enquiries above max (6),refer,HIGH_RECENT_ENQUIRIES,Rule R02 fires: enquiries > 5 -> refer,ML has no referral; lowers score
+EC-TB-22,TB,Requested amount below min (45000),ineligible,AMOUNT_OUTSIDE_PRODUCT_LIMITS,Rule V03 fires: requested_amount < min_amount,ML evaluates small requested loan smoothly
+EC-TB-23,TB,Requested amount at min (50000),eligible,,Rule V03 does not fire,ML evaluates min amount
+EC-TB-24,TB,Requested amount above min (55000),eligible,,Rule V03 does not fire,ML evaluates amount smoothly
+EC-TB-25,TB,Requested amount below max (2495000),eligible,AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY,Rule V03 does not fire; amount curtailed by capacity (A04),ML evaluates large amount
+EC-TB-26,TB,Requested amount at max (2500000),eligible,AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY,Rule V03 does not fire; amount curtailed by capacity (A04),ML evaluates max amount
+EC-TB-27,TB,Requested amount above max (2505000),ineligible,AMOUNT_OUTSIDE_PRODUCT_LIMITS,Rule V03 fires: requested_amount > max_amount,ML evaluates loan above max amount without product limit
+EC-TB-28,TB,Requested tenure below min (11),ineligible,TENURE_OUTSIDE_PRODUCT_LIMITS,Rule V04 fires: tenure < min_tenure,ML evaluates short tenure smoothly
+EC-TB-29,TB,Requested tenure at min (12),eligible,,Rule V04 does not fire,ML evaluates min tenure
+EC-TB-30,TB,Requested tenure above min (13),eligible,,Rule V04 does not fire,ML evaluates tenure smoothly
+EC-TB-31,TB,Requested tenure below max (59),eligible,,Rule V04 does not fire,ML evaluates long tenure
+EC-TB-32,TB,Requested tenure at max (60),eligible,,Rule V04 does not fire,ML evaluates max tenure
+EC-TB-33,TB,Requested tenure above max (61),ineligible,TENURE_OUTSIDE_PRODUCT_LIMITS,Rule V04 fires: tenure > max_tenure,ML evaluates tenure without hard cap
+EC-TB-34,TB,"Requested amount 777,777 not multiple of step 5,000",eligible,AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY,F7 rounds offer down to nearest multiple of 5000 (775000); A04 fires as offer < requested,ML has no amount_step rounding; evaluates raw number
+EC-TB-35,TB,Score just below Band A (749),eligible,,Assigned Band B (pricing tier difference),ML evaluates score smoothly without discrete bands
+EC-TB-36,TB,Score at Band A boundary (750),eligible,,Assigned Band A,ML evaluates score smoothly
+EC-TB-37,TB,Score above Band A (751),eligible,,Assigned Band A,ML evaluates score smoothly
+EC-TB-38,TB,Score just below Band B (699),eligible,,Assigned Band C,ML evaluates score smoothly
+EC-TB-39,TB,Score at Band B boundary (700),eligible,,Assigned Band B,ML evaluates score smoothly
+EC-TB-40,TB,Score above Band B (701),eligible,,Assigned Band B,ML evaluates score smoothly
+EC-TF-01,TF,TF-01: No credit score,refer,NO_CREDIT_HISTORY,Rule R01 refers applicant without score to underwriter,ML scores applicant using imputed score and indicator
+EC-TF-02,TF,TF-02: Shortest allowed employment history (6 months),eligible,,Meets minimum salaried tenure; eligible,ML evaluates short tenure with slight penalty
+EC-TF-03,TF,TF-03: No score and short employment history,refer,NO_CREDIT_HISTORY,Rule R01 refers; tenure is at minimum,ML imputes score and penalises short tenure
+EC-TF-04,TF,TF-04: First-time borrower with zero existing obligations,eligible,,Zero obligations and good score -> eligible (TV3 analogue),ML scores favourably due to zero debt
+EC-RC-01,RC,RC-01: Very high income (500k) with score below knockout (649),ineligible,CREDIT_SCORE_BELOW_MINIMUM,Rule K04 strictly enforces credit score floor regardless of income,ML model may approve due to overwhelming positive weight of 500k income
+EC-RC-02,RC,RC-02: Self-employed with top-of-range credit score (850),eligible,,Meets 24-month self-employed requirement and top score -> Band A,ML assigns very high approval probability
+EC-RC-03,RC,RC-03: Max amount at max tenure with minimum income,eligible,AMOUNT_LIMITED_BY_INCOME_MULTIPLE,"Eligible, but amount curtailed to 10x income (150,000) by rule A04",ML predicts low probability due to extreme loan-to-income ratio
+EC-RC-04,RC,"RC-04: Salaried, min tenure (12m) and large requested amount (2M)",eligible,AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY,"Eligible, but amount curtailed by FOIR capacity at 12 months (A04)",ML penalises high EMI relative to income
+EC-AD-01,AD,AD-01: Income inflated by 25% over base (100k vs 80k),eligible,,Eligible with higher borrowing capacity,ML score increases with inflated income
+EC-AD-02,AD,AD-02: Obligations set to largest value clearing FOIR cap (40k),eligible,,Clears FOIR cap at exact boundary; offer curtailed if capacity binds,ML score lower due to high debt ratio
+EC-AD-03a,AD,"AD-03a: Amount set to engine maximum offer (700,000)",eligible,,Approved at exact requested amount (no curtailment),ML approves at base level
+EC-AD-03b,AD,"AD-03b: Amount set to one step above max offer (705,000)",eligible,AMOUNT_LIMITED_BY_REPAYMENT_CAPACITY,"Offer curtailed by capacity to 700,000; rule A04 fires",ML evaluates marginal amount increase smoothly
+EC-AD-04,AD,AD-04: Tenure set to maximum to minimise EMI (60 months),eligible,,Eligible with lower EMI and higher capacity margin,ML evaluates longer tenure with lower default risk in model weights
+EC-AD-05a,AD,"AD-05a: Baseline applicant (income 80,000)",eligible,,Eligible at base parameters,ML assigns base score
+EC-AD-05b,AD,"AD-05b: Near-identical applicant differing by one rupee of income (80,001)",eligible,,Eligible; identical decision and reason codes to AD-05a,ML score virtually identical; same top 3 feature contributions

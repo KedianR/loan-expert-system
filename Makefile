@@ -24,7 +24,7 @@ FIELDS = rules/fields.toml
 
 .PHONY: setup test check check-params check-fields check-floats lint format \
         check-rules decide demo replay replay-all audit-verify review-report serve \
-        oracle-diff data-d2 data-d3 decide-d3 decide-d2 split baseline phase4 \
+        oracle-diff data-d2 data-d3 decide-d3 decide-d2 split baseline baseline-filtered phase4 \
         compare fairness reproduce
 
 # ---------------------------------------------------------------------------
@@ -140,7 +140,13 @@ split:
 baseline:
 	$(PYTHON) -m src.ml.baseline
 
-phase4: data-d2 data-d3 decide-d3 split decide-d2 baseline
+# ---------------------------------------------------------------------------
+# Phase 4 close-out: filtered-subset comparison (owner answered B)
+# ---------------------------------------------------------------------------
+baseline-filtered:
+	$(PYTHON) -m src.ml.baseline_filtered
+
+phase4: data-d2 data-d3 decide-d3 split decide-d2 baseline baseline-filtered
 	$(PYTHON) tools/check_floats.py src/calc src/facts src/explain src/data/d2_map.py
 	$(PYTHON) -m src.engine.param_loader $(PARAMS)
 	$(PYTHON) -m src.engine.field_loader $(FIELDS)

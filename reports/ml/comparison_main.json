@@ -1,0 +1,209 @@
+{
+  "subset": "main (all evaluated rows)",
+  "filter_description": "All D2 validation and test rows. Operating points from full baseline (reports/ml/metrics_d2_*.json).",
+  "row_counts": {
+    "validation": 46127,
+    "test": 46127
+  },
+  "bootstrap": {
+    "seed": 4069358395,
+    "n_resamples": 1000,
+    "ci_level": 0.95,
+    "note": "Resamples test applicants with replacement."
+  },
+  "group_outcome_metrics": false,
+  "dataset_hash": "44de1b821cd3c4831b485b39435998e53c3f10754c7a069046bbca0f0ca6eae4",
+  "split_hash": "b4d17251eb41042137be01ea4e2363fae78b206ccedc2d87bcc6b89a95e19f47",
+  "rule_system": {
+    "treatment_A": {
+      "description": "refer counts as not approved (Treatment A)",
+      "approval_rate": 0.0168,
+      "n_approved": 776,
+      "default_rate_among_approved": 0.0335,
+      "default_rate_among_approved_ci": {
+        "point": 0.0335,
+        "ci_lower": 0.0214,
+        "ci_upper": 0.047,
+        "ci_level": 0.95,
+        "n_resamples": 1000,
+        "n_approved": 776
+      },
+      "precision": 0.0815,
+      "recall": 0.993,
+      "f1": 0.1507,
+      "confusion": {
+        "tn": 750,
+        "fp": 41653,
+        "fn": 26,
+        "tp": 3698
+      },
+      "cost_per_applicant": {
+        "cost_3": 0.9047,
+        "cost_5": 0.9058,
+        "cost_10": 0.9086
+      }
+    },
+    "treatment_B": {
+      "description": "refer rows excluded (Treatment B)",
+      "approval_rate": 0.0184,
+      "n_approved": 776,
+      "default_rate_among_approved": 0.0335,
+      "default_rate_among_approved_ci": {
+        "point": 0.0335,
+        "ci_lower": 0.0212,
+        "ci_upper": 0.0467,
+        "ci_level": 0.95,
+        "n_resamples": 1000,
+        "n_approved": 776
+      },
+      "precision": 0.087,
+      "recall": 0.9928,
+      "f1": 0.1599,
+      "confusion": {
+        "tn": 750,
+        "fp": 37705,
+        "fn": 26,
+        "tp": 3591
+      },
+      "cost_per_applicant": {
+        "cost_3": 0.8981,
+        "cost_5": 0.8993,
+        "cost_10": 0.9024
+      },
+      "n_excluded_refer": 4055
+    },
+    "note_filtering": "Filtering on rule outcomes mechanically raises the rule system's approval rate: rows the rule system rejected or referred for V03, V04, K05 (and K04 for F2) are removed, so the remaining rows have a higher share of eligible decisions. This is not a performance improvement."
+  },
+  "logistic_regression": {
+    "model": "lr",
+    "note": "No retraining. Fitted on full D2 training set. Applied to filtered subset.",
+    "test_auc": 0.7248,
+    "test_brier": 0.2105,
+    "operating_points": {
+      "matched_approval_rate": {
+        "threshold": 0.1479,
+        "approval_rate": 0.0156,
+        "n_approved": 720,
+        "default_rate_among_approved": 0.0139,
+        "default_rate_among_approved_ci": {
+          "point": 0.0139,
+          "ci_lower": 0.0056,
+          "ci_upper": 0.0242,
+          "ci_level": 0.95,
+          "n_resamples": 1000,
+          "n_approved": 720
+        },
+        "precision": 0.0818,
+        "recall": 0.9973,
+        "f1": 0.1512,
+        "confusion": {
+          "tn": 710,
+          "fp": 41693,
+          "fn": 10,
+          "tp": 3714
+        },
+        "cost_per_applicant": {
+          "cost_3": 0.9045,
+          "cost_5": 0.905,
+          "cost_10": 0.906
+        },
+        "target_approval_rate": 0.0167
+      },
+      "cost_based_primary": {
+        "threshold": 0.6684,
+        "approval_rate": 0.876,
+        "n_approved": 40406,
+        "default_rate_among_approved": 0.0606,
+        "default_rate_among_approved_ci": {
+          "point": 0.0606,
+          "ci_lower": 0.0584,
+          "ci_upper": 0.0631,
+          "ci_level": 0.95,
+          "n_resamples": 1000,
+          "n_approved": 40406
+        },
+        "precision": 0.2227,
+        "recall": 0.3421,
+        "f1": 0.2698,
+        "confusion": {
+          "tn": 37956,
+          "fp": 4447,
+          "fn": 2450,
+          "tp": 1274
+        },
+        "cost_per_applicant": {
+          "cost_3": 0.2558,
+          "cost_5": 0.362,
+          "cost_10": 0.6276
+        },
+        "primary_cost_ratio": 5
+      }
+    }
+  },
+  "gradient_boosting": {
+    "model": "gb",
+    "note": "No retraining. Fitted on full D2 training set. Applied to filtered subset.",
+    "test_auc": 0.7378,
+    "test_brier": 0.1951,
+    "operating_points": {
+      "matched_approval_rate": {
+        "threshold": 0.068,
+        "approval_rate": 0.0171,
+        "n_approved": 787,
+        "default_rate_among_approved": 0.0127,
+        "default_rate_among_approved_ci": {
+          "point": 0.0127,
+          "ci_lower": 0.0058,
+          "ci_upper": 0.0212,
+          "ci_level": 0.95,
+          "n_resamples": 1000,
+          "n_approved": 787
+        },
+        "precision": 0.0819,
+        "recall": 0.9973,
+        "f1": 0.1514,
+        "confusion": {
+          "tn": 777,
+          "fp": 41626,
+          "fn": 10,
+          "tp": 3714
+        },
+        "cost_per_applicant": {
+          "cost_3": 0.9031,
+          "cost_5": 0.9035,
+          "cost_10": 0.9046
+        },
+        "target_approval_rate": 0.0167
+      },
+      "cost_based_primary": {
+        "threshold": 0.6889,
+        "approval_rate": 0.8912,
+        "n_approved": 41110,
+        "default_rate_among_approved": 0.0611,
+        "default_rate_among_approved_ci": {
+          "point": 0.0611,
+          "ci_lower": 0.0586,
+          "ci_upper": 0.0633,
+          "ci_level": 0.95,
+          "n_resamples": 1000,
+          "n_approved": 41110
+        },
+        "precision": 0.242,
+        "recall": 0.326,
+        "f1": 0.2778,
+        "confusion": {
+          "tn": 38600,
+          "fp": 3803,
+          "fn": 2510,
+          "tp": 1214
+        },
+        "cost_per_applicant": {
+          "cost_3": 0.2457,
+          "cost_5": 0.3545,
+          "cost_10": 0.6266
+        },
+        "primary_cost_ratio": 5
+      }
+    }
+  }
+}

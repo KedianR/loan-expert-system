@@ -6,7 +6,7 @@
 # One master seed. Every other seed is derived by name:
 #   seed(name) = int(sha256(f"{master}:{name}").hexdigest(), 16) % 2**32
 # Names used: "split_d2", "split_d3", "d3_population", "d3_bias", "d3_sim_outcome",
-#             "fallback_obligations", "model_lr", "model_gb".
+#             "fallback_obligations", "model_lr", "model_gb", "bootstrap".
 master = 20261112
 
 [splits]
@@ -54,6 +54,11 @@ min_group_size = 100
 # Guard. Phase 4 must not compute any outcome metric by protected group.
 # The fairness plan is committed before any group result is seen (Phase 5).
 group_outcome_metrics = false
+
+[bootstrap]
+# Phase 4 close-out amendment (P4-13). Logged in docs/open-questions.md.
+resamples = 1000
+ci = 0.95
 
 [outputs]
 metrics_dir = "reports/ml"

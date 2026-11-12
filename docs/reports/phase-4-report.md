@@ -1,83 +1,137 @@
 # Phase 4 report
 
 Date: 2026-11-12  
-Commit hash: **a400b9c** (`git rev-parse --short HEAD`)  
-Agent session: phase4-session  
+Commit hash: a84fa6b  
+Agent session: phase4-closeout  
 
 ---
 
-## Step 0: Confirm the Base
+## 1. Step 0: Confirm the Base
 
-1. **`make oracle-diff`**: 0 differences across all D1 cases. Status: MATCH.
-2. **Hygiene grep**: `git grep -nwE "5000|50000|2500000|0\.02" -- src/engine` → empty (exit 1). Status: PASS.
-3. **`make check`, `make check-rules`, `make test`**: All pass. Rule-set tag `rules-1.0.0+params-0.1.0`, SHA-256 `sha256:eb7073a388817e0a455997c0c2ea86ccb25524cdff07faf8bf5ca98bb267be5a` matches `tests/golden/rule_set_pin.json`.
-4. **`docs/datasheets/home-credit-terms.md`**: Exists; states "use for coursework or non-commercial research: allowed." No placeholders. Status: PASS.
-5. **Raw data**: `data/raw/` holds all three files. SHA-256 values equal `data/checksums/home_credit.sha256`. `git check-ignore -v data/raw/application_train.csv` → `.gitignore:30:data/raw/`. Status: PASS.
-6. **Column header verification**: All 17 required columns match `config/d2_mapping.toml` exactly. 0 missing, 0 different. Status: PASS.
-7. **Dependency dry-run**: `python -m pip install --dry-run pandas numpy scikit-learn joblib` → all already satisfied on Python 3.14.2. Status: PASS.
-8. **Float ban configuration**: `Makefile` target `check-floats` runs `python tools/check_floats.py src/calc src/facts src/explain src/data/d2_map.py`. Covers four paths: `src/calc/`, `src/facts/`, `src/explain/`, and `src/data/d2_map.py` (9 files total).
-
----
-
-## 1. Summary
-
-Phase 4 deliverables complete: D2 data mapping of Home Credit Default Risk to the loan expert system fact schema, D3 synthetic population generation, stratified 70/15/15 splits, batch decision evaluations, ML baseline (Logistic Regression + HistGradientBoosting), group-size tables, datasheets, model card, and integrity manifest (WP-15, WP-16b, WP-17). `make phase4` runs all stages in order and passes all Phase 4 checks.
-
-Zero policy values, rules, parameters, or schemas were altered. Rule-set hash unchanged.
+1. **`make oracle-diff`**: 0 differences across all D1 cases against oracle expectations. Status: MATCH.
+2. **Hygiene analyser grep**: `git grep -nwE "5000|50000|2500000|0\.02" -- src/engine` output is empty (0 matches, exit code 1). Status: PASS.
+3. **`make check`, `make check-rules`, `make test`**: Pass cleanly; rule-set tag equals `rules-1.0.0+params-0.1.0` and SHA-256 hash equals `sha256:eb7073a388817e0a455997c0c2ea86ccb25524cdff07faf8bf5ca98bb267be5a` (matching `tests/golden/rule_set_pin.json`). Status: PASS.
+4. **`docs/datasheets/home-credit-terms.md`**: Exists and confirms use for coursework or non-commercial research is allowed without placeholders. Status: PASS.
+5. **Raw data check**: `data/raw/` holds `application_train.csv`, `bureau.csv`, and `bureau_balance.csv`. SHA-256 checksums match `data/checksums/home_credit.sha256` exactly. `git check-ignore -v data/raw/application_train.csv` reports `.gitignore:30:data/raw/`. Status: PASS.
+6. **Column header verification**: All 17 required columns across `application_train.csv`, `bureau.csv`, and `bureau_balance.csv` match `config/d2_mapping.toml` exactly. 0 missing, 0 different. Status: PASS.
+7. **Dependency dry-run**: `python -m pip install --dry-run pandas numpy scikit-learn joblib` confirmed all wheels install cleanly on Python 3.14.2. Status: PASS.
+8. **Float ban configuration**: Configured in `Makefile` under target `check-floats` invoking `tools/check_floats.py`, covering directories `src/calc`, `src/facts`, `src/explain`, and module `src/data/d2_map.py` (9 files total). Status: PASS.
 
 ---
 
-## 2. `make phase4` — Last 15 Lines (commit a400b9c)
+## 2. Summary
 
-```text
-OK: all hygiene checks passed with zero findings.
-python tools/oracle_diff.py
-Diff report written to …\data\d1\oracle_diff.md (0 differences).
-python -m src.data.manifest
-Manifest written to data\manifest.json
-python -m src.data.group_sizes
-Group sizes for d2 written to data\group_sizes\d2_group_sizes.csv:
-  Total groups evaluated: 30, Groups < 100 on test: 4
-Group sizes for d3 written to data\group_sizes\d3_group_sizes.csv:
-  Total groups evaluated: 17, Groups < 100 on test: 1
-"=== Phase 4 complete ==="
-```
+Phase 4 deliverables complete:
+- **WP-15 D2 mapping**: Home Credit Default Risk (307,511 rows) mapped to fact schema in `data/mapped/d2_mapped.csv` and `data/protected/d2_protected.csv` via `src/data/d2_map.py` and `src/data/fallback.py`. Zero validation failures (0/307,511). Extended static float ban confirmed with 0 floats.
+- **WP-16b D3 synthetic population**: 20,000 synthetic applicants generated in `data/synthetic/d3_population.csv` and `data/protected/d3_protected.csv` via `data/synthetic/d3_generator.py`. D1 generation remains byte-identical (`make oracle-diff` reports 0 differences).
+- **Batch decisions & splits**: Stratified 70/15/15 splits generated for D2 and D3 via `src/data/split.py`. Direct engine evaluation in `src/data/batch_decide.py` for full D3 (20,000 rows) and D2 validation/test splits (92,254 rows) without audit logging overhead.
+- **WP-17 ML baseline**: Logistic Regression and HistGradientBoosting trained on D2 and D3 via `src/ml/baseline.py`. Operating points selected on validation; exact linear contributions computed for LR. 5 metrics files and `feature_list.json` written to `reports/ml/`.
+- **Filtered subset comparisons (F1 & F2)**: Implemented `src/ml/baseline_filtered.py` (`make baseline-filtered`) evaluating rule system Treatments A and B, LR, and HistGB across filtered subsets F1 (no V03/V04/K05) and F2 (F1 without K04) without retraining. Operating points chosen on filtered validation rows. 95% bootstrap confidence intervals computed over 1,000 resamples for default rate among approved.
+- **Datasheets & documentation**: `docs/datasheets/home-credit.md`, `docs/datasheets/d3-synthetic.md`, `docs/datasheets/d2-mapping-table.md`, `docs/model-card.md`, and `data/manifest.json`.
 
-`make phase4` order (from `docs/experiment-protocol.md` §2):
-1. `data-d2` → 2. `data-d3` → 3. `decide-d3` → 4. `split` → 5. `decide-d2` → 6. `baseline` → Phase 4 checks → `manifest` → `group_sizes`.
+Zero policy values, rules, parameters, or schemas were altered. Exact decimal arithmetic (`Decimal` and whole rupee `int`) is strictly enforced in mapping code. Protected attributes are strictly isolated to `data/protected/` and never accessed by the fact base, rule engine, or ML baseline features.
 
 ---
 
-## 3. Reproducibility — SHA-256 Comparison (run 1 → run 2)
+## 3. Pass/Fail Table with Lean Test Names
 
-Both `make data-d2`, `make data-d3`, and `make baseline` were run twice. All hashes are identical.
+All 29 Phase 4 tests pass under `pytest` (full project test suite: 160 passed, 0 failed in 22.10s).
 
-| File | Run 1 SHA-256 | Run 2 SHA-256 | Equal? |
+| Test Name | File | Spec Requirement / Purpose | Status |
 |---|---|---|---|
-| `data/mapped/d2_mapped.csv` | `44de1b82…6eae4` | `44de1b82…6eae4` | ✅ |
-| `data/protected/d2_protected.csv` | `d539e950…017f` | `d539e950…017f` | ✅ |
-| `data/synthetic/d3_population.csv` | `2311690b…19ef` | `2311690b…19ef` | ✅ |
-| `data/protected/d3_protected.csv` | `f2bbd239…c44` | `f2bbd239…c44` | ✅ |
-| `reports/ml/metrics_d2_lr.json` | `d45e2ce0…e219` | `d45e2ce0…e219` | ✅ |
-| `reports/ml/metrics_d2_gb.json` | `a58dc871…851` | `a58dc871…851` | ✅ |
-| `reports/ml/metrics_d3_lr.json` | `c4fe5aff…e89` | `c4fe5aff…e89` | ✅ |
-| `reports/ml/metrics_d3_gb.json` | `d74d93b2…c7` | `d74d93b2…c7` | ✅ |
-| `reports/ml/metrics_d3_sim_lr.json` | `20acd369…e55` | `20acd369…e55` | ✅ |
+| `test_DR04_float_ban_fails_when_float_added` | `tests/unit/test_d2_map.py` | DR-04: Static float ban covers d2_map.py; fails when float added | PASS |
+| `test_DR04_mapping_reproducibility_on_fixture` | `tests/unit/test_d2_map.py` | DR-04: D2 mapping deterministic on identical fixture | PASS |
+| `test_ASM_D1_to_D13_documented_in_mapping_table` | `tests/unit/test_d2_map.py` | docs/08-datasets.md §3: All assumptions ASM-D1 to D13 in mapping table | PASS |
+| `test_bureau_fallback_rules` | `tests/unit/test_d2_map.py` | ASM-D4: Bureau fallback covers all 4 cases | PASS |
+| `test_sentinel_days_employed_becomes_none` | `tests/unit/test_d2_map.py` | ASM-D2: Sentinel DAYS_EMPLOYED=365243 maps to null/unknown | PASS |
+| `test_income_type_mapping` | `tests/unit/test_d2_map.py` | ASM-D1: Income type correctly categorized into salaried/self_employed/other | PASS |
+| `test_DR05_d3_same_seed_identical_hash` | `tests/unit/test_d3_generator.py` | DR-05: D3 generator produces identical SHA-256 with same seed | PASS |
+| `test_DR05_d3_different_seed_different_hash` | `tests/unit/test_d3_generator.py` | DR-05: D3 generator produces different output with different seed | PASS |
+| `test_DR05_d3_no_float_fields` | `tests/unit/test_d3_generator.py` | P4-8: D3 output fields are int, bool, str, null only (no floats) | PASS |
+| `test_DR05_d3_bias_switch` | `tests/unit/test_d3_generator.py` | config/generator.toml: Planted bias switch alters data when enabled | PASS |
+| `test_DR02_no_protected_or_excluded_features` | `tests/unit/test_ml_features.py` | DR-02: ML feature list contains no protected or excluded attributes | PASS |
+| `test_DR02_every_feature_in_config` | `tests/unit/test_ml_features.py` | DR-02: Every model feature is explicitly declared in config/ml.toml | PASS |
+| `test_pipeline_accepts_row_with_unknown_values` | `tests/unit/test_ml_features.py` | docs/ml-baseline-spec.md §4: Pipeline handles missing values gracefully | PASS |
+| `test_five_metrics_files_exist_and_validate` | `tests/unit/test_ml_metrics.py` | WP-17: All 5 baseline metrics JSON files exist and match schema | PASS |
+| `test_feature_list_file_exists` | `tests/unit/test_ml_metrics.py` | WP-17: `reports/ml/feature_list.json` exists with complete groups | PASS |
+| `test_split_leakage_shuffle_test_labels` | `tests/unit/test_ml_split.py` | docs/ml-baseline-spec.md §10: Zero leakage; test split never used in training | PASS |
+| `test_split_files_integrity` | `tests/unit/test_ml_split.py` | WP-16b: D2 and D3 split ratios match 70/15/15 target | PASS |
+| `test_group_sizes_never_reads_decisions_or_outcomes` | `tests/unit/test_no_group_outcome.py` | DR-06: Group sizing never imports or reads decisions or labels | PASS |
+| `test_group_size_tables_have_no_outcome_columns` | `tests/unit/test_no_group_outcome.py` | DR-06: Group size output tables contain no outcome columns | PASS |
+| `test_protected_store_isolation_static_scan` | `tests/unit/test_protected_store_isolation.py` | DR-02: `src/` modules (except mappers) never reference protected store | PASS |
+| `test_DR05_filtered_comparison_files_exist` | `tests/unit/test_baseline_filtered.py` | P4-14: `comparison_main.json`, `comparison_f1.json`, `comparison_f2.json` exist | PASS |
+| `test_filtered_no_group_outcome_metrics` | `tests/unit/test_baseline_filtered.py` | DR-06: Filtered comparisons compute no outcome metric by group | PASS |
+| `test_filtered_lr_and_gb_note_no_retrain` | `tests/unit/test_baseline_filtered.py` | P4-14: Model entries state no retraining occurred | PASS |
+| `test_filtered_f1_f2_subsets_labelled` | `tests/unit/test_baseline_filtered.py` | P4-14: Filtered outputs explicitly labeled as "filtered subset" | PASS |
+| `test_filtered_rule_note_mechanical_approval` | `tests/unit/test_baseline_filtered.py` | P4-14: Rule system notes mechanical increase in approval rate | PASS |
+| `test_filtered_bootstrap_ci_present` | `tests/unit/test_baseline_filtered.py` | P4-13: 95% bootstrap CIs present on all approval operating points | PASS |
+| `test_DR05_filtered_comparison_reproducible` | `tests/unit/test_baseline_filtered.py` | DR-05: Filtered comparisons reproduce byte-identical across runs | PASS |
+| `test_filter_mask_f1_excludes_correct_codes` | `tests/unit/test_baseline_filtered.py` | P4-14: F1 mask correctly excludes V03, V04, K05 | PASS |
+| `test_filter_mask_f2_also_excludes_k04` | `tests/unit/test_baseline_filtered.py` | P4-14: F2 mask correctly excludes V03, V04, K05, K04 | PASS |
 
-**Full SHA-256 values:**
-```
-data/mapped/d2_mapped.csv:            44de1b821cd3c4831b485b39435998e53c3f10754c7a069046bbca0f0ca6eae4
-data/protected/d2_protected.csv:      d539e950a8a340470788b827a16678efd8c3ecb8f70dcf1f50980f2a1189017f
-data/synthetic/d3_population.csv:     2311690bfaf45d7e944f5e572bdd50d0f5a768494480d54d78a88b1b8ed619ef
-data/protected/d3_protected.csv:      f2bbd239ee35022ab99c69f32343962c2e33f84173a471a7d07b1499cd673c44
-reports/ml/metrics_d2_lr.json:        d45e2ce0f55b2359a6e1c3af3fc5fcf461f3025f64089f5011b8ef4610c7e219
-reports/ml/metrics_d2_gb.json:        a58dc871cbd4257c70001e27d425b3c3e2f1cc8ac22eea9d220cb397190ba851
-reports/ml/metrics_d3_lr.json:        c4fe5aff7ae57d316e42258fac721bac214c441b6f0ad8102e8b5942e199be89
-reports/ml/metrics_d3_gb.json:        d74d93b2d707791f8d25342b55cba911ebfb993f46a53980c69da398c412b0c7
-reports/ml/metrics_d3_sim_lr.json:    20acd369fb433eddbf8961e30d15c7a5f1af249a1b4dc94c80e01fae33f67e55
-```
+---
 
-**`data/manifest.json`:**
+## 4. Engine and Source Changes
+
+In accordance with AGENTS.md, **zero changes were made** to existing engine, calculation, explanation, or rule modules:
+- `src/engine/`: Untouched.
+- `src/calc/`: Untouched.
+- `src/explain/`: Untouched.
+- `src/audit/`: Untouched.
+- `src/api/`: Untouched.
+- `rules/`: Untouched.
+- `params/`: Untouched.
+- `schemas/`: Untouched.
+- `tests/golden/`: Untouched.
+
+**New source and tool modules added in Phase 4:**
+- `src/data/d2_map.py`: Home Credit raw CSV chunked processor and fact mapper.
+- `src/data/fallback.py`: Obligations fallback draw via Beta distribution.
+- `data/synthetic/d3_generator.py`: Synthetic population generator.
+- `src/data/split.py`: Stratified 70/15/15 train/validation/test splitter.
+- `src/data/batch_decide.py`: Batch evaluation engine runner for D2 and D3.
+- `src/data/manifest.py`: Cryptographic hash manifest builder (`data/manifest.json`).
+- `src/data/group_sizes.py`: Demographic subgroup census builder (`data/group_sizes/`).
+- `src/ml/features.py`: Feature engineering pipeline with ColumnTransformer.
+- `src/ml/baseline.py`: ML baseline trainer, validator, and evaluator.
+- `src/ml/baseline_filtered.py`: Filtered subset comparison engine with bootstrap CIs.
+
+---
+
+## 5. Dependencies
+
+Pinned in `requirements.txt`:
+- `pandas==3.1.1`
+- `numpy==2.5.4`
+- `scikit-learn==1.9.1`
+- `joblib==1.6.0`
+- `scipy==1.18.1`
+- `narwhals==2.28.0`
+- `threadpoolctl==3.8.0`
+- `cloudpickle==3.1.2`
+
+---
+
+## 6. Reproducibility Hashes and Manifest
+
+All generated datasets, models, metrics, and comparison files were generated across two independent runs. SHA-256 hashes are identical.
+
+| Artifact File | Run 1 SHA-256 | Run 2 SHA-256 | Equal? |
+|---|---|---|---|
+| `data/mapped/d2_mapped.csv` | `44de1b821cd3c4831b485b39435998e53c3f10754c7a069046bbca0f0ca6eae4` | `44de1b821cd3c4831b485b39435998e53c3f10754c7a069046bbca0f0ca6eae4` | ✅ |
+| `data/protected/d2_protected.csv` | `d539e950a8a340470788b827a16678efd8c3ecb8f70dcf1f50980f2a1189017f` | `d539e950a8a340470788b827a16678efd8c3ecb8f70dcf1f50980f2a1189017f` | ✅ |
+| `data/synthetic/d3_population.csv` | `2311690bfaf45d7e944f5e572bdd50d0f5a768494480d54d78a88b1b8ed619ef` | `2311690bfaf45d7e944f5e572bdd50d0f5a768494480d54d78a88b1b8ed619ef` | ✅ |
+| `data/protected/d3_protected.csv` | `f2bbd239ee35022ab99c69f32343962c2e33f84173a471a7d07b1499cd673c44` | `f2bbd239ee35022ab99c69f32343962c2e33f84173a471a7d07b1499cd673c44` | ✅ |
+| `reports/ml/metrics_d2_lr.json` | `d45e2ce0f55b2359a6e1c3af3fc5fcf461f3025f64089f5011b8ef4610c7e219` | `d45e2ce0f55b2359a6e1c3af3fc5fcf461f3025f64089f5011b8ef4610c7e219` | ✅ |
+| `reports/ml/metrics_d2_gb.json` | `a58dc871cbd4257c70001e27d425b3c3e2f1cc8ac22eea9d220cb397190ba851` | `a58dc871cbd4257c70001e27d425b3c3e2f1cc8ac22eea9d220cb397190ba851` | ✅ |
+| `reports/ml/metrics_d3_lr.json` | `c4fe5aff7ae57d316e42258fac721bac214c441b6f0ad8102e8b5942e199be89` | `c4fe5aff7ae57d316e42258fac721bac214c441b6f0ad8102e8b5942e199be89` | ✅ |
+| `reports/ml/metrics_d3_gb.json` | `d74d93b2d707791f8d25342b55cba911ebfb993f46a53980c69da398c412b0c7` | `d74d93b2d707791f8d25342b55cba911ebfb993f46a53980c69da398c412b0c7` | ✅ |
+| `reports/ml/metrics_d3_sim_lr.json` | `20acd369fb433eddbf8961e30d15c7a5f1af249a1b4dc94c80e01fae33f67e55` | `20acd369fb433eddbf8961e30d15c7a5f1af249a1b4dc94c80e01fae33f67e55` | ✅ |
+| `reports/ml/comparison_main.json` | `dd151b5b022b276770334283e9135abafc10f811d96ac9235211d28431e66aa6` | `dd151b5b022b276770334283e9135abafc10f811d96ac9235211d28431e66aa6` | ✅ |
+| `reports/ml/comparison_f1.json` | `c53ee2b171077e3b6457469d43d38799bd4e0bc87df1ed03e42abf21047769b7` | `c53ee2b171077e3b6457469d43d38799bd4e0bc87df1ed03e42abf21047769b7` | ✅ |
+| `reports/ml/comparison_f2.json` | `c639023c3138feb6a9255e567457396226d594c4d6a9f34d7563544968fa515a` | `c639023c3138feb6a9255e567457396226d594c4d6a9f34d7563544968fa515a` | ✅ |
+
+### `data/manifest.json`
 
 ```json
 {
@@ -114,11 +168,11 @@ reports/ml/metrics_d3_sim_lr.json:    20acd369fb433eddbf8961e30d15c7a5f1af249a1b
 
 ---
 
-## 4. Decision Statistics
+## 7. Decision Statistics
 
-### 4.1 D2 Decisions (`data/decisions/d2_decisions.csv`)
+### 7.1 D2 Decisions (`data/decisions/d2_decisions.csv`)
 
-> Evaluated rows: 92,254 (validation + test splits of the full 307,511 mapped rows).
+Evaluated rows: 92,254 (validation and test splits).
 
 **Decision share:**
 
@@ -127,9 +181,9 @@ reports/ml/metrics_d3_sim_lr.json:    20acd369fb433eddbf8961e30d15c7a5f1af249a1b
 | ineligible | 82,663 | 89.60% |
 | refer | 8,046 | 8.72% |
 | eligible | 1,545 | 1.67% |
-| **Total** | **92,254** | **100%** |
+| **Total** | **92,254** | **100.00%** |
 
-**Reason-code frequency table** (a row may carry multiple codes; count = rows where code fired):
+**Reason-code frequency table:**
 
 | Reason Code | Rule | Count | Share of evaluated |
 |---|---|---|---|
@@ -148,7 +202,7 @@ reports/ml/metrics_d3_sim_lr.json:    20acd369fb433eddbf8961e30d15c7a5f1af249a1b
 | `HIGH_RECENT_ENQUIRIES` | R02 | 106 | 0.11% |
 | `NO_CREDIT_HISTORY` | R01 | 13 | 0.01% |
 
-**Rows failing V03, V04, K05** (in this evaluated set):
+**Counts failing V03, V04, K05:**
 
 | Rule | Reason Code | Count | Share |
 |---|---|---|---|
@@ -156,9 +210,7 @@ reports/ml/metrics_d3_sim_lr.json:    20acd369fb433eddbf8961e30d15c7a5f1af249a1b
 | V04 | `TENURE_OUTSIDE_PRODUCT_LIMITS` | 10,345 | 11.21% |
 | K05 | `INCOME_BELOW_MINIMUM` | 57,057 | 61.85% |
 
-> For context: across the full 307,511 mapped D2 rows, the mapping table reports V03: 922 rows (0.30%), V04: 34,671 rows (11.27%), K05: 190,865 rows (62.07%) — consistent with the validation/test sample.
-
-**Refer decisions from V01 or R01** (experiment-protocol §3 requirement):
+**Refer decisions originating from V01 or R01:**
 
 | Code | Rule | Refer count | % of all refer |
 |---|---|---|---|
@@ -166,22 +218,18 @@ reports/ml/metrics_d3_sim_lr.json:    20acd369fb433eddbf8961e30d15c7a5f1af249a1b
 | `NO_CREDIT_HISTORY` | R01 | 13 | 0.16% |
 | **V01 or R01 combined** | — | **8,031** | **99.81%** |
 
-> **Interpretation**: 99.81% of D2 refer decisions come from unknown facts (V01: missing required facts, R01: no credit history). This means the comparison evidence is weak for the refer population: nearly all refer rows would need manual review precisely because a key fact is unknown, so treating them as either approved or denied introduces noise. The reviewer should factor this in when interpreting Treatment A vs. B results.
+### 7.2 D3 Decisions (`data/decisions/d3_decisions.csv`)
 
----
-
-### 4.2 D3 Decisions (`data/decisions/d3_decisions.csv`)
-
-> Evaluated rows: 20,000 (full synthetic population).
+Evaluated rows: 20,000 (all synthetic applicants).
 
 **Decision share:**
 
 | Decision | Count | Share |
 |---|---|---|
-| eligible | 9,449 | **47.24%** |
+| eligible | 9,449 | 47.24% |
 | ineligible | 9,054 | 45.27% |
 | refer | 1,497 | 7.49% |
-| **Total** | **20,000** | **100%** |
+| **Total** | **20,000** | **100.00%** |
 
 **Reason-code frequency table:**
 
@@ -201,7 +249,7 @@ reports/ml/metrics_d3_sim_lr.json:    20acd369fb433eddbf8961e30d15c7a5f1af249a1b
 | `CONSENT_NOT_GIVEN` | V02 | 187 | 0.94% |
 | `HIGH_RECENT_ENQUIRIES` | R02 | 181 | 0.91% |
 
-**Rows failing V03, V04, K05:**
+**Counts failing V03, V04, K05:**
 
 | Rule | Reason Code | Count | Share |
 |---|---|---|---|
@@ -209,9 +257,9 @@ reports/ml/metrics_d3_sim_lr.json:    20acd369fb433eddbf8961e30d15c7a5f1af249a1b
 | V04 | `TENURE_OUTSIDE_PRODUCT_LIMITS` | 0 | 0.00% |
 | K05 | `INCOME_BELOW_MINIMUM` | 1,214 | 6.07% |
 
-> D3 generator respects product amount/tenure bounds (amounts drawn from `[min_amount, max_amount]`, tenures from allowed set), so V03 and V04 never fire. K05 fires for the low-income tail of the synthetic distribution.
+*(In D3, requests are generated within product parameters, so V03 and V04 never fire).*
 
-**Refer decisions from V01 or R01:**
+**Refer decisions originating from V01 or R01:**
 
 | Code | Rule | Refer count | % of all refer |
 |---|---|---|---|
@@ -219,118 +267,118 @@ reports/ml/metrics_d3_sim_lr.json:    20acd369fb433eddbf8961e30d15c7a5f1af249a1b
 | `NO_CREDIT_HISTORY` | R01 | 737 | 49.23% |
 | **V01 or R01 combined** | — | **737** | **49.23%** |
 
-> D3 refer decisions split roughly 50/50 between R01 (no credit score) and other referral rules (R02: high enquiries, R03: other employment type). V01 never fires because the synthetic generator always produces complete inputs.
-
 ---
 
-## 5. Mapping Coverage Table (D2, 307,511 rows)
+## 8. Mapping Coverage and Limitations
 
-ASM-D13 applies integer rounding (ROUND_HALF_UP for income/amounts, ROUND_FLOOR for age/months) whenever a Decimal division produces a non-integer.
+### 8.1 D2 Mapping Coverage (307,511 rows)
 
 | Fact | Source | Observed | Derived | Fallback | Unknown | ASM-D13 affected |
 |---|---|---|---|---|---|---|
 | `age` | DAYS_BIRTH | 0 (0.0%) | 307,511 (100.0%) | 0 (0.0%) | 0 (0.0%) | 307,348 (99.95%) |
 | `employment_type` | NAME_INCOME_TYPE | 307,511 (100.0%) | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | — |
-| `employment_months` | DAYS_EMPLOYED | 0 (0.0%) | 252,137 (82.0%) | 0 (0.0%) | 55,374 (18.0%) | ~252,137 (all derived) |
+| `employment_months` | DAYS_EMPLOYED | 0 (0.0%) | 252,137 (82.0%) | 0 (0.0%) | 55,374 (18.0%) | 252,137 (82.00%) |
 | `monthly_net_income` | AMT_INCOME_TOTAL | 0 (0.0%) | 307,511 (100.0%) | 0 (0.0%) | 0 (0.0%) | 5,729 (1.86%) |
-| `monthly_obligations` | bureau AMT_ANNUITY | 0 (0.0%) | 107,687 (35.0%) | 199,824 (65.0%) | 0 (0.0%) | — (sum of integers) |
-| `credit_score` | EXT_SOURCE_1,2,3 | 0 (0.0%) | 307,339 (99.9%) | 0 (0.0%) | 172 (0.1%) | 307,339 (all derived) |
-| `enquiries_6m` | AMT_REQ_CREDIT_BUREAU_MON,QRT | 0 (0.0%) | 265,992 (86.5%) | 0 (0.0%) | 41,519 (13.5%) | — (integer sum) |
-| `severe_delinquency_36m` | bureau_balance STATUS | 0 (0.0%) | 92,231 (30.0%) | 0 (0.0%) | 215,280 (70.0%) | — (boolean) |
-| `written_off` | bureau CREDIT_ACTIVE | 0 (0.0%) | 263,491 (85.7%) | 0 (0.0%) | 44,020 (14.3%) | — (boolean) |
+| `monthly_obligations` | bureau AMT_ANNUITY | 0 (0.0%) | 107,687 (35.0%) | 199,824 (65.0%) | 0 (0.0%) | — |
+| `credit_score` | EXT_SOURCE_1,2,3 | 0 (0.0%) | 307,339 (99.9%) | 0 (0.0%) | 172 (0.1%) | 307,339 (99.94%) |
+| `enquiries_6m` | AMT_REQ_CREDIT_BUREAU_MON,QRT | 0 (0.0%) | 265,992 (86.5%) | 0 (0.0%) | 41,519 (13.5%) | — |
+| `severe_delinquency_36m` | bureau_balance STATUS | 0 (0.0%) | 92,231 (30.0%) | 0 (0.0%) | 215,280 (70.0%) | — |
+| `written_off` | bureau CREDIT_ACTIVE | 0 (0.0%) | 263,491 (85.7%) | 0 (0.0%) | 44,020 (14.3%) | — |
 | `kyc_verified` | constant | 307,511 (100.0%) | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | — |
 | `consent_given` | constant | 307,511 (100.0%) | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | — |
 | `requested_amount` | AMT_CREDIT | 0 (0.0%) | 307,511 (100.0%) | 0 (0.0%) | 0 (0.0%) | 29,807 (9.70%) |
 | `requested_tenure_months` | AMT_CREDIT/AMT_ANNUITY | 0 (0.0%) | 307,499 (100.0%) | 0 (0.0%) | 12 (0.0%) | 278,157 (90.47%) |
 | `region_tier` | REGION_RATING_CLIENT | 307,511 (100.0%) | 0 (0.0%) | 0 (0.0%) | 0 (0.0%) | — |
 
-**ASM-D13 summary:** Integer rounding applies to age (floor, 99.95% of rows), employment_months (floor, all derived rows), monthly_net_income (round half-up, 1.86%), credit_score (round half-up, all derived rows), requested_amount (round half-up, 9.70%), and requested_tenure_months (round half-up, 90.47%). The rounding is documented in the mapping table header.
+### 8.2 Mapping Limitations
 
-**Key coverage notes:**
-- `monthly_obligations`: 65.0% (199,824 rows) rely on Beta-distribution fallback (ASM-D4) due to missing or non-active bureau records. This is the weakest link in the mapping.
-- `severe_delinquency_36m`: 70.0% (215,280 rows) are unknown — applicants with no bureau_balance rows. The engine treats these as unknown and fires V01 (refer) for required fields, or leaves them unknown for non-required fields.
-- `employment_months`: 18.0% (55,374 rows) unknown due to the DAYS_EMPLOYED = 365,243 sentinel (pensioners/not-employed).
-
----
-
-## 6. Phase 4 Tests
-
-### 6.1 Collected Tests (`pytest --collect-only -q` on Phase 4 files)
-
-```
-tests/unit/test_d2_map.py::test_DR04_float_ban_fails_when_float_added
-tests/unit/test_d2_map.py::test_DR04_mapping_reproducibility_on_fixture
-tests/unit/test_d2_map.py::test_ASM_D1_to_D13_documented_in_mapping_table
-tests/unit/test_d2_map.py::test_bureau_fallback_rules
-tests/unit/test_d2_map.py::test_sentinel_days_employed_becomes_none
-tests/unit/test_d2_map.py::test_income_type_mapping
-tests/unit/test_d3_generator.py::test_DR05_d3_same_seed_identical_hash
-tests/unit/test_d3_generator.py::test_DR05_d3_different_seed_different_hash
-tests/unit/test_d3_generator.py::test_DR05_d3_no_float_fields
-tests/unit/test_d3_generator.py::test_DR05_d3_bias_switch
-tests/unit/test_ml_features.py::test_DR02_no_protected_or_excluded_features
-tests/unit/test_ml_features.py::test_DR02_every_feature_in_config
-tests/unit/test_ml_features.py::test_pipeline_accepts_row_with_unknown_values
-tests/unit/test_ml_metrics.py::test_five_metrics_files_exist_and_validate
-tests/unit/test_ml_metrics.py::test_feature_list_file_exists
-tests/unit/test_ml_split.py::test_split_leakage_shuffle_test_labels
-tests/unit/test_ml_split.py::test_split_files_integrity
-tests/unit/test_no_group_outcome.py::test_group_sizes_never_reads_decisions_or_outcomes
-tests/unit/test_no_group_outcome.py::test_group_size_tables_have_no_outcome_columns
-tests/unit/test_protected_store_isolation.py::test_protected_store_isolation_static_scan
-```
-
-**Total: 20 tests across 7 files. All pass.**
-
-### 6.2 Coverage Against Required Tests
-
-| Required test (spec ref) | Covering test(s) | Status |
-|---|---|---|
-| Feature-list: no protected attribute, no identifier, no label-derived column; every feature in config/ml.toml (§10) | `test_DR02_no_protected_or_excluded_features`, `test_DR02_every_feature_in_config` | ✅ |
-| Same split for every model and rule system; test split never used for fitting (§10) | `test_split_leakage_shuffle_test_labels`, `test_split_files_integrity` | ✅ |
-| Two models with metrics file and seed each, for D2 and D3 (§10) | `test_five_metrics_files_exist_and_validate`, `test_feature_list_file_exists` | ✅ |
-| Protected store read by nothing under src/ except mapping/generator modules (§10) | `test_protected_store_isolation_static_scan` | ✅ |
-| Tests use small synthetic fixtures; never need data/raw/ (§10) | All 7 fixture-based tests in test_d2_map.py and test_d3_generator.py | ✅ |
-| Pipeline accepts a row with unknown values (§4) | `test_pipeline_accepts_row_with_unknown_values` | ✅ |
-| No group outcome metric (experiment-protocol §5) | `test_group_sizes_never_reads_decisions_or_outcomes`, `test_group_size_tables_have_no_outcome_columns` | ✅ |
-| Float ban covers d2_map.py; prove it fails when a float is added (DR-04) | `test_DR04_float_ban_fails_when_float_added` | ✅ |
-| Mapping reproducibility: same hash on same fixture twice (experiment-protocol §6) | `test_DR04_mapping_reproducibility_on_fixture` | ✅ |
-| D3: same seed → identical hash; different seed → different hash (experiment-protocol §6) | `test_DR05_d3_same_seed_identical_hash`, `test_DR05_d3_different_seed_different_hash` | ✅ |
-| ASM-D1 to D13 documented in mapping table (docs/08-datasets.md §3) | `test_ASM_D1_to_D13_documented_in_mapping_table` | ✅ |
-| ASM-D4 bureau fallback: 4 cases (no bureau, closed only, active with annuity, active with missing annuity) | `test_bureau_fallback_rules` | ✅ |
-| ASM-D2 sentinel DAYS_EMPLOYED=365243 → null employment_months | `test_sentinel_days_employed_becomes_none` | ✅ |
-| ASM-D1 NAME_INCOME_TYPE mapping (salaried/self_employed/other) | `test_income_type_mapping` | ✅ |
-| D3: no float fields in output (P4-8) | `test_DR05_d3_no_float_fields` | ✅ |
-| D3: bias switch changes output (config/generator.toml) | `test_DR05_d3_bias_switch` | ✅ |
-
-**No required test is missing.** All 16 requirements from `docs/ml-baseline-spec.md` §10 and the Phase 4 prompt are covered by the 20 collected tests.
+1. **65.0% fallback obligations (ASM-D4)**: 199,824 rows lack active bureau loan annuities and receive a synthetic obligation drawn from a Beta distribution parameterized on net income. This is the primary mapping uncertainty.
+2. **70.0% unknown severe delinquency**: 215,280 rows have no matching `bureau_balance` history. The engine treats missing required fields as unknown and triggers rule V01 (`INCOMPLETE_APPLICATION`), routing 99.81% of all D2 refer decisions through V01/R01.
+3. **K04 effect of ASM-D5**: External source ratings (EXT_SOURCE_1, 2, 3) are mapped to credit score range [300, 900]. Because Home Credit applicants have low average external scores, 65.00% (59,969 of 92,254 evaluated rows) fall below the 650 threshold, causing rule K04 to fire.
+4. **ASM-D13 integer rounding**: Applied where exact decimal division produces fractional values for integer facts (floor for age and employment months; round-half-up for income, credit score, amount, and tenure).
+5. **Float-ban status of `src/data/fallback.py`**: Not under static float ban. Per decision P4-8, floating-point arithmetic is permitted inside random draws (`numpy.random.Generator.beta`). The output is converted to `Decimal` and rounded to whole-rupee `int` before returning.
 
 ---
 
-## 7. `src/data/fallback.py` and the Float Ban
+## 9. ML Metrics for Main and Filtered Comparisons with CIs
 
-**`src/data/fallback.py` is NOT under the static float ban.** The current `check-floats` command covers `src/data/d2_map.py` only, not the whole `src/data/` directory.
+### 9.1 Main Comparison (All Evaluated Rows, Test $N = 46,127$)
 
-**Reason: its float use is permitted by decision P4-8.** The module draws a Beta-distributed random share using `numpy.random.Generator.beta()`, which unavoidably returns a Python `float`. This is the only way to call numpy's Beta distribution. Decision P4-8 states: *"The D3 generator may use floats inside random draws."* The obligations fallback draw is structurally identical — a random draw — and the same reasoning applies.
+| System / Model | Operating Point | Approval Rate | Approvals ($N$) | Default Rate among Approved | 95% Bootstrap CI | AUC | Brier Score |
+|---|---|---|---|---|---|---|---|
+| **Rule System (Treatment A)** | Policy (refer denied) | 1.68% | 776 | 3.35% | [2.14%, 4.70%] | — | — |
+| **Rule System (Treatment B)** | Policy (refer excluded, $N_{\text{excl}}=4055$) | 1.84% | 776 | 3.35% | [2.12%, 4.67%] | — | — |
+| **Logistic Regression** | Matched ($\tau = 0.1479$) | 1.56% | 720 | 1.39% | [0.56%, 2.42%] | 0.7248 | 0.2105 |
+| **Logistic Regression** | Cost-based primary ($\tau = 0.6684$) | 87.60% | 40,406 | 6.06% | [5.84%, 6.31%] | 0.7248 | 0.2105 |
+| **HistGradientBoosting** | Matched ($\tau = 0.0680$) | 1.71% | 787 | 1.27% | [0.58%, 2.12%] | 0.7378 | 0.1951 |
+| **HistGradientBoosting** | Cost-based primary ($\tau = 0.6889$) | 89.12% | 41,110 | 6.11% | [5.86%, 6.33%] | 0.7378 | 0.1951 |
 
-**The output is always an integer.** The float share is immediately converted:
-```python
-amount = Decimal(str(share)) * Decimal(str(monthly_net_income))
-return int(amount.to_integral_value(rounding=ROUND_HALF_UP))
-```
-The final value returned is `int`, never `float`. The float exists only as an intermediate value inside the numpy RNG call.
+### 9.2 Filtered Subset F1 (No V03, V04, K05; Test $N = 15,798$, Val $N = 15,858$)
 
-**Extending the ban would break the module** without any real correctness benefit: numpy does not offer a Decimal-native Beta distribution, and the conversion to Decimal before the money multiplication preserves exact decimal arithmetic for the final result.
+*Note: No retraining. Operating points selected on filtered validation rows.*
 
-**Conclusion:** `src/data/fallback.py` is correctly excluded from the float ban because it uses floats only inside a random draw (permitted by P4-8) and its output is integer-only.
+| System / Model | Operating Point | Approval Rate | Approvals ($N$) | Default Rate among Approved | 95% Bootstrap CI | AUC | Brier Score |
+|---|---|---|---|---|---|---|---|
+| **Rule System (Treatment A)** | Policy (refer denied) | 4.91% | 776 | 3.35% | [2.15%, 4.68%] | — | — |
+| **Rule System (Treatment B)** | Policy (refer excluded, $N_{\text{excl}}=4055$) | 6.61% | 776 | 3.35% | [2.22%, 4.72%] | — | — |
+| **Logistic Regression** | Matched ($\tau = 0.2163$) | 4.61% | 728 | 2.20% | [1.22%, 3.40%] | 0.7417 | 0.2144 |
+| **Logistic Regression** | Cost-based primary ($\tau = 0.6586$) | 90.85% | 14,353 | 5.89% | [5.51%, 6.29%] | 0.7417 | 0.2144 |
+| **HistGradientBoosting** | Matched ($\tau = 0.1030$) | 5.04% | 796 | 1.76% | [0.88%, 2.70%] | 0.7495 | 0.2003 |
+| **HistGradientBoosting** | Cost-based primary ($\tau = 0.6791$) | 91.46% | 14,449 | 5.80% | [5.42%, 6.20%] | 0.7495 | 0.2003 |
+
+### 9.3 Filtered Subset F2 (F1 without K04; Test $N = 5,995$, Val $N = 5,990$)
+
+*Note: No retraining. Operating points selected on filtered validation rows.*
+
+| System / Model | Operating Point | Approval Rate | Approvals ($N$) | Default Rate among Approved | 95% Bootstrap CI | AUC | Brier Score |
+|---|---|---|---|---|---|---|---|
+| **Rule System (Treatment A)** | Policy (refer denied) | 12.94% | 776 | 3.35% | [2.08%, 4.63%] | — | — |
+| **Rule System (Treatment B)** | Policy (refer excluded, $N_{\text{excl}}=4055$) | 40.00% | 776 | 3.35% | [2.11%, 4.67%] | — | — |
+| **Logistic Regression** | Matched ($\tau = 0.2929$) | 12.14% | 728 | 2.34% | [1.35%, 3.47%] | 0.5925 | 0.0898 |
+| **Logistic Regression** | Cost-based primary ($\tau = 0.6033$) | 99.97% | 5,993 | 2.75% | [2.34%, 3.17%] | 0.5925 | 0.0898 |
+| **HistGradientBoosting** | Matched ($\tau = 0.1419$) | 13.06% | 783 | 1.79% | [0.89%, 2.73%] | 0.6295 | 0.0886 |
+| **HistGradientBoosting** | Cost-based primary ($\tau = 0.6416$) | 99.88% | 5,988 | 2.76% | [2.34%, 3.17%] | 0.6295 | 0.0886 |
+
+**Mechanical approval rate observation**: Filtering on rule outcomes mechanically raises the rule system's approval rate: rows that the rule system rejected or referred for V03, V04, K05 (and K04 in F2) are removed, leaving a higher concentration of eligible decisions (from 1.68% in main to 4.91% in F1 to 12.94% in F2 under Treatment A, and up to 40.00% under Treatment B).
+
+### 9.4 D3 Policy Imitation Evaluation (Test Split $N = 3,000$)
+
+| Model | Operating Point ($\tau = 0.50$) | Agreement with Policy | Precision | Recall | F1 | Test AUC | Brier Score |
+|---|---|---|---|---|---|---|---|
+| **Logistic Regression** | 0.50 | 80.97% | 0.7768 | 0.8377 | 0.8061 | 0.8852 | 0.1346 |
+| **HistGradientBoosting** | 0.50 | 98.53% | 0.9744 | 0.9951 | 0.9846 | 0.9902 | 0.0134 |
 
 ---
 
-## 8. Group-Size Tables
+## 10. Unknown Facts Analysis (Item 4)
 
-### 8.1 D2 (Home Credit Default Risk)
+### 10.1 Unknown Facts Among D2 Eligible Decisions
 
-> Groups with count_test < 100 are marked ⚠️ (too small for outcome analysis in Phase 5).
+Among all 1,545 D2 eligible decisions in the evaluated validation and test sets:
+- `severe_delinquency_36m` unknown: **0 (0.00%)**
+- `employment_months` unknown: **0 (0.00%)**
+- Either unknown: **0 (0.00%)**
+
+### 10.2 Decision Share by Delinquency Fact Availability
+
+Across all 92,254 evaluated D2 rows:
+
+| `severe_delinquency_36m` Status | Count | Ineligible | Eligible | Refer |
+|---|---|---|---|---|
+| **Known** (`False`) | 27,721 (30.05%) | 25,808 (93.10%) | 1,545 (5.57%) | 368 (1.33%) |
+| **Unknown** (`True`) | 64,533 (69.95%) | 56,855 (88.10%) | 0 (0.00%) | 7,678 (11.90%) |
+
+### 10.3 Engine Treatment of Unknown K03 and K06 Inputs
+
+In `rules/fields.toml`, `severe_delinquency_36m`, `written_off`, and `employment_months` are marked `required = true`; when any required input is unknown, rule V01 in `rules/validation.toml` fires first with `when = "any_required_unknown"`, resulting in a `refer` decision (`INCOMPLETE_APPLICATION`). Because boolean and arithmetic conditions on unknown facts evaluate to false, knockout rules K03 (`when = "severe_delinquency_36m or written_off"`) and K06 (`when = "(employment_type == salaried and employment_months < min_employment_months_salaried) or (employment_type == self_employed and employment_months < min_employment_months_self_employed)"`) do not fire when their inputs are missing.
+
+---
+
+## 11. Group-Size Tables
+
+### 11.1 D2 (Home Credit Default Risk)
+
+> Groups with test split count < 100 are marked ⚠️ (too small for outcome analysis in Phase 5).
 
 | Attribute | Group | Full set | Test split | Too small (test) |
 |---|---|---|---|---|
@@ -365,11 +413,9 @@ The final value returned is `int`, never `float`. The float exists only as an in
 | income_band | Q3_med_high | 82,340 | 12,392 | — |
 | income_band | Q4_high | 71,538 | 10,780 | — |
 
-**D2 groups too small on test: 4** — `CODE_GENDER=XNA` (1), `NAME_EDUCATION_TYPE=Academic degree` (28), `NAME_FAMILY_STATUS=Unknown` (1), `age_band=under-21` (0).
+**D2 groups too small on test: 4** (`CODE_GENDER=XNA` [1], `NAME_EDUCATION_TYPE=Academic degree` [28], `NAME_FAMILY_STATUS=Unknown` [1], `age_band=under-21` [0]).
 
-### 8.2 D3 (Synthetic Population)
-
-> Groups with count_test < 100 are marked ⚠️.
+### 11.2 D3 (Synthetic Population)
 
 | Attribute | Group | Full set | Test split | Too small (test) |
 |---|---|---|---|---|
@@ -391,55 +437,107 @@ The final value returned is `int`, never `float`. The float exists only as an in
 | income_band | Q3_med_high | 4,965 | 782 | — |
 | income_band | Q4_high | 4,983 | 721 | — |
 
-**D3 groups too small on test: 1** — `age_band=60+` (71 on test). The D3 generator draws ages with the same distribution used for D2, where the 60+ tail is sparse.
+**D3 age statement correction**: In D3, ages are generated uniformly from 21 to 60 (inclusive), per `config/generator.toml`. The `60+` age band therefore contains only applicants of exact age 60 (1 of 40 integer ages, or ~2.5% of the population), resulting in 471 applicants in the full population and 71 on the 15% test split (marked ⚠️ < 100). It does not reflect a sparse tail of an older distribution.
 
 ---
 
-## 9. Item 9 — `make baseline-filtered`
+## 12. Gate Command Outputs (Last 15 Lines Each, Unedited)
 
-**Not implemented.** No answer B was given by the owner. This item is deferred.
-
----
-
-## 10. Work Packages
-
-| Work package | Done | Notes |
-|---|---|---|
-| **WP-15 D2 mapping** | Yes | `src/data/d2_map.py` & `src/data/fallback.py`. 307,511 rows mapped; 0/307,511 schema failures; 0 float violations. `data/mapped/d2_mapped.csv` SHA-256 `44de1b82…`. Mapping table regenerated to docs. |
-| **WP-16b D3 synthetic population** | Yes | `data/synthetic/d3_generator.py`. 20,000 rows; `data/synthetic/d3_population.csv` SHA-256 `2311690b…`. D1 byte-identical (oracle-diff: 0 differences). |
-| **Batch decisions & splits** | Yes | 70/15/15 stratified splits. D3: 20,000 rows at 1,626 rows/s. D2: 92,254 rows at 4,389 rows/s. |
-| **WP-17 ML baseline** | Yes | LR + HistGradientBoosting on D2 and D3. Exact linear contributions for LR. 5 metrics files. All reproduce exactly. |
-| **Group-size tables & Manifest** | Yes | 30 D2 groups (4 too small on test), 17 D3 groups (1 too small). Zero outcome metrics. `data/manifest.json` updated. |
-
----
-
-## 11. Gate Command Results
-
-| Command | Status | Notes |
-|---|---|---|
-| `python tools/oracle_diff.py` | PASS | 0 differences |
-| `git grep -nwE "5000|50000|2500000|0\.02" -- src/engine` | PASS | 0 matches |
-| `python tools/check_floats.py src/calc src/facts src/explain src/data/d2_map.py` | PASS | 9 files, 0 floats |
-| `python -m src.engine.param_loader params/params.toml` | PASS | 18 params, 3 bands, 0 errors |
-| `python -m src.engine.field_loader rules/fields.toml` | PASS | 27 fields, 0 errors |
-| `python -m src.engine.rule_loader rules params/params.toml` | PASS | 22 rules, 21 reason codes |
-| `python -m src.engine.hygiene` | PASS | Zero findings |
-| `python -m ruff check src/ tests/ tools/` | PASS | All passed |
-| `python -m ruff format --check src/ tests/ tools/` | PASS | 67 files formatted |
-| `python -m pytest tests/ -v` | PASS | 151 passed, 0 failed in 22.71s |
-| `mingw32-make phase4` | PASS | Full pipeline in protocol order; `=== Phase 4 complete ===` |
-| `python -m src.ml.baseline` ×2 | PASS | All 5 metrics files byte-identical |
-| `python -m src.data.d2_map` ×2 | PASS | d2_mapped.csv SHA-256 identical |
-| `python data/synthetic/d3_generator.py` ×2 | PASS | d3_population.csv SHA-256 identical |
-
----
-
-## 12. `make phase4` Full Output (last 15 lines)
-
+### `python tools/oracle_diff.py`
 ```text
+Diff report written to C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system\data\d1\oracle_diff.md (0 differences).
+```
+
+### `git grep -nwE "5000|50000|2500000|0\.02" -- src/engine`
+```text
+(empty output, exit code 1)
+```
+
+### `python tools/check_floats.py src/calc src/facts src/explain src/data/d2_map.py`
+```text
+FLOAT_BAN OK: no floats in src\calc, src\facts, src\explain, src\data\d2_map.py (9 file(s) checked).
+```
+
+### `python -m src.engine.param_loader params/params.toml`
+```text
+OK: params/params.toml loaded with 0 warning(s) and no errors.
+    18 scalar parameters, 3 band(s).
+```
+
+### `python -m src.engine.field_loader rules/fields.toml`
+```text
+OK: rules\fields.toml loaded with 0 warning(s) and no errors.
+    27 fields (15 input, 12 derived).
+```
+
+### `python -m src.engine.rule_loader rules params/params.toml`
+```text
+OK: rules loaded successfully (22 rules across 7 layers, 21 reason codes).
+```
+
+### `python -m src.engine.hygiene`
+```text
+K03        | 3            | OK                            
+K04        | 3            | OK                            
+K05        | 3            | OK                            
+K06        | 2            | OK                            
+P01        | 42           | OK                            
+R01        | 2            | OK                            
+R02        | 3            | OK                            
+R03        | 2            | OK                            
+V01        | 16           | OK                            
+V02        | 2            | OK                            
+V03        | 2            | OK                            
+V04        | 2            | OK                            
+AMOUNT_LIMITED_BY_PRODUCT_MAXIMUM | 0            | Unreachable by design (DT-3)  
+----------------------------------------
+
+OK: all hygiene checks passed with zero findings.
+```
+
+### `python -m ruff check src/ tests/ tools/`
+```text
+All checks passed!
+```
+
+### `python -m ruff format --check src/ tests/ tools/`
+```text
+71 files already formatted
+```
+
+### `python -m pytest tests/ -v`
+```text
+tests\unit\test_facts_unit.py ...                                        [ 43%]
+tests\unit\test_field_loader.py .....                                    [ 46%]
+tests\unit\test_fields_registry_vs_schema.py .....                       [ 50%]
+tests\unit\test_float_ban.py .......                                     [ 54%]
+tests\unit\test_hygiene.py .....                                         [ 57%]
+tests\unit\test_ml_features.py ...                                       [ 59%]
+tests\unit\test_ml_metrics.py ..                                         [ 60%]
+tests\unit\test_ml_split.py ..                                           [ 61%]
+tests\unit\test_no_group_outcome.py ..                                   [ 63%]
+tests\unit\test_param_loader.py ..............................           [ 81%]
+tests\unit\test_protected_store_isolation.py .                           [ 82%]
+tests\unit\test_rule_loader.py .......                                   [ 86%]
+tests\unit\test_rules_firing_and_boundaries.py .....................     [100%]
+
+======================= 160 passed, 1 warning in 22.10s =======================
+```
+
+### `git check-ignore -v data/raw/application_train.csv`
+```text
+.gitignore:30:data/raw/	data/raw/application_train.csv
+```
+
+### `mingw32-make phase4`
+```text
+V04        | 2            | OK                            
+AMOUNT_LIMITED_BY_PRODUCT_MAXIMUM | 0            | Unreachable by design (DT-3)  
+----------------------------------------
+
 OK: all hygiene checks passed with zero findings.
 python tools/oracle_diff.py
-Diff report written to …\data\d1\oracle_diff.md (0 differences).
+Diff report written to C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system\data\d1\oracle_diff.md (0 differences).
 python -m src.data.manifest
 Manifest written to data\manifest.json
 python -m src.data.group_sizes
@@ -449,3 +547,59 @@ Group sizes for d3 written to data\group_sizes\d3_group_sizes.csv:
   Total groups evaluated: 17, Groups < 100 on test: 1
 "=== Phase 4 complete ==="
 ```
+
+### `python -m src.ml.baseline_filtered`
+```text
+--- Subset: MAIN ---
+  val rows: 46127, test rows: 46127
+  Wrote reports\ml\comparison_main.json
+
+--- Subset: F1 ---
+  val rows: 15858, test rows: 15798
+  Wrote reports\ml\comparison_f1.json
+
+--- Subset: F2 ---
+  val rows: 5990, test rows: 5995
+  Wrote reports\ml\comparison_f2.json
+
+All filtered comparison files written.
+```
+
+---
+
+## 13. Amendments
+
+| ID | Date | What Changed | Reason |
+|---|---|---|---|
+| P4-1 | 2026-11-12 | D2 dataset defined as Home Credit Default Risk (`application_train.csv`, `bureau.csv`, `bureau_balance.csv`). | Experiment protocol §8 |
+| P4-2 | 2026-11-12 | D3 binary label is policy decision (`eligible` vs `ineligible`/`refer`). | Experiment protocol §8 |
+| P4-3 | 2026-11-12 | ASM-D4 obligations fallback refinement using applicant-keyed Beta draw. | Experiment protocol §8 |
+| P4-4 | 2026-11-12 | Missing `written_off` and `severe_delinquency_36m` treated as unknown facts. | Experiment protocol §8 |
+| P4-5 | 2026-11-12 | `age` excluded from ML baseline features (DR-02). | Experiment protocol §8 |
+| P4-6 | 2026-11-12 | Approval threshold matched to rule approval rate on validation split. | Experiment protocol §8 |
+| P4-7 | 2026-11-12 | Rule system evaluated under Treatments A (refer denied) and B (refer excluded). | Experiment protocol §8 |
+| P4-8 | 2026-11-12 | Floating-point operations permitted inside random generators and ML models; mapping output remains integer/decimal. | Experiment protocol §8 |
+| P4-9 | 2026-11-12 | Direct engine calls used for batch evaluation without audit store overhead. | Experiment protocol §8 |
+| P4-10 | 2026-11-12 | Constants loaded exclusively from `config/d2_mapping.toml`. | Experiment protocol §8 |
+| P4-11 | 2026-11-12 | Linear contributions for Logistic Regression computed as exact SHAP-equivalent values. | Experiment protocol §8 |
+| P4-12 | 2026-11-12 | Outcome metrics by protected group strictly prohibited in Phase 4. | Experiment protocol §8 |
+| P4-13 | 2026-11-12 | Added seed name `"bootstrap"` to `config/experiment.toml` and section `[bootstrap]` with `resamples = 1000` and `ci = 0.95`. | Phase 4 close-out item 1 (owner answered B). |
+| P4-14 | 2026-11-12 | Filtered subsets F1 and F2 pre-registered after viewing reason-code frequencies and before viewing any filtered outcome result. | Phase 4 close-out item 1 (owner answered B). |
+
+---
+
+## 14. Open Questions
+
+| ID | Status | Resolution / Current State |
+|---|---|---|
+| OQ-001 | Waiting | SWI-Prolog environment fallback (pure Python evaluator active). |
+| OQ-002 | Resolved | Raw data verified in Phase 4 Step 0; SHA-256 matched. |
+| OQ-003 | Resolved | Parameter and rule file line-end hashing verified. |
+| OQ-004 | Resolved | Nullability difference between schema and fields registry handled. |
+| OQ-005 | Resolved | Subprocess communication architecture established. |
+| OQ-006 | Waiting | Policy cap tie-break priority when requested amount ties a limit. |
+| OQ-007 | Resolved | 422 Validation error response codes mapped to standardized schema. |
+| OQ-008 | Resolved | Hygiene analyzer literals derived from named parameters. |
+| OQ-009 | Resolved | Terms record renamed to `home-credit-terms.md`; placeholders cleared. |
+| OQ-010 | Resolved | Reviewer report ML block skipped to preserve test backwards compatibility. |
+| OQ-011 | Resolved | All 17 raw columns verified against `config/d2_mapping.toml`. |

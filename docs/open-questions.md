@@ -16,6 +16,15 @@ Log of ambiguities, conflicts, and decisions needed. Never choose silently – l
 | OQ-010 | 2026-11-12 | 4 | src/api/review_report.py vs tests/unit/test_review_report.py | Phase 4 instruction item 8 specifies adding baseline model score to reviewer page ML block if `models/d3_lr.joblib` exists, but notes: "If this needs any other change, skip it and say so." Updating `review_report.py` caused Phase 3 integration regression test `test_reviewer_view_smoke` to fail because it strictly asserts the exact placeholder string `"Not available. The baseline model is built in Phase 4."`. To preserve 100% Phase 3 backward compatibility without weakening tests, `review_report.py` was kept untouched. | **Resolved: Skipped per instruction condition** |
 | OQ-011 | 2026-11-12 | 4 | config/d2_mapping.toml vs data/raw/*.csv | Raw column header verification in Step 0: Confirmed that all 17 required columns across `application_train.csv`, `bureau.csv`, and `bureau_balance.csv` exactly match the names specified in `config/d2_mapping.toml`. No required columns missing or renamed. | **Resolved: Verified** |
 
+## Phase 4 amendments
+
+The following amendments were made during Phase 4 close-out (owner answered B for item 9). Logged here per AGENTS.md "never change a value without a logged amendment".
+
+| ID | Date | What changed | Reason |
+| --- | --- | --- | --- |
+| P4-13 | 2026-11-12 | Added seed name `"bootstrap"` to the documented seed list in `config/experiment.toml` comment, and added `[bootstrap]` section with `resamples = 1000` and `ci = 0.95`. | Required to implement the `make baseline-filtered` bootstrap CIs (item 9, owner answered B). No existing value was changed. |
+| P4-14 | 2026-11-12 | Filtered subsets F1 and F2 were chosen after the reason-code frequency table was seen (item 4 of the patch, committed `a84fa6b`) and before any filtered outcome result was viewed. F1 excludes rows where any of V03, V04, or K05 fired; F2 additionally excludes rows where K04 fired. This selection is logged here as required by docs/experiment-protocol.md section 8. | Pre-registration of filter definitions to prevent outcome-guided subset selection. |
+
 
 
 

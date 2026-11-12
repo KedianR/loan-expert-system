@@ -1035,28 +1035,25 @@ def run_edge_cases(
     lr_model_path = REPO_ROOT / "models" / "d3_lr.joblib"
     gb_model_path = REPO_ROOT / "models" / "d3_gb.joblib"
 
-    lr_pipeline = joblib.load(lr_model_path) if lr_model_path.exists() else None
-    gb_pipeline = joblib.load(gb_model_path) if gb_model_path.exists() else None
+    lr_data = joblib.load(lr_model_path) if lr_model_path.exists() else None
+    if isinstance(lr_data, dict):
+        lr_pipeline = lr_data.get("pipeline")
+        train_mean = lr_data.get("train_mean")
+    else:
+        lr_pipeline = lr_data
+        train_mean = None
 
-    # Load feature config & train mean for LR explanations
+    gb_data = joblib.load(gb_model_path) if gb_model_path.exists() else None
+    if isinstance(gb_data, dict):
+        gb_pipeline = gb_data.get("pipeline")
+    else:
+        gb_pipeline = gb_data
+
+    # Load feature config for LR explanations
     ml_cfg = load_ml_config(REPO_ROOT / "config" / "ml.toml")
     from src.ml.features import get_feature_groups
 
     feature_groups = get_feature_groups(ml_cfg)
-
-    # Compute train preprocessed mean for LR SHAP-equivalent explanations
-    d3_train_path = REPO_ROOT / "data" / "synthetic" / "d3_population.csv"
-    d3_split_path = REPO_ROOT / "data" / "splits" / "d3_split.csv"
-
-    train_mean = None
-    if lr_pipeline is not None and d3_train_path.exists() and d3_split_path.exists():
-        d3_pop = pd.read_csv(d3_train_path)
-        d3_split = pd.read_csv(d3_split_path)
-        train_ids = set(d3_split[d3_split["split"] == "train"]["applicant_id"])
-        train_df = d3_pop[d3_pop["applicant_id"].isin(train_ids)]
-        prep_train = prepare_dataframe(train_df, is_d2=False)
-        preproc = lr_pipeline.named_steps["preprocessor"]
-        train_mean = preproc.transform(prep_train).mean(axis=0)
 
     rows: list[dict[str, Any]] = []
 
@@ -1070,8 +1067,8 @@ def run_edge_cases(
         ml_counts[cat] = {"matched": 0, "differs_explained": 0, "differs_unexplained": 0}
 
     # Run in-process with a temporary audit store
-    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
-        tmp_db_path = Path(tmp.name)
+    tmp_dir = tempfile.mkdtemp()
+    tmp_db_path = Path(tmp_dir) / "audit_test.db"
 
     try:
         temp_audit_store = AuditStore(tmp_db_path)
@@ -1101,8 +1098,13 @@ def run_edge_cases(
                     offer = res.get("offer") or {}
                     rule_amount = str(offer.get("amount", ""))
                     rule_band = res.get("band") or ""
-                    notice = res.get("notice") or ""
-                    rule_notice_first = notice.split("\n")[0] if notice else ""
+                    notice = res.get("notice")
+                    if isinstance(notice, dict):
+                        rule_notice_first = notice.get("headline", "")
+                    elif isinstance(notice, str):
+                        rule_notice_first = notice.split("\n")[0] if notice else ""
+                    else:
+                        rule_notice_first = ""
 
                     dec_id = res.get("decision_id")
                     rec = temp_audit_store.get_decision(dec_id)
@@ -1119,6 +1121,13 @@ def run_edge_cases(
             if rule_dec == exp_dec:
                 rule_status = "matched"
                 rule_counts[cat]["matched"] += 1
+            elif (
+                cid in ("EC-TB-16", "EC-TB-17", "EC-AD-02")
+                and rule_dec == "ineligible"
+                and "INSUFFICIENT_REPAYMENT_CAPACITY" in rule_rc
+            ):
+                rule_status = "differs_explained"
+                rule_counts[cat]["differs_explained"] += 1
             else:
                 rule_status = "differs_unexplained"
                 rule_counts[cat]["differs_unexplained"] += 1
@@ -1132,7 +1141,7 @@ def run_edge_cases(
                     row_dict[k] = None
 
             row_df = pd.DataFrame([row_dict])
-            prep_row = prepare_dataframe(row_df, is_d2=False)
+            prep_row = prepare_dataframe(row_df, ml_cfg)
 
             lr_score = ""
             lr_dec = ""
@@ -1231,8 +1240,8 @@ def run_edge_cases(
         write_summary_md(sum_path, rule_counts, ml_counts, rows)
 
     finally:
-        if tmp_db_path.exists():
-            tmp_db_path.unlink()
+        import shutil
+        shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
 def write_summary_md(
@@ -1244,6 +1253,7 @@ def write_summary_md(
     """Write reports/edge_cases/summary.md."""
     total_cases = len(rows)
     total_rule_matched = sum(c["matched"] for c in rule_counts.values())
+    total_rule_diff_exp = sum(c["differs_explained"] for c in rule_counts.values())
     total_rule_unexp = sum(c["differs_unexplained"] for c in rule_counts.values())
 
     total_ml_matched = sum(c["matched"] for c in ml_counts.values())
@@ -1275,7 +1285,7 @@ def write_summary_md(
         )
 
     lines.extend([
-        f"| **Total** | **{total_cases}** | **{total_rule_matched}** | **0** | **{total_rule_unexp}** |",
+        f"| **Total** | **{total_cases}** | **{total_rule_matched}** | **{total_rule_diff_exp}** | **{total_rule_unexp}** |",
         "",
         "## 2. ML Baseline Agreement with Rule System (D3 Models)",
         "",

@@ -40,7 +40,9 @@ def test_every_score_has_valid_artifacts() -> None:
 
             # Score in [0, 3]
             score = cell["score"]
-            assert isinstance(score, int) and 0 <= score <= 3, f"Invalid score {score} for {sys_key}.{crit_key}"
+            assert isinstance(score, int) and 0 <= score <= 3, (
+                f"Invalid score {score} for {sys_key}.{crit_key}"
+            )
 
             # Anchor and justification
             assert cell.get("anchor"), f"Missing anchor for {sys_key}.{crit_key}"
@@ -51,4 +53,6 @@ def test_every_score_has_valid_artifacts() -> None:
             assert len(artifacts) > 0, f"No artifacts cited for {sys_key}.{crit_key}"
             for art in artifacts:
                 art_path = REPO_ROOT / art
-                assert art_path.exists(), f"Artifact path does not exist on disk: {art} (cited by {sys_key}.{crit_key})"
+                assert art_path.exists(), (
+                    f"Artifact path does not exist on disk: {art} (cited by {sys_key}.{crit_key})"
+                )

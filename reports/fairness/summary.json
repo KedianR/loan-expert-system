@@ -1,0 +1,139 @@
+{
+  "counterfactual_swap_rule": {
+    "n_rows": 1000,
+    "n_changed": 0,
+    "pass": true,
+    "note": "Rule decisions identical before and after protected-store shuffle (FR-20)."
+  },
+  "d3_gender_age_band_intersection": {
+    "attribute": "gender_age",
+    "metric": "selection_rate_difference",
+    "treatment": "A_refer_not_approved",
+    "reference_group": "F\u00d740-49",
+    "reference_group_size": 397,
+    "family_alpha": 0.05,
+    "bonferroni_ci_level_per_group": 0.994444,
+    "groups": {
+      "F\u00d740-49": {
+        "size": 397,
+        "is_reference": true,
+        "status": "reference"
+      },
+      "F\u00d721-29": {
+        "size": 316,
+        "is_reference": false,
+        "status": "scored",
+        "group_rate": 0.455696,
+        "reference_rate": 0.438287,
+        "difference": 0.017409,
+        "ci_lower": -0.094726,
+        "ci_upper": 0.117761,
+        "ci_level": 0.994444,
+        "flag": false,
+        "four_fifths_ratio": 1.0397,
+        "note": ""
+      },
+      "F\u00d730-39": {
+        "size": 359,
+        "is_reference": false,
+        "status": "scored",
+        "group_rate": 0.467967,
+        "reference_rate": 0.438287,
+        "difference": 0.029679,
+        "ci_lower": -0.065015,
+        "ci_upper": 0.120628,
+        "ci_level": 0.994444,
+        "flag": false,
+        "four_fifths_ratio": 1.0677,
+        "note": ""
+      },
+      "F\u00d750-59": {
+        "size": 375,
+        "is_reference": false,
+        "status": "scored",
+        "group_rate": 0.482667,
+        "reference_rate": 0.438287,
+        "difference": 0.04438,
+        "ci_lower": -0.058147,
+        "ci_upper": 0.146155,
+        "ci_level": 0.994444,
+        "flag": false,
+        "four_fifths_ratio": 1.1013,
+        "note": ""
+      },
+      "F\u00d760+": {
+        "size": 40,
+        "is_reference": false,
+        "status": "too_small",
+        "flag": null
+      },
+      "M\u00d721-29": {
+        "size": 354,
+        "is_reference": false,
+        "status": "scored",
+        "group_rate": 0.474576,
+        "reference_rate": 0.438287,
+        "difference": 0.036289,
+        "ci_lower": -0.067922,
+        "ci_upper": 0.132407,
+        "ci_level": 0.994444,
+        "flag": false,
+        "four_fifths_ratio": 1.0828,
+        "note": ""
+      },
+      "M\u00d730-39": {
+        "size": 364,
+        "is_reference": false,
+        "status": "scored",
+        "group_rate": 0.510989,
+        "reference_rate": 0.438287,
+        "difference": 0.072702,
+        "ci_lower": -0.018934,
+        "ci_upper": 0.171481,
+        "ci_level": 0.994444,
+        "flag": false,
+        "four_fifths_ratio": 1.1659,
+        "note": ""
+      },
+      "M\u00d740-49": {
+        "size": 379,
+        "is_reference": false,
+        "status": "scored",
+        "group_rate": 0.451187,
+        "reference_rate": 0.438287,
+        "difference": 0.0129,
+        "ci_lower": -0.079996,
+        "ci_upper": 0.113753,
+        "ci_level": 0.994444,
+        "flag": false,
+        "four_fifths_ratio": 1.0294,
+        "note": ""
+      },
+      "M\u00d750-59": {
+        "size": 385,
+        "is_reference": false,
+        "status": "scored",
+        "group_rate": 0.496104,
+        "reference_rate": 0.438287,
+        "difference": 0.057817,
+        "ci_lower": -0.039159,
+        "ci_upper": 0.161645,
+        "ci_level": 0.994444,
+        "flag": false,
+        "four_fifths_ratio": 1.1319,
+        "note": ""
+      },
+      "M\u00d760+": {
+        "size": 31,
+        "is_reference": false,
+        "status": "too_small",
+        "flag": null
+      }
+    },
+    "max_minus_min_gap": 0.059802
+  },
+  "gender_from_features_auc": {
+    "auc": 0.6745,
+    "note": "AUC of a logistic regression on D2 model features predicting gender (CODE_GENDER). Report only; never used as a threshold or finding."
+  }
+}

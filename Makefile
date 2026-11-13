@@ -24,8 +24,9 @@ FIELDS = rules/fields.toml
 
 .PHONY: setup test check check-params check-fields check-floats lint format \
         check-rules decide demo replay replay-all audit-verify review-report serve \
-        oracle-diff data-d2 data-d3 decide-d3 decide-d2 split baseline baseline-filtered phase4 \
-        fairness-pin edge-cases compare fairness reproduce
+        oracle-diff data-d2 data-d3 data-d3-bias data-d3-bias-large decide-d3 decide-d2 split baseline baseline-filtered phase4 \
+        fairness-pin edge-cases compare fairness fairness-bias-decide \
+        demo-ui traceability check-docs monitor-sample phase5 reproduce
 
 # ---------------------------------------------------------------------------
 # WP-02: setup — install pinned dependencies
@@ -128,6 +129,9 @@ data-d2:
 data-d3:
 	$(PYTHON) data/synthetic/d3_generator.py
 
+data-d3-bias:
+	$(PYTHON) data/synthetic/d3_generator.py --bias --out-population data/synthetic/d3_bias_population.csv --out-protected data/protected/d3_bias_protected.csv
+
 decide-d3:
 	$(PYTHON) -m src.data.batch_decide --dataset d3
 
@@ -175,10 +179,40 @@ compare:
 	$(PYTHON) -m src.eval.compare
 
 fairness:
-	@echo "fairness: not yet implemented (Phase 5)"
-	@exit 1
+	$(PYTHON) -m src.eval.fairness
 
-reproduce:
-	@echo "reproduce: not yet implemented (Phase 5)"
-	@exit 1
+# WP-20: generate large bias dataset (N=100k) for planted-bias pipeline test
+data-d3-bias-large:
+	$(PYTHON) data/synthetic/d3_generator.py --bias --size 100000 --out-population data/synthetic/d3_bias_large.csv --out-protected data/protected/d3_bias_large_protected.csv
+
+# WP-20: pre-compute engine decisions on bias dataset for fast test reuse
+fairness-bias-decide:
+	$(PYTHON) tools/fairness_bias_decide.py
+
+# WP-22: demo UI
+demo-ui:
+	@echo "Starting demo UI on http://127.0.0.1:8080"
+	$(PYTHON) -m uvicorn src.ui.app:app --host 127.0.0.1 --port 8080
+
+# WP-21: traceability — requirement-to-test table
+traceability:
+	$(PYTHON) tools/traceability.py
+
+# WP-21: check-docs — rule IDs, reason codes, param names in docs vs files
+check-docs:
+	$(PYTHON) tools/check_docs.py
+
+# WP-21: monitor-sample — decision mix and reason-code table from d3 decisions
+monitor-sample:
+	$(PYTHON) tools/monitor_sample.py
+
+# WP-21: phase5 manifest — runs Parts B-E in order and writes reports/phase5_manifest.json
+phase5: edge-cases compare fairness
+	$(PYTHON) tools/phase5_manifest.py
+	@echo "=== Phase 5 complete ==="
+
+# WP-21: reproduce — phase4 then phase5, compare with committed expected values
+reproduce: phase4 phase5
+	$(PYTHON) tools/reproduce_comparison.py
+	@echo "=== Reproduce complete ==="
 

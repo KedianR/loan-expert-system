@@ -1,0 +1,2373 @@
+{
+  "dataset": "d2",
+  "system": "rule_system",
+  "primary_metric": "equal_opportunity_difference",
+  "limits": [
+    "D2 is Home Credit mapped data; rule system approves 1.68% of test applicants (776 approvals).",
+    "Very few approvals per group; many EOD results are unstable.",
+    "Repayment observed only for original-lender-approved applicants (selection bias).",
+    "Labels are noisy and reflect historical lending."
+  ],
+  "treatments": {
+    "A_refer_not_approved": {
+      "treatment": "A_refer_not_approved",
+      "attributes_evaluated": [
+        "gender",
+        "age_band",
+        "region_rating",
+        "employment_type",
+        "income_band"
+      ],
+      "primary_metric": "equal_opportunity_difference",
+      "results": [
+        {
+          "attribute": "gender",
+          "metric": "equal_opportunity_difference",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "F",
+          "reference_group_size": 30352,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "F": {
+              "size": 30352,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "M": {
+              "size": 15774,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.022183,
+              "reference_rate": 0.015435,
+              "difference": 0.006748,
+              "ci_lower": 0.003585,
+              "ci_upper": 0.010091,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 1.4372,
+              "note": ""
+            },
+            "XNA": {
+              "size": 1,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "gender",
+          "metric": "selection_rate_ratio",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "F",
+          "reference_group_size": 30352,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "F": {
+              "size": 30352,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "M": {
+              "size": 15774,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            },
+            "XNA": {
+              "size": 1,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "gender",
+          "metric": "selection_rate_difference",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "F",
+          "reference_group_size": 30352,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "F": {
+              "size": 30352,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "M": {
+              "size": 15774,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.020223,
+              "reference_rate": 0.015057,
+              "difference": 0.005166,
+              "ci_lower": 0.002268,
+              "ci_upper": 0.00821,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 1.3431,
+              "note": ""
+            },
+            "XNA": {
+              "size": 1,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "gender",
+          "metric": "false_approval_rate_difference",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "F",
+          "reference_group_size": 30352,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "F": {
+              "size": 30352,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "M": {
+              "size": 15774,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.003088,
+              "reference_rate": 0.009976,
+              "difference": -0.006888,
+              "ci_lower": -0.01266,
+              "ci_upper": -0.001531,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 0.3096,
+              "note": ""
+            },
+            "XNA": {
+              "size": 1,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "gender",
+          "metric": "default_rate_among_approved",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "F",
+          "reference_group_size": 30352,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "F": {
+              "size": 30352,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "M": {
+              "size": 15774,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.015674,
+              "reference_rate": 0.045952,
+              "difference": -0.030278,
+              "ci_lower": -0.0581,
+              "ci_upper": -0.004755,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 0.3411,
+              "note": ""
+            },
+            "XNA": {
+              "size": 1,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "age_band",
+          "metric": "equal_opportunity_difference",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "30-39",
+          "reference_group_size": 12387,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.9875,
+          "groups": {
+            "30-39": {
+              "size": 12387,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "21-29": {
+              "size": 6770,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.008499,
+              "reference_rate": 0.018704,
+              "difference": -0.010206,
+              "ci_lower": -0.014416,
+              "ci_upper": -0.006024,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 0.4544,
+              "note": ""
+            },
+            "40-49": {
+              "size": 11488,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.02819,
+              "reference_rate": 0.018704,
+              "difference": 0.009486,
+              "ci_lower": 0.004529,
+              "ci_upper": 0.014611,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 1.5072,
+              "note": ""
+            },
+            "50-59": {
+              "size": 10170,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.017476,
+              "reference_rate": 0.018704,
+              "difference": -0.001228,
+              "ci_lower": -0.005834,
+              "ci_upper": 0.003276,
+              "ci_level": 0.9875,
+              "flag": false,
+              "four_fifths_ratio": 0.9343,
+              "note": ""
+            },
+            "60+": {
+              "size": 5312,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.004573,
+              "reference_rate": 0.018704,
+              "difference": -0.014132,
+              "ci_lower": -0.017994,
+              "ci_upper": -0.010231,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 0.2445,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.023618
+        },
+        {
+          "attribute": "age_band",
+          "metric": "selection_rate_ratio",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "30-39",
+          "reference_group_size": 12387,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.9875,
+          "groups": {
+            "30-39": {
+              "size": 12387,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "21-29": {
+              "size": 6770,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            },
+            "40-49": {
+              "size": 11488,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            },
+            "50-59": {
+              "size": 10170,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            },
+            "60+": {
+              "size": 5312,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "age_band",
+          "metric": "selection_rate_difference",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "30-39",
+          "reference_group_size": 12387,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.9875,
+          "groups": {
+            "30-39": {
+              "size": 12387,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "21-29": {
+              "size": 6770,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.007533,
+              "reference_rate": 0.017599,
+              "difference": -0.010066,
+              "ci_lower": -0.013796,
+              "ci_upper": -0.006212,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 0.428,
+              "note": ""
+            },
+            "40-49": {
+              "size": 11488,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.026811,
+              "reference_rate": 0.017599,
+              "difference": 0.009211,
+              "ci_lower": 0.004308,
+              "ci_upper": 0.014057,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 1.5234,
+              "note": ""
+            },
+            "50-59": {
+              "size": 10170,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.017306,
+              "reference_rate": 0.017599,
+              "difference": -0.000293,
+              "ci_lower": -0.004382,
+              "ci_upper": 0.003863,
+              "ci_level": 0.9875,
+              "flag": false,
+              "four_fifths_ratio": 0.9833,
+              "note": ""
+            },
+            "60+": {
+              "size": 5312,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.00433,
+              "reference_rate": 0.017599,
+              "difference": -0.013269,
+              "ci_lower": -0.01685,
+              "ci_upper": -0.009656,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 0.246,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.02248
+        },
+        {
+          "attribute": "age_band",
+          "metric": "false_approval_rate_difference",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "30-39",
+          "reference_group_size": 12387,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.9875,
+          "groups": {
+            "30-39": {
+              "size": 12387,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "21-29": {
+              "size": 6770,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.0,
+              "reference_rate": 0.00742,
+              "difference": -0.00742,
+              "ci_lower": -0.014096,
+              "ci_upper": -0.002387,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 0.0,
+              "note": ""
+            },
+            "40-49": {
+              "size": 11488,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.009456,
+              "reference_rate": 0.00742,
+              "difference": 0.002037,
+              "ci_lower": -0.008144,
+              "ci_upper": 0.012739,
+              "ci_level": 0.9875,
+              "flag": false,
+              "four_fifths_ratio": 1.2745,
+              "note": ""
+            },
+            "50-59": {
+              "size": 10170,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.014658,
+              "reference_rate": 0.00742,
+              "difference": 0.007238,
+              "ci_lower": -0.005594,
+              "ci_upper": 0.022551,
+              "ci_level": 0.9875,
+              "flag": false,
+              "four_fifths_ratio": 1.9756,
+              "note": ""
+            },
+            "60+": {
+              "size": 5312,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.0,
+              "reference_rate": 0.00742,
+              "difference": -0.00742,
+              "ci_lower": -0.014185,
+              "ci_upper": -0.00167,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 0.0,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.014658
+        },
+        {
+          "attribute": "age_band",
+          "metric": "default_rate_among_approved",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "30-39",
+          "reference_group_size": 12387,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.9875,
+          "groups": {
+            "30-39": {
+              "size": 12387,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "21-29": {
+              "size": 6770,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.0,
+              "reference_rate": 0.041284,
+              "difference": -0.041284,
+              "ci_lower": -0.077026,
+              "ci_upper": -0.012635,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 0.0,
+              "note": ""
+            },
+            "40-49": {
+              "size": 11488,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.025974,
+              "reference_rate": 0.041284,
+              "difference": -0.01531,
+              "ci_lower": -0.058071,
+              "ci_upper": 0.023781,
+              "ci_level": 0.9875,
+              "flag": false,
+              "four_fifths_ratio": 0.6291,
+              "note": ""
+            },
+            "50-59": {
+              "size": 10170,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.051136,
+              "reference_rate": 0.041284,
+              "difference": 0.009852,
+              "ci_lower": -0.038697,
+              "ci_upper": 0.068576,
+              "ci_level": 0.9875,
+              "flag": false,
+              "four_fifths_ratio": 1.2386,
+              "note": ""
+            },
+            "60+": {
+              "size": 5312,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.0,
+              "reference_rate": 0.041284,
+              "difference": -0.041284,
+              "ci_lower": -0.079328,
+              "ci_upper": -0.009708,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 0.0,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.051136
+        },
+        {
+          "attribute": "region_rating",
+          "metric": "equal_opportunity_difference",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "2",
+          "reference_group_size": 34001,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "2": {
+              "size": 34001,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "1": {
+              "size": 4884,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.041299,
+              "reference_rate": 0.015983,
+              "difference": 0.025316,
+              "ci_lower": 0.018324,
+              "ci_upper": 0.031937,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 2.584,
+              "note": ""
+            },
+            "3": {
+              "size": 7242,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.008895,
+              "reference_rate": 0.015983,
+              "difference": -0.007088,
+              "ci_lower": -0.010247,
+              "ci_upper": -0.004021,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 0.5565,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.032404
+        },
+        {
+          "attribute": "region_rating",
+          "metric": "selection_rate_ratio",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "2",
+          "reference_group_size": 34001,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "2": {
+              "size": 34001,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "1": {
+              "size": 4884,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            },
+            "3": {
+              "size": 7242,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "region_rating",
+          "metric": "selection_rate_difference",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "2",
+          "reference_group_size": 34001,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "2": {
+              "size": 34001,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "1": {
+              "size": 4884,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.040131,
+              "reference_rate": 0.015352,
+              "difference": 0.024779,
+              "ci_lower": 0.01802,
+              "ci_upper": 0.031045,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 2.614,
+              "note": ""
+            },
+            "3": {
+              "size": 7242,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.008009,
+              "reference_rate": 0.015352,
+              "difference": -0.007344,
+              "ci_lower": -0.010101,
+              "ci_upper": -0.004554,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 0.5217,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.032123
+        },
+        {
+          "attribute": "region_rating",
+          "metric": "false_approval_rate_difference",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "2",
+          "reference_group_size": 34001,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "2": {
+              "size": 34001,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "1": {
+              "size": 4884,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.017021,
+              "reference_rate": 0.00791,
+              "difference": 0.009112,
+              "ci_lower": -0.006979,
+              "ci_upper": 0.028365,
+              "ci_level": 0.975,
+              "flag": false,
+              "four_fifths_ratio": 2.152,
+              "note": ""
+            },
+            "3": {
+              "size": 7242,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.001199,
+              "reference_rate": 0.00791,
+              "difference": -0.006711,
+              "ci_lower": -0.011457,
+              "ci_upper": -0.002402,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 0.1516,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.015823
+        },
+        {
+          "attribute": "region_rating",
+          "metric": "default_rate_among_approved",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "2",
+          "reference_group_size": 34001,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "2": {
+              "size": 34001,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "1": {
+              "size": 4884,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.020408,
+              "reference_rate": 0.04023,
+              "difference": -0.019822,
+              "ci_lower": -0.048829,
+              "ci_upper": 0.007974,
+              "ci_level": 0.975,
+              "flag": false,
+              "four_fifths_ratio": 0.5073,
+              "note": ""
+            },
+            "3": {
+              "size": 7242,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.017241,
+              "reference_rate": 0.04023,
+              "difference": -0.022989,
+              "ci_lower": -0.056337,
+              "ci_upper": 0.028362,
+              "ci_level": 0.975,
+              "flag": false,
+              "four_fifths_ratio": 0.4286,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.003167
+        },
+        {
+          "attribute": "employment_type",
+          "metric": "equal_opportunity_difference",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "salaried",
+          "reference_group_size": 27146,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "salaried": {
+              "size": 27146,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "other": {
+              "size": 8260,
+              "is_reference": false,
+              "status": "unstable",
+              "group_rate": 0.0,
+              "reference_rate": 0.020461805976788386,
+              "difference": -0.020461805976788386,
+              "flag": null,
+              "note": "Fewer than 20 approved repayers (group=0, ref=506)"
+            },
+            "self_employed": {
+              "size": 10721,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.024679,
+              "reference_rate": 0.020462,
+              "difference": 0.004217,
+              "ci_lower": 0.000403,
+              "ci_upper": 0.007954,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 1.2061,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.024679
+        },
+        {
+          "attribute": "employment_type",
+          "metric": "selection_rate_ratio",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "salaried",
+          "reference_group_size": 27146,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "salaried": {
+              "size": 27146,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "other": {
+              "size": 8260,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            },
+            "self_employed": {
+              "size": 10721,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "employment_type",
+          "metric": "selection_rate_difference",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "salaried",
+          "reference_group_size": 27146,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "salaried": {
+              "size": 27146,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "other": {
+              "size": 8260,
+              "is_reference": false,
+              "status": "unstable",
+              "group_rate": 0.0,
+              "reference_rate": 0.019229352390775806,
+              "difference": -0.019229352390775806,
+              "flag": null,
+              "note": "Fewer than 20 approvals (group=0, ref=522)"
+            },
+            "self_employed": {
+              "size": 10721,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.023692,
+              "reference_rate": 0.019229,
+              "difference": 0.004462,
+              "ci_lower": 0.000815,
+              "ci_upper": 0.008034,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 1.2321,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.023691
+        },
+        {
+          "attribute": "employment_type",
+          "metric": "false_approval_rate_difference",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "salaried",
+          "reference_group_size": 27146,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "salaried": {
+              "size": 27146,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "other": {
+              "size": 8260,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.0,
+              "reference_rate": 0.00662,
+              "difference": -0.00662,
+              "ci_lower": -0.010546,
+              "ci_upper": -0.003264,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 0.0,
+              "note": ""
+            },
+            "self_employed": {
+              "size": 10721,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.01199,
+              "reference_rate": 0.00662,
+              "difference": 0.005371,
+              "ci_lower": -0.003387,
+              "ci_upper": 0.01556,
+              "ci_level": 0.975,
+              "flag": false,
+              "four_fifths_ratio": 1.8113,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.011991
+        },
+        {
+          "attribute": "employment_type",
+          "metric": "default_rate_among_approved",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "salaried",
+          "reference_group_size": 27146,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "salaried": {
+              "size": 27146,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "other": {
+              "size": 8260,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": NaN,
+              "reference_rate": 0.030651,
+              "difference": NaN,
+              "ci_lower": NaN,
+              "ci_upper": NaN,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": NaN,
+              "note": ""
+            },
+            "self_employed": {
+              "size": 10721,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.03937,
+              "reference_rate": 0.030651,
+              "difference": 0.008719,
+              "ci_lower": -0.021537,
+              "ci_upper": 0.044788,
+              "ci_level": 0.975,
+              "flag": false,
+              "four_fifths_ratio": 1.2844,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "income_band",
+          "metric": "equal_opportunity_difference",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "Q1",
+          "reference_group_size": 14956,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.983333,
+          "groups": {
+            "Q1": {
+              "size": 14956,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "Q2": {
+              "size": 7999,
+              "is_reference": false,
+              "status": "unstable",
+              "group_rate": 0.0,
+              "reference_rate": 0.0,
+              "difference": 0.0,
+              "flag": null,
+              "note": "Fewer than 20 approved repayers (group=0, ref=0)"
+            },
+            "Q3": {
+              "size": 12392,
+              "is_reference": false,
+              "status": "unstable",
+              "group_rate": 0.023428520908849792,
+              "reference_rate": 0.0,
+              "difference": 0.023428520908849792,
+              "flag": null,
+              "note": "Fewer than 20 approved repayers (group=265, ref=0)"
+            },
+            "Q4": {
+              "size": 10780,
+              "is_reference": false,
+              "status": "unstable",
+              "group_rate": 0.04822991249005569,
+              "reference_rate": 0.0,
+              "difference": 0.04822991249005569,
+              "flag": null,
+              "note": "Fewer than 20 approved repayers (group=485, ref=0)"
+            }
+          },
+          "max_minus_min_gap": 0.04823
+        },
+        {
+          "attribute": "income_band",
+          "metric": "selection_rate_ratio",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "Q1",
+          "reference_group_size": 14956,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.983333,
+          "groups": {
+            "Q1": {
+              "size": 14956,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "Q2": {
+              "size": 7999,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            },
+            "Q3": {
+              "size": 12392,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            },
+            "Q4": {
+              "size": 10780,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "income_band",
+          "metric": "selection_rate_difference",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "Q1",
+          "reference_group_size": 14956,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.983333,
+          "groups": {
+            "Q1": {
+              "size": 14956,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "Q2": {
+              "size": 7999,
+              "is_reference": false,
+              "status": "unstable",
+              "group_rate": 0.0,
+              "reference_rate": 0.0,
+              "difference": 0.0,
+              "flag": null,
+              "note": "Fewer than 20 approvals (group=0, ref=0)"
+            },
+            "Q3": {
+              "size": 12392,
+              "is_reference": false,
+              "status": "unstable",
+              "group_rate": 0.022433828276307296,
+              "reference_rate": 0.0,
+              "difference": 0.022433828276307296,
+              "flag": null,
+              "note": "Fewer than 20 approvals (group=278, ref=0)"
+            },
+            "Q4": {
+              "size": 10780,
+              "is_reference": false,
+              "status": "unstable",
+              "group_rate": 0.046196660482374766,
+              "reference_rate": 0.0,
+              "difference": 0.046196660482374766,
+              "flag": null,
+              "note": "Fewer than 20 approvals (group=498, ref=0)"
+            }
+          },
+          "max_minus_min_gap": 0.046197
+        },
+        {
+          "attribute": "income_band",
+          "metric": "false_approval_rate_difference",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "Q1",
+          "reference_group_size": 14956,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.983333,
+          "groups": {
+            "Q1": {
+              "size": 14956,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "Q2": {
+              "size": 7999,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.0,
+              "reference_rate": 0.0,
+              "difference": 0.0,
+              "ci_lower": 0.0,
+              "ci_upper": 0.0,
+              "ci_level": 0.983333,
+              "flag": false,
+              "four_fifths_ratio": null,
+              "note": ""
+            },
+            "Q3": {
+              "size": 12392,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.012026,
+              "reference_rate": 0.0,
+              "difference": 0.012026,
+              "ci_lower": 0.004662,
+              "ci_upper": 0.021251,
+              "ci_level": 0.983333,
+              "flag": true,
+              "four_fifths_ratio": null,
+              "note": ""
+            },
+            "Q4": {
+              "size": 10780,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.017956,
+              "reference_rate": 0.0,
+              "difference": 0.017956,
+              "ci_lower": 0.007925,
+              "ci_upper": 0.031739,
+              "ci_level": 0.983333,
+              "flag": true,
+              "four_fifths_ratio": null,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.017956
+        },
+        {
+          "attribute": "income_band",
+          "metric": "default_rate_among_approved",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "Q1",
+          "reference_group_size": 14956,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.983333,
+          "groups": {
+            "Q1": {
+              "size": 14956,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "Q2": {
+              "size": 7999,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": NaN,
+              "reference_rate": NaN,
+              "difference": NaN,
+              "ci_lower": NaN,
+              "ci_upper": NaN,
+              "ci_level": 0.983333,
+              "flag": true,
+              "four_fifths_ratio": null,
+              "note": ""
+            },
+            "Q3": {
+              "size": 12392,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.046763,
+              "reference_rate": NaN,
+              "difference": NaN,
+              "ci_lower": NaN,
+              "ci_upper": NaN,
+              "ci_level": 0.983333,
+              "flag": true,
+              "four_fifths_ratio": null,
+              "note": ""
+            },
+            "Q4": {
+              "size": 10780,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.026104,
+              "reference_rate": NaN,
+              "difference": NaN,
+              "ci_lower": NaN,
+              "ci_upper": NaN,
+              "ci_level": 0.983333,
+              "flag": true,
+              "four_fifths_ratio": null,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": null
+        }
+      ]
+    },
+    "B_refer_excluded": {
+      "treatment": "B_refer_excluded",
+      "attributes_evaluated": [
+        "gender",
+        "age_band",
+        "region_rating",
+        "employment_type",
+        "income_band"
+      ],
+      "primary_metric": "equal_opportunity_difference",
+      "results": [
+        {
+          "attribute": "gender",
+          "metric": "equal_opportunity_difference",
+          "treatment": "B_refer_excluded",
+          "reference_group": "F",
+          "reference_group_size": 30352,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "F": {
+              "size": 30352,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "M": {
+              "size": 15774,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.024763,
+              "reference_rate": 0.016916,
+              "difference": 0.007847,
+              "ci_lower": 0.004337,
+              "ci_upper": 0.011502,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 1.4639,
+              "note": ""
+            },
+            "XNA": {
+              "size": 1,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "gender",
+          "metric": "selection_rate_ratio",
+          "treatment": "B_refer_excluded",
+          "reference_group": "F",
+          "reference_group_size": 30352,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "F": {
+              "size": 30352,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "M": {
+              "size": 15774,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            },
+            "XNA": {
+              "size": 1,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "gender",
+          "metric": "selection_rate_difference",
+          "treatment": "B_refer_excluded",
+          "reference_group": "F",
+          "reference_group_size": 30352,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "F": {
+              "size": 30352,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "M": {
+              "size": 15774,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.022372,
+              "reference_rate": 0.016432,
+              "difference": 0.00594,
+              "ci_lower": 0.002782,
+              "ci_upper": 0.009155,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 1.3615,
+              "note": ""
+            },
+            "XNA": {
+              "size": 1,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "gender",
+          "metric": "false_approval_rate_difference",
+          "treatment": "B_refer_excluded",
+          "reference_group": "F",
+          "reference_group_size": 30352,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "F": {
+              "size": 30352,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "M": {
+              "size": 15774,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.003167,
+              "reference_rate": 0.010304,
+              "difference": -0.007138,
+              "ci_lower": -0.013121,
+              "ci_upper": -0.001622,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 0.3073,
+              "note": ""
+            },
+            "XNA": {
+              "size": 1,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "gender",
+          "metric": "default_rate_among_approved",
+          "treatment": "B_refer_excluded",
+          "reference_group": "F",
+          "reference_group_size": 30352,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "F": {
+              "size": 30352,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "M": {
+              "size": 15774,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.015674,
+              "reference_rate": 0.045952,
+              "difference": -0.030278,
+              "ci_lower": -0.0581,
+              "ci_upper": -0.004755,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 0.3411,
+              "note": ""
+            },
+            "XNA": {
+              "size": 1,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "age_band",
+          "metric": "equal_opportunity_difference",
+          "treatment": "B_refer_excluded",
+          "reference_group": "30-39",
+          "reference_group_size": 12387,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.9875,
+          "groups": {
+            "30-39": {
+              "size": 12387,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "21-29": {
+              "size": 6770,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.00877,
+              "reference_rate": 0.02025,
+              "difference": -0.01148,
+              "ci_lower": -0.015882,
+              "ci_upper": -0.007085,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 0.4331,
+              "note": ""
+            },
+            "40-49": {
+              "size": 11488,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.031959,
+              "reference_rate": 0.02025,
+              "difference": 0.011709,
+              "ci_lower": 0.006116,
+              "ci_upper": 0.017473,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 1.5782,
+              "note": ""
+            },
+            "50-59": {
+              "size": 10170,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.019924,
+              "reference_rate": 0.02025,
+              "difference": -0.000326,
+              "ci_lower": -0.005421,
+              "ci_upper": 0.00462,
+              "ci_level": 0.9875,
+              "flag": false,
+              "four_fifths_ratio": 0.9839,
+              "note": ""
+            },
+            "60+": {
+              "size": 5312,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.005055,
+              "reference_rate": 0.02025,
+              "difference": -0.015195,
+              "ci_lower": -0.019409,
+              "ci_upper": -0.010978,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 0.2496,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.026904
+        },
+        {
+          "attribute": "age_band",
+          "metric": "selection_rate_ratio",
+          "treatment": "B_refer_excluded",
+          "reference_group": "30-39",
+          "reference_group_size": 12387,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.9875,
+          "groups": {
+            "30-39": {
+              "size": 12387,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "21-29": {
+              "size": 6770,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            },
+            "40-49": {
+              "size": 11488,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            },
+            "50-59": {
+              "size": 10170,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            },
+            "60+": {
+              "size": 5312,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "age_band",
+          "metric": "selection_rate_difference",
+          "treatment": "B_refer_excluded",
+          "reference_group": "30-39",
+          "reference_group_size": 12387,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.9875,
+          "groups": {
+            "30-39": {
+              "size": 12387,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "21-29": {
+              "size": 6770,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.007754,
+              "reference_rate": 0.018935,
+              "difference": -0.011181,
+              "ci_lower": -0.01509,
+              "ci_upper": -0.007094,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 0.4095,
+              "note": ""
+            },
+            "40-49": {
+              "size": 11488,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.030193,
+              "reference_rate": 0.018935,
+              "difference": 0.011258,
+              "ci_lower": 0.005914,
+              "ci_upper": 0.016633,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 1.5946,
+              "note": ""
+            },
+            "50-59": {
+              "size": 10170,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.019636,
+              "reference_rate": 0.018935,
+              "difference": 0.000701,
+              "ci_lower": -0.003702,
+              "ci_upper": 0.005418,
+              "ci_level": 0.9875,
+              "flag": false,
+              "four_fifths_ratio": 1.037,
+              "note": ""
+            },
+            "60+": {
+              "size": 5312,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.004774,
+              "reference_rate": 0.018935,
+              "difference": -0.014161,
+              "ci_lower": -0.018025,
+              "ci_upper": -0.010224,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 0.2521,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.025419
+        },
+        {
+          "attribute": "age_band",
+          "metric": "false_approval_rate_difference",
+          "treatment": "B_refer_excluded",
+          "reference_group": "30-39",
+          "reference_group_size": 12387,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.9875,
+          "groups": {
+            "30-39": {
+              "size": 12387,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "21-29": {
+              "size": 6770,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.0,
+              "reference_rate": 0.00755,
+              "difference": -0.00755,
+              "ci_lower": -0.014313,
+              "ci_upper": -0.002423,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 0.0,
+              "note": ""
+            },
+            "40-49": {
+              "size": 11488,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.009828,
+              "reference_rate": 0.00755,
+              "difference": 0.002278,
+              "ci_lower": -0.008167,
+              "ci_upper": 0.013265,
+              "ci_level": 0.9875,
+              "flag": false,
+              "four_fifths_ratio": 1.3017,
+              "note": ""
+            },
+            "50-59": {
+              "size": 10170,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.015491,
+              "reference_rate": 0.00755,
+              "difference": 0.00794,
+              "ci_lower": -0.005571,
+              "ci_upper": 0.024179,
+              "ci_level": 0.9875,
+              "flag": false,
+              "four_fifths_ratio": 2.0516,
+              "note": ""
+            },
+            "60+": {
+              "size": 5312,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.0,
+              "reference_rate": 0.00755,
+              "difference": -0.00755,
+              "ci_lower": -0.014409,
+              "ci_upper": -0.00169,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 0.0,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.01549
+        },
+        {
+          "attribute": "age_band",
+          "metric": "default_rate_among_approved",
+          "treatment": "B_refer_excluded",
+          "reference_group": "30-39",
+          "reference_group_size": 12387,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.9875,
+          "groups": {
+            "30-39": {
+              "size": 12387,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "21-29": {
+              "size": 6770,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.0,
+              "reference_rate": 0.041284,
+              "difference": -0.041284,
+              "ci_lower": -0.077026,
+              "ci_upper": -0.012635,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 0.0,
+              "note": ""
+            },
+            "40-49": {
+              "size": 11488,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.025974,
+              "reference_rate": 0.041284,
+              "difference": -0.01531,
+              "ci_lower": -0.058071,
+              "ci_upper": 0.023781,
+              "ci_level": 0.9875,
+              "flag": false,
+              "four_fifths_ratio": 0.6291,
+              "note": ""
+            },
+            "50-59": {
+              "size": 10170,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.051136,
+              "reference_rate": 0.041284,
+              "difference": 0.009852,
+              "ci_lower": -0.038697,
+              "ci_upper": 0.068576,
+              "ci_level": 0.9875,
+              "flag": false,
+              "four_fifths_ratio": 1.2386,
+              "note": ""
+            },
+            "60+": {
+              "size": 5312,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.0,
+              "reference_rate": 0.041284,
+              "difference": -0.041284,
+              "ci_lower": -0.079328,
+              "ci_upper": -0.009708,
+              "ci_level": 0.9875,
+              "flag": true,
+              "four_fifths_ratio": 0.0,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.051136
+        },
+        {
+          "attribute": "region_rating",
+          "metric": "equal_opportunity_difference",
+          "treatment": "B_refer_excluded",
+          "reference_group": "2",
+          "reference_group_size": 34001,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "2": {
+              "size": 34001,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "1": {
+              "size": 4884,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.054207,
+              "reference_rate": 0.017384,
+              "difference": 0.036823,
+              "ci_lower": 0.02778,
+              "ci_upper": 0.045563,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 3.1182,
+              "note": ""
+            },
+            "3": {
+              "size": 7242,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.009355,
+              "reference_rate": 0.017384,
+              "difference": -0.008029,
+              "ci_lower": -0.011395,
+              "ci_upper": -0.004767,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 0.5381,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.044852
+        },
+        {
+          "attribute": "region_rating",
+          "metric": "selection_rate_ratio",
+          "treatment": "B_refer_excluded",
+          "reference_group": "2",
+          "reference_group_size": 34001,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "2": {
+              "size": 34001,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "1": {
+              "size": 4884,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            },
+            "3": {
+              "size": 7242,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "region_rating",
+          "metric": "selection_rate_difference",
+          "treatment": "B_refer_excluded",
+          "reference_group": "2",
+          "reference_group_size": 34001,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "2": {
+              "size": 34001,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "1": {
+              "size": 4884,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.052183,
+              "reference_rate": 0.016625,
+              "difference": 0.035558,
+              "ci_lower": 0.026743,
+              "ci_upper": 0.043538,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 3.1389,
+              "note": ""
+            },
+            "3": {
+              "size": 7242,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.008385,
+              "reference_rate": 0.016625,
+              "difference": -0.00824,
+              "ci_lower": -0.011166,
+              "ci_upper": -0.005282,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 0.5044,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.043798
+        },
+        {
+          "attribute": "region_rating",
+          "metric": "false_approval_rate_difference",
+          "treatment": "B_refer_excluded",
+          "reference_group": "2",
+          "reference_group_size": 34001,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "2": {
+              "size": 34001,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "1": {
+              "size": 4884,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.018692,
+              "reference_rate": 0.008143,
+              "difference": 0.010549,
+              "ci_lower": -0.007069,
+              "ci_upper": 0.031834,
+              "ci_level": 0.975,
+              "flag": false,
+              "four_fifths_ratio": 2.2955,
+              "note": ""
+            },
+            "3": {
+              "size": 7242,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.001214,
+              "reference_rate": 0.008143,
+              "difference": -0.006929,
+              "ci_lower": -0.011784,
+              "ci_upper": -0.00255,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 0.149,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.017478
+        },
+        {
+          "attribute": "region_rating",
+          "metric": "default_rate_among_approved",
+          "treatment": "B_refer_excluded",
+          "reference_group": "2",
+          "reference_group_size": 34001,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "2": {
+              "size": 34001,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "1": {
+              "size": 4884,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.020408,
+              "reference_rate": 0.04023,
+              "difference": -0.019822,
+              "ci_lower": -0.048829,
+              "ci_upper": 0.007974,
+              "ci_level": 0.975,
+              "flag": false,
+              "four_fifths_ratio": 0.5073,
+              "note": ""
+            },
+            "3": {
+              "size": 7242,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.017241,
+              "reference_rate": 0.04023,
+              "difference": -0.022989,
+              "ci_lower": -0.056337,
+              "ci_upper": 0.028362,
+              "ci_level": 0.975,
+              "flag": false,
+              "four_fifths_ratio": 0.4286,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.003167
+        },
+        {
+          "attribute": "employment_type",
+          "metric": "equal_opportunity_difference",
+          "treatment": "B_refer_excluded",
+          "reference_group": "salaried",
+          "reference_group_size": 27146,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "salaried": {
+              "size": 27146,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "other": {
+              "size": 8260,
+              "is_reference": false,
+              "status": "unstable",
+              "group_rate": 0.0,
+              "reference_rate": 0.022282895895719572,
+              "difference": -0.022282895895719572,
+              "flag": null,
+              "note": "Fewer than 20 approved repayers (group=0, ref=506)"
+            },
+            "self_employed": {
+              "size": 10721,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.028033,
+              "reference_rate": 0.022283,
+              "difference": 0.00575,
+              "ci_lower": 0.001475,
+              "ci_upper": 0.010084,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 1.2581,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.028033
+        },
+        {
+          "attribute": "employment_type",
+          "metric": "selection_rate_ratio",
+          "treatment": "B_refer_excluded",
+          "reference_group": "salaried",
+          "reference_group_size": 27146,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "salaried": {
+              "size": 27146,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "other": {
+              "size": 8260,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            },
+            "self_employed": {
+              "size": 10721,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "employment_type",
+          "metric": "selection_rate_difference",
+          "treatment": "B_refer_excluded",
+          "reference_group": "salaried",
+          "reference_group_size": 27146,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "salaried": {
+              "size": 27146,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "other": {
+              "size": 8260,
+              "is_reference": false,
+              "status": "unstable",
+              "group_rate": 0.0,
+              "reference_rate": 0.02081920791289435,
+              "difference": -0.02081920791289435,
+              "flag": null,
+              "note": "Fewer than 20 approvals (group=0, ref=522)"
+            },
+            "self_employed": {
+              "size": 10721,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.026737,
+              "reference_rate": 0.020819,
+              "difference": 0.005918,
+              "ci_lower": 0.001848,
+              "ci_upper": 0.00984,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 1.2842,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.026737
+        },
+        {
+          "attribute": "employment_type",
+          "metric": "false_approval_rate_difference",
+          "treatment": "B_refer_excluded",
+          "reference_group": "salaried",
+          "reference_group_size": 27146,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "salaried": {
+              "size": 27146,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "other": {
+              "size": 8260,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.0,
+              "reference_rate": 0.006765,
+              "difference": -0.006765,
+              "ci_lower": -0.010721,
+              "ci_upper": -0.003326,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": 0.0,
+              "note": ""
+            },
+            "self_employed": {
+              "size": 10721,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.012563,
+              "reference_rate": 0.006765,
+              "difference": 0.005797,
+              "ci_lower": -0.003356,
+              "ci_upper": 0.016376,
+              "ci_level": 0.975,
+              "flag": false,
+              "four_fifths_ratio": 1.8569,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.012562
+        },
+        {
+          "attribute": "employment_type",
+          "metric": "default_rate_among_approved",
+          "treatment": "B_refer_excluded",
+          "reference_group": "salaried",
+          "reference_group_size": 27146,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.975,
+          "groups": {
+            "salaried": {
+              "size": 27146,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "other": {
+              "size": 8260,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": NaN,
+              "reference_rate": 0.030651,
+              "difference": NaN,
+              "ci_lower": NaN,
+              "ci_upper": NaN,
+              "ci_level": 0.975,
+              "flag": true,
+              "four_fifths_ratio": NaN,
+              "note": ""
+            },
+            "self_employed": {
+              "size": 10721,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.03937,
+              "reference_rate": 0.030651,
+              "difference": 0.008719,
+              "ci_lower": -0.021537,
+              "ci_upper": 0.044788,
+              "ci_level": 0.975,
+              "flag": false,
+              "four_fifths_ratio": 1.2844,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "income_band",
+          "metric": "equal_opportunity_difference",
+          "treatment": "B_refer_excluded",
+          "reference_group": "Q1",
+          "reference_group_size": 14956,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.983333,
+          "groups": {
+            "Q1": {
+              "size": 14956,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "Q2": {
+              "size": 7999,
+              "is_reference": false,
+              "status": "unstable",
+              "group_rate": 0.0,
+              "reference_rate": 0.0,
+              "difference": 0.0,
+              "flag": null,
+              "note": "Fewer than 20 approved repayers (group=0, ref=0)"
+            },
+            "Q3": {
+              "size": 12392,
+              "is_reference": false,
+              "status": "unstable",
+              "group_rate": 0.026838160826412803,
+              "reference_rate": 0.0,
+              "difference": 0.026838160826412803,
+              "flag": null,
+              "note": "Fewer than 20 approved repayers (group=265, ref=0)"
+            },
+            "Q4": {
+              "size": 10780,
+              "is_reference": false,
+              "status": "unstable",
+              "group_rate": 0.06428098078197482,
+              "reference_rate": 0.0,
+              "difference": 0.06428098078197482,
+              "flag": null,
+              "note": "Fewer than 20 approved repayers (group=485, ref=0)"
+            }
+          },
+          "max_minus_min_gap": 0.064281
+        },
+        {
+          "attribute": "income_band",
+          "metric": "selection_rate_ratio",
+          "treatment": "B_refer_excluded",
+          "reference_group": "Q1",
+          "reference_group_size": 14956,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.983333,
+          "groups": {
+            "Q1": {
+              "size": 14956,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "Q2": {
+              "size": 7999,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            },
+            "Q3": {
+              "size": 12392,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            },
+            "Q4": {
+              "size": 10780,
+              "is_reference": false,
+              "status": "not_computed",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "income_band",
+          "metric": "selection_rate_difference",
+          "treatment": "B_refer_excluded",
+          "reference_group": "Q1",
+          "reference_group_size": 14956,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.983333,
+          "groups": {
+            "Q1": {
+              "size": 14956,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "Q2": {
+              "size": 7999,
+              "is_reference": false,
+              "status": "unstable",
+              "group_rate": 0.0,
+              "reference_rate": 0.0,
+              "difference": 0.0,
+              "flag": null,
+              "note": "Fewer than 20 approvals (group=0, ref=0)"
+            },
+            "Q3": {
+              "size": 12392,
+              "is_reference": false,
+              "status": "unstable",
+              "group_rate": 0.025476539589442817,
+              "reference_rate": 0.0,
+              "difference": 0.025476539589442817,
+              "flag": null,
+              "note": "Fewer than 20 approvals (group=278, ref=0)"
+            },
+            "Q4": {
+              "size": 10780,
+              "is_reference": false,
+              "status": "unstable",
+              "group_rate": 0.06069469835466179,
+              "reference_rate": 0.0,
+              "difference": 0.06069469835466179,
+              "flag": null,
+              "note": "Fewer than 20 approvals (group=498, ref=0)"
+            }
+          },
+          "max_minus_min_gap": 0.060695
+        },
+        {
+          "attribute": "income_band",
+          "metric": "false_approval_rate_difference",
+          "treatment": "B_refer_excluded",
+          "reference_group": "Q1",
+          "reference_group_size": 14956,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.983333,
+          "groups": {
+            "Q1": {
+              "size": 14956,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "Q2": {
+              "size": 7999,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.0,
+              "reference_rate": 0.0,
+              "difference": 0.0,
+              "ci_lower": 0.0,
+              "ci_upper": 0.0,
+              "ci_level": 0.983333,
+              "flag": false,
+              "four_fifths_ratio": null,
+              "note": ""
+            },
+            "Q3": {
+              "size": 12392,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.012524,
+              "reference_rate": 0.0,
+              "difference": 0.012524,
+              "ci_lower": 0.004841,
+              "ci_upper": 0.02225,
+              "ci_level": 0.983333,
+              "flag": true,
+              "four_fifths_ratio": null,
+              "note": ""
+            },
+            "Q4": {
+              "size": 10780,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.019697,
+              "reference_rate": 0.0,
+              "difference": 0.019697,
+              "ci_lower": 0.008638,
+              "ci_upper": 0.034483,
+              "ci_level": 0.983333,
+              "flag": true,
+              "four_fifths_ratio": null,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": 0.019697
+        },
+        {
+          "attribute": "income_band",
+          "metric": "default_rate_among_approved",
+          "treatment": "B_refer_excluded",
+          "reference_group": "Q1",
+          "reference_group_size": 14956,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.983333,
+          "groups": {
+            "Q1": {
+              "size": 14956,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "Q2": {
+              "size": 7999,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": NaN,
+              "reference_rate": NaN,
+              "difference": NaN,
+              "ci_lower": NaN,
+              "ci_upper": NaN,
+              "ci_level": 0.983333,
+              "flag": true,
+              "four_fifths_ratio": null,
+              "note": ""
+            },
+            "Q3": {
+              "size": 12392,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.046763,
+              "reference_rate": NaN,
+              "difference": NaN,
+              "ci_lower": NaN,
+              "ci_upper": NaN,
+              "ci_level": 0.983333,
+              "flag": true,
+              "four_fifths_ratio": null,
+              "note": ""
+            },
+            "Q4": {
+              "size": 10780,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.026104,
+              "reference_rate": NaN,
+              "difference": NaN,
+              "ci_lower": NaN,
+              "ci_upper": NaN,
+              "ci_level": 0.983333,
+              "flag": true,
+              "four_fifths_ratio": null,
+              "note": ""
+            }
+          },
+          "max_minus_min_gap": null
+        }
+      ]
+    }
+  }
+}

@@ -128,22 +128,43 @@ All metrics cited from `reports/ml/`.
 
 - **Logistic Regression**: Exact linear feature contributions $w_i \cdot x_i$ computed via dot product between model coefficients and scaled input vectors. Sample linear attributions are logged in `reports/ml/metrics_d3_lr.json` and `reports/ml/metrics_d2_lr.json`.
 - **Gradient Boosting**: Permutation importance / tree attributions.
-- **Reason codes from attributions**: `TODO Phase 5` (faithfulness evaluation against expert system rule reason codes).
+- **Reason codes and faithfulness**: Per Lean Mode scope (Master Test Plan section 6 / `docs/06-test-plan.md`), SHAP faithfulness evaluation and formal attribution-to-reason-code mapping are excluded. Feature contributions in the baseline are displayed for reviewer inspection and comparison only.
 
 ---
 
 ## 9. Fairness
 
-`TODO Phase 5`. Phase 4 computes group-size tables only (`data/group_sizes/d2_group_sizes.csv` and `data/group_sizes/d3_group_sizes.csv`). In compliance with AGENTS.md, zero outcome metrics by protected group are computed in Phase 4.
+Implemented in Phase 5 per `docs/fairness-audit-plan.md` and `config/fairness.toml` (`reports/fairness/`):
+
+- **Plan pinning and execution guard**: Pinned to SHA-256 hashes of `docs/fairness-audit-plan.md` and `config/fairness.toml` in `reports/fairness/plan_pin.json` before viewing group outcomes. Guard refuses execution if unpinned modifications occur without logging in `docs/fairness-amendments.md`.
+- **Populations**:
+  - D2: Held-out test split ($N = 46,127$ applicants, 776 rule approvals).
+  - D3: Held-out test split ($N = 3,000$ applicants).
+  - Pipeline test: Full D3 population ($N = 100,000$ with synthetic bias injected; normal D3 control $N = 20,000$).
+- **Systems evaluated**:
+  1. Rule-based expert system under Treatment A (refer = denied, headline) and Treatment B (refer excluded).
+  2. Logistic Regression operating at matched approval rate threshold ($\tau = 0.1479$ on D2, $\tau = 0.50$ on D3).
+  3. HistGradientBoosting operating at matched approval rate threshold ($\tau = 0.0680$ on D2, $\tau = 0.50$ on D3).
+- **Primary metrics**:
+  - D2: Equal Opportunity Difference (approval rate gap among applicants with $TARGET = 0$, group minus reference group).
+  - D3: Selection Rate Difference (approval rate gap, group minus reference group).
+- **Flagging rule**: Bonferroni-corrected percentile bootstrap CI (1,000 resamples, derived seed `bootstrap`) at level $1 - 0.05 / n_{\text{non-ref}}$. Flag triggered only if CI excludes 0. Groups under 100 applicants are marked `too_small` and never scored as findings (D-06). Groups with fewer than 20 approvals are marked `unstable`.
+- **Counterfactual swap**: 1,000 D3 rows rerun with shuffled protected attributes produce identical decisions (0 changes) across the rule system (FR-20) and ML models (DR-02).
+- **Proxy review**: Logistic regression trained on D2 features predicting `CODE_GENDER` achieves an AUC reported in `reports/fairness/summary.json` as a proxy risk metric.
+- **Outputs**: Detailed metrics in `reports/fairness/d2_*.json`, `reports/fairness/d3_*.json`, `reports/fairness/d2_tables.md`, and `reports/fairness/d3_tables.md`.
+- **Mitigation**: Per P5-10, no mitigations applied in this academic prototype.
 
 ---
 
 ## 10. Limits and cautions
 
+- **Illustrative policy**: Policy thresholds and rules are illustrative academic constructs (D-02); they do not reflect commercial credit underwriting standards.
 - **Fallback obligations**: 65.0% of D2 applicants (199,824 of 307,511) lack bureau active records or annuities and rely on the Beta fallback distribution (ASM-D4).
 - **Referrals from unknown facts**: In D2 test split, 4,055 applicants receive a `refer` decision under policy rules primarily due to missing bureau data (`severe_delinquency_36m` unknown in 70.0% of rows; `written_off` unknown in 14.3%).
 - **Policy range constraints**: 190,865 D2 rows fall below the policy monthly income floor (K05, ₹25,000); 34,671 fail requested tenure bounds (V04).
 - **Selection bias**: Repayment data in D2 exists only for previously approved applicants; true default rates on rejected populations are unobserved.
+- **Circularity in D3**: D3 labels are generated to evaluate rule imitation; performance on D3 is an audit of fidelity, not credit risk forecasting.
+- **Lean mode cuts**: Per `docs/06-test-plan.md` Lean mode: Fairlearn cross-check, SHAP faithfulness, coverage analysis, and sensitivity checks are excluded.
 
 ---
 
@@ -157,7 +178,10 @@ All metrics cited from `reports/ml/`.
   - `make decide-d2`: Generates batch decisions for D2 validation and test splits (92,254 rows).
   - `make baseline`: Fits LR and GB models, determines validation thresholds, and computes test metrics.
   - `make phase4`: Runs all above targets in order and validates integrity.
-- **Artifact tracking**: Output datasets under `data/mapped/`, `data/protected/`, `data/splits/`, `data/decisions/`, `data/synthetic/d3_*`, and `models/` are gitignored. Manifest hashes (`data/manifest.json`) and metrics files (`reports/ml/`) are tracked.
+  - `make fairness`: Runs full group fairness audit across D2 and D3 for rules and ML baselines.
+  - `make phase5`: Runs edge cases, comparison scorecard, and fairness audit; writes `reports/phase5_manifest.json`.
+  - `make reproduce`: Rebuilds Phase 4 and Phase 5 artifacts from clean checkout; verifies bitwise and numerical agreement.
+- **Artifact tracking**: Output datasets under `data/mapped/`, `data/protected/`, `data/splits/`, `data/decisions/`, `data/synthetic/d3_*`, and `models/` are gitignored. Manifest hashes (`data/manifest.json`, `reports/phase5_manifest.json`) and metrics files are tracked.
 
 ---
 
@@ -167,4 +191,7 @@ All metrics cited from `reports/ml/`.
   - Added D2 and D3 baseline results for Logistic Regression and HistGradientBoosting.
   - Documented Step 0 raw column verification and terms confirmation.
   - Recorded OQ-010 regarding reviewer page ML block preservation to ensure Phase 3 regression test stability.
-  - Section 9 marked as `TODO Phase 5` per AGENTS.md lean mode guidelines.
+- **2026-11-13**: Phase 5 updates.
+  - Completed Section 8: noted Lean Mode exclusion of SHAP faithfulness.
+  - Completed Section 9: documented fairness evaluation results across D2 and D3, counterfactual swap, and proxy review.
+  - Added Phase 5 and reproduce targets to Section 11.

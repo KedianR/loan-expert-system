@@ -24,7 +24,7 @@ These formulas implement the parameters in the Credit Policy and Rule Catalog. W
 | Name | Value |
 | --- | --- |
 | `min_amount`, `max_amount`, `amount_step` | 50,000; 25,00,000; 5,000 |
-| `min_tenure`, `max_tenure` | 12; 60 |
+| `min_tenure_months`, `max_tenure_months` | 12; 60 |
 | `income_multiple_cap` | 10 |
 | `processing_fee_rate` | 0.02 of the sanctioned amount, GST excluded |
 | `band_rate_A`, `band_rate_B`, `band_rate_C` | 12.0; 14.5; 18.0 (band midpoints) |

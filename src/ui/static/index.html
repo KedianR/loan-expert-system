@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loan Eligibility — Try an Application</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <div class="banner" role="alert">Prototype. Illustrative policy values and synthetic or public data. Not a real lending decision.</div>
+  <nav>
+    <a href="/">Try an Application</a>
+    <a href="/results">Project Results</a>
+    <a href="/about">About</a>
+  </nav>
+</header>
+<main>
+  <h1>Loan Eligibility Check</h1>
+
+  <section class="presets-section">
+    <label for="preset-select"><strong>Load a preset (TV1–TV9):</strong></label>
+    <select id="preset-select">
+      <option value="">— choose a preset —</option>
+    </select>
+  </section>
+
+  <form id="app-form" novalidate>
+    <fieldset>
+      <legend>Applicant Details</legend>
+      <div class="field">
+        <label for="applicant_id">Applicant ID</label>
+        <input type="text" id="applicant_id" name="applicant_id" value="demo-001">
+      </div>
+      <div class="field">
+        <label for="age">Age (years)</label>
+        <input type="number" id="age" name="age" min="18" max="80" required>
+        <span class="field-error" id="err-age"></span>
+      </div>
+      <div class="field">
+        <label for="employment_type">Employment Type</label>
+        <select id="employment_type" name="employment_type" required>
+          <option value="salaried">Salaried</option>
+          <option value="self_employed">Self-Employed</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="employment_months">Employment Duration (months)</label>
+        <input type="number" id="employment_months" name="employment_months" min="0" required>
+        <span class="field-error" id="err-employment_months"></span>
+      </div>
+      <div class="field">
+        <label for="monthly_net_income">Monthly Net Income (₹)</label>
+        <input type="number" id="monthly_net_income" name="monthly_net_income" min="0" required>
+        <span class="field-error" id="err-monthly_net_income"></span>
+      </div>
+      <div class="field">
+        <label for="monthly_obligations">Monthly Obligations (₹)</label>
+        <input type="number" id="monthly_obligations" name="monthly_obligations" min="0" required>
+        <span class="field-error" id="err-monthly_obligations"></span>
+      </div>
+      <div class="field">
+        <label for="credit_score">Credit Score (leave blank if unknown)</label>
+        <input type="number" id="credit_score" name="credit_score" min="300" max="900">
+      </div>
+      <div class="field">
+        <label for="enquiries_6m">Credit Enquiries (last 6 months)</label>
+        <input type="number" id="enquiries_6m" name="enquiries_6m" min="0" required>
+        <span class="field-error" id="err-enquiries_6m"></span>
+      </div>
+      <div class="field">
+        <label for="requested_amount">Requested Loan Amount (₹)</label>
+        <input type="number" id="requested_amount" name="requested_amount" min="0" required>
+        <span class="field-error" id="err-requested_amount"></span>
+      </div>
+      <div class="field">
+        <label for="requested_tenure_months">Requested Tenure (months)</label>
+        <input type="number" id="requested_tenure_months" name="requested_tenure_months" min="0" required>
+        <span class="field-error" id="err-requested_tenure_months"></span>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Verification &amp; Flags</legend>
+      <div class="field checkbox-field">
+        <input type="checkbox" id="kyc_verified" name="kyc_verified" checked>
+        <label for="kyc_verified">KYC Verified</label>
+      </div>
+      <div class="field checkbox-field">
+        <input type="checkbox" id="consent_given" name="consent_given" checked>
+        <label for="consent_given">Consent Given</label>
+      </div>
+      <div class="field checkbox-field">
+        <input type="checkbox" id="severe_delinquency_36m" name="severe_delinquency_36m">
+        <label for="severe_delinquency_36m">Severe Delinquency (last 36 months)</label>
+      </div>
+      <div class="field checkbox-field">
+        <input type="checkbox" id="written_off" name="written_off">
+        <label for="written_off">Written Off</label>
+      </div>
+    </fieldset>
+
+    <button type="submit" id="submit-btn">Check Eligibility</button>
+  </form>
+
+  <section id="result-section" hidden aria-live="polite">
+    <h2>Result</h2>
+    <div id="decision-box" class="decision-box">
+      <span id="decision-label" class="decision-label"></span>
+    </div>
+
+    <div id="offer-section" hidden>
+      <h3>Offer Summary</h3>
+      <table class="offer-table">
+        <tr><th>Recommended Amount</th><td id="offer-amount"></td></tr>
+        <tr><th>Interest Band</th><td id="offer-band"></td></tr>
+      </table>
+    </div>
+
+    <div id="reasons-section">
+      <h3>Reasons</h3>
+      <ul id="reasons-list"></ul>
+    </div>
+
+    <details id="trace-section">
+      <summary>Rule Trace (click to expand)</summary>
+      <pre id="trace-content"></pre>
+    </details>
+
+    <div id="ml-section" class="ml-block">
+      <h3>ML Baseline Score <span class="ml-caveat">(comparison only)</span></h3>
+      <p class="ml-disclaimer">This score does not feed the decision. It is a ranking score, not a probability.</p>
+      <div id="ml-content"></div>
+    </div>
+  </section>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>
+

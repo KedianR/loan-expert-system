@@ -22,7 +22,12 @@ ALLOWED_FILES = {
     Path("src/data/fallback.py").resolve(),
     Path("src/data/group_sizes.py").resolve(),
     Path("src/data/manifest.py").resolve(),
+    Path("src/eval/fairness.py").resolve(),
+    Path("src/eval/fairness_guard.py").resolve(),
     Path("data/synthetic/d3_generator.py").resolve(),
+    Path("tests/unit/test_fairness.py").resolve(),
+    Path("tests/unit/test_protected_store_isolation.py").resolve(),
+    Path("src/ml/features.py").resolve(),  # excluded list references column names
 }
 
 

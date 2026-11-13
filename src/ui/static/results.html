@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loan Eligibility — Project Results</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <div class="banner" role="alert">Prototype. Illustrative policy values and synthetic or public data. Not a real lending decision.</div>
+  <nav>
+    <a href="/">Try an Application</a>
+    <a href="/results">Project Results</a>
+    <a href="/about">About</a>
+  </nav>
+</header>
+<main>
+  <h1>Project Results</h1>
+  <p class="limits-note">
+    All results are from academic evaluation on mapped or synthetic data.
+    Policy values are illustrative (D-02). D2 is Home Credit data with mapping effects;
+    D3 is synthetic. See <a href="/about">About</a> for full limits.
+  </p>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" class="tab-btn active" data-tab="ml">ML Metrics</button>
+    <button role="tab" class="tab-btn" data-tab="comparison">Comparison</button>
+    <button role="tab" class="tab-btn" data-tab="fairness">Fairness</button>
+    <button role="tab" class="tab-btn" data-tab="edge">Edge Cases</button>
+  </div>
+
+  <section id="tab-ml" class="tab-content active">
+    <h2>ML Metrics</h2>
+    <p class="limits-note">D2 = Home Credit mapped data (46,127 test rows, 776 rule approvals). D3 = synthetic (3,000 test rows).</p>
+    <div id="ml-metrics-content">Loading…</div>
+  </section>
+
+  <section id="tab-comparison" class="tab-content" hidden>
+    <h2>Comparison Scorecard</h2>
+    <p class="limits-note">Rule system vs. ML baseline on D2 and D3 test splits. Refer treatments A and B reported.</p>
+    <div id="comparison-content">Loading…</div>
+  </section>
+
+  <section id="tab-fairness" class="tab-content" hidden>
+    <h2>Fairness Tables</h2>
+    <p class="limits-note">
+      Groups shown as "too_small" (&lt;100) or "unstable" (&lt;20 events) are not findings.
+      Statistical flags are screening results, not findings of discrimination.
+      D2 results rest on very few approvals per group (1.68% approval rate, 776 total).
+    </p>
+    <div id="fairness-content">Loading…</div>
+  </section>
+
+  <section id="tab-edge" class="tab-content" hidden>
+    <h2>Edge Case Summary</h2>
+    <p class="limits-note">64 cases across MD/TB/TF/RC/AD categories. Expected values from the Rule Catalog before first run.</p>
+    <div id="edge-content">Loading…</div>
+  </section>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>
+

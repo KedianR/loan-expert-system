@@ -1,0 +1,14 @@
+applicant_id,gender,decision,target
+app_m1,M,eligible,0
+app_m2,M,eligible,0
+app_m3,M,eligible,0
+app_m4,M,eligible,1
+app_m5,M,ineligible,0
+app_m6,M,ineligible,1
+app_m7,M,refer,0
+app_f1,F,eligible,0
+app_f2,F,ineligible,0
+app_f3,F,ineligible,0
+app_f4,F,ineligible,1
+app_f5,F,refer,1
+

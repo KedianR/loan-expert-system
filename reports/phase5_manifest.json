@@ -1,0 +1,43 @@
+{
+  "phase": "5",
+  "rule_set_hash": "sha256:eb7073a388817e0a455997c0c2ea86ccb25524cdff07faf8bf5ca98bb267be5a",
+  "rule_set_version": "rules-1.0.0+params-0.1.0",
+  "params_hash": "sha256:4c2698607ae7ea824fc62f39a84ac52fa69db1b59c0657ffeb152b0960885373",
+  "fairness_plan_pin": {
+    "plan_file": "docs/fairness-audit-plan.md",
+    "plan_sha256": "f0c16d1411d720be34749a4da6a5c2b38f67de5294ea212d178bf6ab7c53ccdc",
+    "config_file": "config/fairness.toml",
+    "config_sha256": "10854cc77c7295269ce214fd61a4b8ffcf50a6c59e357a6c3f00ae2cdee81510"
+  },
+  "report_file_hashes": {
+    "reports\\comparison\\scorecard.json": "sha256:e80384b7456eb9c976da940d3f11064d3ac6a9c31c3fa7b4dcd629b72f301c20",
+    "reports\\comparison\\scorecard.md": "sha256:0c8b96dbf74b53ad1e8703686e9e668470019a107421dfaa60ec886aa5738be9",
+    "reports\\edge_cases\\expected.csv": "sha256:09330e1a30172490a7dd825f9d0b92373113ec7cc576ff928303c2b9f8de3e3c",
+    "reports\\edge_cases\\results.csv": "sha256:00dd086e15def4df814308f3ee259d5e568af826637bb38dd29b45e57cda3b7a",
+    "reports\\edge_cases\\summary.md": "sha256:6cceeaf9c8a9adf05264b60ca74213809b1c309811e7d5e3e79d02a24c5be58c",
+    "reports\\fairness\\d2_gb.json": "sha256:40fd55e20ffd803043bd5badad555e16f0ea127fd681538656dd4c57d9505eb2",
+    "reports\\fairness\\d2_lr.json": "sha256:09e47a0556986d035a19b60a6e38371d7052cebcbabedf09b6db58c4d2371be5",
+    "reports\\fairness\\d2_rule_system.json": "sha256:a4ce4d75173037667107479d04523cc244e1fbb8bf9b741058fcef7f099b32eb",
+    "reports\\fairness\\d2_tables.md": "sha256:3de9ffa8db930aff64fad02ee9ad46a319693e9ba74ada23d7de9fb48d78ca68",
+    "reports\\fairness\\d3_gb.json": "sha256:f21f86d8d546a524e9f8892421267e942875ddfe8efb88501dfabe8684d07edf",
+    "reports\\fairness\\d3_lr.json": "sha256:4fbd6f9a41cf9b71aadb80ac2cdbfe1c5fd98a51cf7d79c0dccfb0f0aa92a103",
+    "reports\\fairness\\d3_rule_system.json": "sha256:ca97525dda8c9295a90f27af1d9d647879607a7616c06c4b076a0bae45834059",
+    "reports\\fairness\\d3_tables.md": "sha256:e5a552e41d623da17fd1ada97ebd1f1685271001cfd7dd5c96d6422a928a1ef8",
+    "reports\\fairness\\plan_pin.json": "sha256:de68de43faa9961f3c9ef8238a353b5b7b7d0155c6672240010555451db5b34f",
+    "reports\\fairness\\summary.json": "sha256:da1b98db7a2ce6c6210aa9e8e11357297755a349e14c1db73a64e983c9469a4a",
+    "reports\\ml\\comparison_f1.json": "sha256:c53ee2b171077e3b6457469d43d38799bd4e0bc87df1ed03e42abf21047769b7",
+    "reports\\ml\\comparison_f2.json": "sha256:c639023c3138feb6a9255e567457396226d594c4d6a9f34d7563544968fa515a",
+    "reports\\ml\\comparison_main.json": "sha256:dd151b5b022b276770334283e9135abafc10f811d96ac9235211d28431e66aa6",
+    "reports\\ml\\feature_list.json": "sha256:ca1bdd107546da5e95362a5bb49373c670e8cad5222e4960b7b59afcb06d50ed",
+    "reports\\ml\\metrics_d2_gb.json": "sha256:a58dc871cbd4257c70001e27d425b3c3e2f1cc8ac22eea9d220cb397190ba851",
+    "reports\\ml\\metrics_d2_lr.json": "sha256:d45e2ce0f55b2359a6e1c3af3fc5fcf461f3025f64089f5011b8ef4610c7e219",
+    "reports\\ml\\metrics_d3_gb.json": "sha256:d74d93b2d707791f8d25342b55cba911ebfb993f46a53980c69da398c412b0c7",
+    "reports\\ml\\metrics_d3_lr.json": "sha256:c4fe5aff7ae57d316e42258fac721bac214c441b6f0ad8102e8b5942e199be89",
+    "reports\\ml\\metrics_d3_sim_lr.json": "sha256:20acd369fb433eddbf8961e30d15c7a5f1af249a1b4dc94c80e01fae33f67e55",
+    "reports\\monitor_sample.md": "sha256:d5e530a1ea95470e56a994b92e9713aa0f55d5b80000e46c5780d1f70cda3585",
+    "reports\\reproduce_comparison.md": "sha256:899d26023940734890839092eb89a010c7264f28c0606c7ea82ad3620b8e36ee",
+    "reports\\reviewer\\d-0010.html": "sha256:0cd965f2a2e48a106a1525bd01883d87a66d52e52f1fd23d25b35f489fe14d9f",
+    "reports\\reviewer\\queue.html": "sha256:a78fe978d415b5a03e8337f8181e98703bff4ec25308cbedc0fbe3f497c1f52d",
+    "reports\\traceability.md": "sha256:8cfea231666842d590e44afb97a25c0ad97d5f5ce91b727ecc6413afd2faf8e7"
+  }
+}

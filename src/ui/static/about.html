@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loan Eligibility — About</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <div class="banner" role="alert">Prototype. Illustrative policy values and synthetic or public data. Not a real lending decision.</div>
+  <nav>
+    <a href="/">Try an Application</a>
+    <a href="/results">Project Results</a>
+    <a href="/about">About</a>
+  </nav>
+</header>
+<main>
+  <h1>About This System</h1>
+
+  <section>
+    <h2>What this is</h2>
+    <p>
+      This is an academic prototype of a rule-based loan eligibility expert system for
+      unsecured personal loans in INR. It is built for a coursework project and uses
+      illustrative policy values and synthetic or publicly available data only.
+      It is <strong>not</strong> a real lending system and must not be used for any real
+      credit decision.
+    </p>
+  </section>
+
+  <section>
+    <h2>Three possible decisions</h2>
+    <dl>
+      <dt><strong class="decision-eligible">ELIGIBLE</strong></dt>
+      <dd>The application meets all policy rules. A recommended loan amount and interest band are shown. This is a prototype result, not a real offer.</dd>
+      <dt><strong class="decision-refer">REFER</strong></dt>
+      <dd>The application cannot be decided automatically and is referred to a human reviewer for further assessment.</dd>
+      <dt><strong class="decision-ineligible">INELIGIBLE</strong></dt>
+      <dd>The application does not meet one or more policy rules. The specific reasons are shown.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <h2>Policy values</h2>
+    <p>
+      All thresholds, rates and limits used by the system are illustrative (D-02 in the design log).
+      They are stored in <code>params/params.toml</code> and are not real credit policy.
+    </p>
+  </section>
+
+  <section>
+    <h2>Data</h2>
+    <p>
+      The ML baseline is trained on a mapped version of the Home Credit Default Risk dataset (D2)
+      and a synthetic dataset (D3). No real personal data is used or stored.
+      Raw data files are never committed to the repository.
+    </p>
+  </section>
+
+  <section>
+    <h2>Documents</h2>
+    <ul>
+      <li><code>docs/01-srs.md</code> — System requirements</li>
+      <li><code>docs/02-policy-and-rules.md</code> — Policy rules and thresholds</li>
+      <li><code>docs/model-card.md</code> — ML model card</li>
+      <li><code>docs/final-report.md</code> — Final project report</li>
+      <li><code>docs/fairness-audit-plan.md</code> — Fairness audit plan</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Limits</h2>
+    <ul>
+      <li>Policy values are illustrative only.</li>
+      <li>Datasets are mapped or synthetic; this is a worked example, not a production credit policy.</li>
+      <li>D2 results reflect Home Credit mapping effects and 1.68% approval rate.</li>
+      <li>D3 uses synthetic protected attributes drawn independently of other fields.</li>
+      <li>No authentication, no real storage, no real grievance mechanism.</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>
+

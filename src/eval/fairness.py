@@ -720,7 +720,11 @@ def _counterfactual_swap_model(
     n_rows: int = 1000,
     seed: int = 0,
 ) -> dict[str, Any]:
-    """Counterfactual swap for ML model (features exclude protected attrs)."""
+    """Counterfactual swap for ML model (P5-9, DR-02).
+
+    Reruns 1,000 D3 rows with protected attributes shuffled.
+    Decisions must be 100% identical because features exclude protected columns.
+    """
     rng = np.random.default_rng(seed)
     idx = rng.choice(len(population_df), size=min(n_rows, len(population_df)), replace=False)
     sample = population_df.iloc[idx].copy()
@@ -728,17 +732,23 @@ def _counterfactual_swap_model(
     scores_orig = _score_ml(model_data, sample, ml_cfg)
     dec_orig = _score_to_decision(scores_orig, threshold)
 
-    # Shuffle income (a proxy) — but protected attrs are not in features anyway.
-    # Actually: shuffle nothing — just re-score. Decisions must be identical.
-    scores_again = _score_ml(model_data, sample, ml_cfg)
-    dec_again = _score_to_decision(scores_again, threshold)
+    # Shuffled protected attributes attached (feature prep ignores them)
+    prot = pd.read_csv(D3_PROTECTED_PATH)
+    shuffled_prot = prot.sample(frac=1, random_state=int(seed)).reset_index(drop=True)
+    sample_with_shuffled_prot = sample.copy()
+    for col in ["gender", "age_band", "region_tier"]:
+        if col in shuffled_prot.columns:
+            sample_with_shuffled_prot[col] = shuffled_prot[col].iloc[: len(sample)].values
 
-    changes = int((dec_orig != dec_again).sum())
+    scores_shuffled = _score_ml(model_data, sample_with_shuffled_prot, ml_cfg)
+    dec_shuffled = _score_to_decision(scores_shuffled, threshold)
+
+    changes = int((dec_orig != dec_shuffled).sum())
     return {
         "n_rows": len(sample),
         "n_changed": changes,
         "pass": changes == 0,
-        "note": "ML decisions identical on same input (deterministic pipeline).",
+        "note": "ML decisions identical before and after protected-store shuffle (DR-02).",
     }
 
 
@@ -1368,11 +1378,19 @@ def run_fairness_evaluation(repo_root: Path | str = REPO_ROOT) -> None:
         _write_report(f"d3_{model_name}", d3_ml_report)
 
     # -----------------------------------------------------------------------
-    # Counterfactual swap (P5-9)
+    # Counterfactual swap (P5-9, FR-20, DR-02)
     # -----------------------------------------------------------------------
-    print("Running counterfactual swap...")
+    print("Running counterfactual swap across rule engine, LR, and GB...")
     swap_seed = _derived_seed(master, "bootstrap")
     swap_rule = _counterfactual_swap_rule(d3_pop_test, n_rows=1000, seed=swap_seed)
+    d3_lr_data = joblib.load(MODELS_DIR / "d3_lr.joblib")
+    d3_gb_data = joblib.load(MODELS_DIR / "d3_gb.joblib")
+    swap_lr = _counterfactual_swap_model(
+        d3_lr_data, d3_pop_test, ml_cfg, threshold=0.5, n_rows=1000, seed=swap_seed
+    )
+    swap_gb = _counterfactual_swap_model(
+        d3_gb_data, d3_pop_test, ml_cfg, threshold=0.5, n_rows=1000, seed=swap_seed
+    )
 
     # Intersection: gender × age_band (D3, only cells ≥ 100 — P5-1)
     print("Evaluating D3 gender×age_band intersection...")
@@ -1399,6 +1417,8 @@ def run_fairness_evaluation(repo_root: Path | str = REPO_ROOT) -> None:
     # Write summary report
     summary = {
         "counterfactual_swap_rule": swap_rule,
+        "counterfactual_swap_lr": swap_lr,
+        "counterfactual_swap_gb": swap_gb,
         "d3_gender_age_band_intersection": intersection_result,
         "gender_from_features_auc": gender_auc,
     }

@@ -281,9 +281,9 @@ class TestPhase3LeanAcceptance:
         self, client: TestClient, test_service: DecisionService, test_db_path: Path
     ):
         """
-        FR-15, NFR-02, DR-03:
+        FR-15, NFR-02, NFR-06, DR-03:
         A record is written for every decision in D1 run, and an UPDATE and a DELETE on
-        audit_records, audit_inputs, and reviewer_actions are rejected by triggers.
+        audit_records, audit_inputs, and reviewer_actions are rejected by triggers (NFR-06 append-only).
         """
         vectors = json.loads(VECTORS_PATH.read_text(encoding="utf-8"))["vectors"]
         tv2_input = vectors[1]["input"]

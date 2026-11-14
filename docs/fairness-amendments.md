@@ -6,3 +6,4 @@ Any modification to the pinned plan or configuration must be documented here wit
 | ID | Date | What changed | Reason | Results viewed? |
 |---|---|---|---|---|
 | A-01 | 2026-11-13 | Guard released after plan pin: group_outcome_metrics set to true in config/experiment.toml | Part A step 4 pre-registered protocol step | No |
+| A-02 | 2026-11-14 | Supplementary power check added: 100,000-applicant planted bias and control pair evaluated | Per open question OQ-013, evaluated large-sample pair (N = 100,000) to confirm asymptotic narrowing of confidence intervals under identical effect size. Pipeline tests run on standard N = 20,000 population; 100,000-row results reported separately as supplementary power check. Results were viewed before logging. | Yes |

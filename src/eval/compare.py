@@ -235,12 +235,13 @@ def write_scorecard_files(
         "",
         "> [!NOTE]",
         "> **Illustrative Policy Values (D-02)**: The policy values and thresholds are illustrative coursework artifacts.",
-        "> This comparison demonstrates architectural and design trade-offs (explainability, auditability, defensibility),",
+        "> This comparison demonstrates architectural and design trade-offs (transparency, auditability, edge cases, defensibility),",
         "> not a contest of commercial underwriting efficacy. D2 results rest on 776 rule approvals driven by mapping constraints.",
         "",
         "## 1. Multi-Criterion Comparison Scorecard",
         "",
         "Scoring scale: **0 to 3** per criterion (anchors defined in `docs/comparison-methodology.md`).",
+        "Scores are not averaged or weighted.",
         "",
         "| System | Transparency | Auditability | Edge Cases | Regulatory Defensibility |",
         "|---|---|---|---|---|",
@@ -253,10 +254,10 @@ def write_scorecard_files(
         ("gradient_boosting", "Gradient Boosting (Non-linear Baseline)"),
     ]:
         s = scores[sys_key]
-        t_cell = f"**{s['transparency']['score']}**<br>Anchor: {s['transparency']['anchor'][:50]}...<br>Artifact: `{s['transparency']['artifacts'][0]}`"
-        a_cell = f"**{s['auditability']['score']}**<br>Anchor: {s['auditability']['anchor'][:50]}...<br>Artifact: `{s['auditability']['artifacts'][0]}`"
-        e_cell = f"**{s['edge_cases']['score']}**<br>Anchor: {s['edge_cases']['anchor'][:50]}...<br>Artifact: `{s['edge_cases']['artifacts'][0]}`"
-        r_cell = f"**{s['regulatory_defensibility']['score']}**<br>Anchor: {s['regulatory_defensibility']['anchor'][:50]}...<br>Artifact: `{s['regulatory_defensibility']['artifacts'][0]}`"
+        t_cell = f"**{s['transparency']['score']}**<br>{s['transparency']['anchor']}<br>*{s['transparency']['justification']}*<br>Artifact: `{s['transparency']['artifacts'][0]}`"
+        a_cell = f"**{s['auditability']['score']}**<br>{s['auditability']['anchor']}<br>*{s['auditability']['justification']}*<br>Artifact: `{s['auditability']['artifacts'][0]}`"
+        e_cell = f"**{s['edge_cases']['score']}**<br>{s['edge_cases']['anchor']}<br>*{s['edge_cases']['justification']}*<br>Artifact: `{s['edge_cases']['artifacts'][0]}`"
+        r_cell = f"**{s['regulatory_defensibility']['score']}**<br>{s['regulatory_defensibility']['anchor']}<br>*{s['regulatory_defensibility']['justification']}*<br>Artifact: `{s['regulatory_defensibility']['artifacts'][0]}`"
         lines.append(f"| **{sys_name}** | {t_cell} | {a_cell} | {e_cell} | {r_cell} |")
 
     lines.extend(
@@ -299,8 +300,7 @@ def write_scorecard_files(
         [
             "## 3. Accuracy Context Table (Not a Score)",
             "",
-            "The following context metrics are drawn from Phase 4 artifacts (`reports/ml/`). They do not constitute an evaluation score,",
-            "as D2 evaluation rests on only 776 rule approvals (1.68% approval rate) and D3 policy agreement is partly circular by construction.",
+            "The following context metrics are drawn from Phase 4 artifacts (`reports/ml/`). D2 evaluation rests on only 776 rule approvals with overlapping confidence intervals, and D3 agreement is partly circular by construction; these metrics do not support a claim that either system is a better lender.",
             "",
             "### D2 Dataset (Home Credit Mapped, Test Split N = 46,127)",
             "",

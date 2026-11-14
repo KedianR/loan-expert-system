@@ -83,26 +83,22 @@ Five stores, each with one writer and a clear reader list. Table and field names
 
 ## 5. ADR-001: Rule engine choice
 
-**Status:** accepted on 2026-11-06. **Recommendation:** SWI-Prolog as the rule engine, called from Python.
+**Status:** Pure-Python evaluator adopted under fallback clause on 2026-11-08 (OQ-001).
+**Delivered Engine:** Pure-Python AST evaluator (`src.engine.engine.decide`) evaluating declarative conditions loaded from `rules/*.toml`.
 
 **Context.** The project must use production rules and first-order predicate logic, expose a complete trace of every rule used, and let the policy be edited without code changes. The comparison criteria (transparency, auditability) reward an engine whose rules read like the policy.
 
 | Option | For | Against |
 | --- | --- | --- |
 | SWI-Prolog, called from Python | Rules are first-order logic clauses, so the report and the code match; backtracking and meta-interpretation make traces natural; mature and free | Two languages to set up and test; team must learn Prolog; decimal arithmetic needs care |
-| Pure Python rule engine (such as `experta`, or a small custom evaluator) | One language; simplest setup and debugging; easy to guarantee exact decimals | Rules look less like logic; trace and hygiene checks must be built by hand; library maintenance varies |
+| Pure Python rule engine (declarative TOML + custom AST evaluator) | One language; simplest setup and debugging; exact decimals guaranteed; portable | Rule language parser and evaluator built in Python; no external Prolog runtime needed |
 | Drools | Matches real bank practice; strong tooling | Java stack; heavy for a prototype; weaker link to first-order logic |
 | Clingo (answer-set programming) | Strong at consistency and constraint checks | Poor fit for step-by-step traces and numeric calculation |
 
-**Decision.** Use SWI-Prolog for rules and the decision logic, and Python for the API, calculations, explanation, audit and evaluation. Keep the Prolog side small: rules read facts and parameters and call the Python calculation module for numbers through a narrow interface, or use Prolog rationals for exact arithmetic.
-
-**Consequences**
-
-- Two toolchains must be pinned and installed by `make setup`.
-- The trace format is fixed in the Predicate and Fact Schema, so the engine can be swapped later without changing the explanation layer.
-- If setup problems cost more time than they save, fall back to a pure-Python evaluator that implements the same rule files and trace format.
-
-**Decision taken (2026-11-06):** SWI-Prolog plus Python is accepted. If the WP-02 integration spike fails, fall back to the pure-Python evaluator described above.
+**Decision History.**
+- On 2026-11-06: SWI-Prolog was accepted provisionally, subject to the WP-02 spike and the explicit fallback clause to a pure-Python evaluator if setup/integration failed.
+- On 2026-11-08 (Phase 0, WP-02 / Spike S1, OQ-001): SWI-Prolog (`swipl`) was not installed on the Windows environment. The fallback clause was triggered per ADR-001 and `docs/09-file-formats.md` DS-2.
+- Delivered architecture: The pure-Python rule engine (`src/engine/engine.py`) directly parses declarative TOML conditions (`rules/*.toml`), evaluates layer order, executes exact decimal calculations, and generates full audit traces. No Prolog file or runtime is used in the delivered system.
 
 ## 6. Cross-cutting design
 

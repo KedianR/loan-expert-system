@@ -5,6 +5,18 @@
     "pass": true,
     "note": "Rule decisions identical before and after protected-store shuffle (FR-20)."
   },
+  "counterfactual_swap_lr": {
+    "n_rows": 1000,
+    "n_changed": 0,
+    "pass": true,
+    "note": "ML decisions identical before and after protected-store shuffle (DR-02)."
+  },
+  "counterfactual_swap_gb": {
+    "n_rows": 1000,
+    "n_changed": 0,
+    "pass": true,
+    "note": "ML decisions identical before and after protected-store shuffle (DR-02)."
+  },
   "d3_gender_age_band_intersection": {
     "attribute": "gender_age",
     "metric": "selection_rate_difference",

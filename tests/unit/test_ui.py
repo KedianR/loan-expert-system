@@ -238,4 +238,13 @@ def test_static_scan_no_parsefloat_on_money_in_js():
                     violations.append(
                         f"app.js:{i}: Number( on money-ish name '{name}': {line.strip()[:80]}"
                     )
-    assert not violations, "parseFloat/Number( on money fields in app.js:\n" + "\n".join(violations)
+        # Check for toFixed( near money names
+        if re.search(r"\btoFixed\s*\(", line):
+            for name in _MONEY_NAMES:
+                if name in line.lower():
+                    violations.append(
+                        f"app.js:{i}: toFixed on money-ish name '{name}': {line.strip()[:80]}"
+                    )
+    assert not violations, "parseFloat/Number(/toFixed on money fields in app.js:\n" + "\n".join(
+        violations
+    )

@@ -227,3 +227,28 @@ class TestEngineBehaviours:
         assert res["offer"]["amount"] == 500000
         step_a04 = get_step(res, "A04")
         assert step_a04["status"] == "not_fired"
+
+    def test_fr06_decision_precedence_and_recommendation(self, rule_set):
+        """FR-06, FR-05: Exactly one decision returned; precedence INELIGIBLE over REFER over ELIGIBLE.
+
+        Also recommends an amount and interest band for ELIGIBLE decisions.
+        """
+        # Case with both knockout (K01: age 17) and refer condition (R01: credit_score None)
+        app_both = {**BASE_APPLICANT, "age": 17, "credit_score": None}
+        res_both = decide(app_both, rule_set)
+        assert res_both["decision"] == "ineligible", "INELIGIBLE must take precedence over REFER"
+
+        # Eligible decision recommends amount and interest band
+        res_elig = decide(BASE_APPLICANT, rule_set)
+        assert res_elig["decision"] == "eligible"
+        assert res_elig["offer"]["amount"] > 0
+        assert res_elig["offer"]["band"] in ("A", "B", "C", "D")
+
+    def test_fr19_deterministic_engine_evaluation(self, rule_set):
+        """FR-19, NFR-01: Engine evaluation is deterministic and operates without audit writes.
+
+        Repeated evaluation of the same applicant produces identical decisions, steps, and derived facts.
+        """
+        res1 = decide(BASE_APPLICANT, rule_set)
+        res2 = decide(BASE_APPLICANT, rule_set)
+        assert res1 == res2, "Repeated engine runs must produce byte-identical dictionaries"

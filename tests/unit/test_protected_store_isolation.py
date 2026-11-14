@@ -32,7 +32,7 @@ ALLOWED_FILES = {
 
 
 def test_protected_store_isolation_static_scan() -> None:
-    """Verify that protected store columns are never referenced in decision/ML code."""
+    """DR-01, DR-02: Verify no real personal data and protected attributes never referenced in decision/ML code."""
     src_dir = Path("src")
     violations: list[str] = []
 

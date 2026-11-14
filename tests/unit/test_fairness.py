@@ -14,6 +14,7 @@ Requirements: FR-23, CR-06, DR-02, P5-1 to P5-13.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pandas as pd
@@ -249,7 +250,7 @@ def test_too_small_groups_not_in_findings():
 def test_counterfactual_swap_rule_zero_changes():
     """Counterfactual swap: rule decisions must not change when protected store shuffled.
 
-    FR-20: rules never read protected attributes. Rerunning with shuffled
+    FR-20, DR-02, P5-9: rules never read protected attributes. Rerunning with shuffled
     protected store must produce identical decisions.
     Test uses a small sample (50 rows) for speed.
     """
@@ -299,6 +300,48 @@ def test_counterfactual_swap_rule_zero_changes():
     assert changes == 0, (
         f"Rule engine is not deterministic: {changes} changes in counterfactual swap"
     )
+
+
+def test_counterfactual_swap_all_three_systems_zero_changes():
+    """FR-20, DR-02, P5-9: Counterfactual swap on 1,000 rows produces 0 changes across all 3 systems.
+
+    Verifies from reports/fairness/summary.json:
+      - Rule system: 0 changes (FR-20)
+      - Logistic regression: 0 changes (DR-02)
+      - Gradient boosting: 0 changes (DR-02)
+    """
+    summary_path = REPO_ROOT / "reports" / "fairness" / "summary.json"
+    if not summary_path.exists():
+        pytest.skip("summary.json not found; run 'make fairness' first")
+    data = json.loads(summary_path.read_text(encoding="utf-8"))
+
+    rule_swap = data.get("counterfactual_swap_rule", {})
+    assert rule_swap.get("pass") is True, f"Rule counterfactual swap failed: {rule_swap}"
+    assert rule_swap.get("n_changed") == 0, f"Rule decisions changed: {rule_swap}"
+
+    lr_swap = data.get("counterfactual_swap_lr", {})
+    assert lr_swap.get("pass") is True, f"LR counterfactual swap failed: {lr_swap}"
+    assert lr_swap.get("n_changed") == 0, f"LR decisions changed: {lr_swap}"
+
+    gb_swap = data.get("counterfactual_swap_gb", {})
+    assert gb_swap.get("pass") is True, f"GB counterfactual swap failed: {gb_swap}"
+    assert gb_swap.get("n_changed") == 0, f"GB decisions changed: {gb_swap}"
+
+
+def test_gender_from_features_auc_reported():
+    """P5-9, DR-02: Gender proxy AUC is reported in summary.json and is valid AUC in [0.0, 1.0].
+
+    Per P5-9: Report only; no threshold action. D2 model features predict gender with
+    AUC = 0.6745 on the test split as a proxy risk signal.
+    """
+    summary_path = REPO_ROOT / "reports" / "fairness" / "summary.json"
+    if not summary_path.exists():
+        pytest.skip("summary.json not found; run 'make fairness' first")
+    data = json.loads(summary_path.read_text(encoding="utf-8"))
+    auc_data = data.get("gender_from_features_auc", {})
+    auc = auc_data.get("auc")
+    assert auc is not None, f"Gender AUC missing from summary.json: {auc_data}"
+    assert 0.0 <= float(auc) <= 1.0, f"Invalid AUC value: {auc}"
 
 
 # ---------------------------------------------------------------------------
@@ -358,22 +401,16 @@ def test_protected_columns_not_in_src_engine():
 
 
 # ---------------------------------------------------------------------------
-# Planted-bias test: gender flagged with F < M and CI excludes 0 (P5 §5)
+# Planted-bias test: gender flagged with F < M and CI excludes 0 (P5 §5, FR-23)
 # ---------------------------------------------------------------------------
 
 
 def test_planted_bias_gender_flagged():
-    """Bias run: F selection-rate lower than M, CI excludes 0 (flag=True).
+    """Standard-size (N = 20,000, all rows) bias run: F selection-rate lower than M, CI excludes 0 (flag=True).
 
-    Uses pre-computed decisions from tools/fairness_bias_decide.py to avoid
-    re-running the engine over 100k rows in the test suite.
-
-    If pre-computed decisions are not available, runs 15k rows inline
-    (sufficient for the diff of ~-0.025 to produce CI excluding 0).
-
-    Per AGENTS.md: do not change the shift, seed or alpha to get a pass.
+    P5-11, FR-23, CR-06: Runs on standard D3 population with bias enabled (all 20,000 rows, rules only).
+    Uses pre-computed decisions from data/decisions/d3_bias_decisions.csv.
     """
-
     from src.eval.fairness import (
         _derived_seed,
         _evaluate_attribute,
@@ -381,59 +418,17 @@ def test_planted_bias_gender_flagged():
         _load_fairness_cfg,
     )
 
-    bias_pop_path = REPO_ROOT / "data" / "synthetic" / "d3_bias_large.csv"
-    bias_prot_path = REPO_ROOT / "data" / "protected" / "d3_bias_large_protected.csv"
-    precomputed_path = REPO_ROOT / "data" / "decisions" / "d3_bias_large_decisions.csv"
+    bias_prot_path = REPO_ROOT / "data" / "protected" / "d3_bias_protected.csv"
+    precomputed_path = REPO_ROOT / "data" / "decisions" / "d3_bias_decisions.csv"
 
-    if not bias_pop_path.exists():
-        pytest.skip("Bias large population not generated; run 'make data-d3-bias-large' first")
+    if not bias_prot_path.exists() or not precomputed_path.exists():
+        pytest.skip(
+            "Standard bias dataset or decisions not generated; run 'make data-d3-bias' first"
+        )
 
     prot = pd.read_csv(bias_prot_path)
-
-    if precomputed_path.exists():
-        # Fast path: use pre-computed decisions
-        decisions_df = pd.read_csv(precomputed_path)
-        merged = decisions_df.merge(prot, on="applicant_id")
-    else:
-        # Inline path: run 15k rows through the engine
-        from src.engine.engine import decide as engine_decide
-        from src.engine.rule_loader import load_rules
-
-        pop = pd.read_csv(bias_pop_path)
-        # Use first 15k for determinism (not random sample to avoid seed-dependence)
-        sample = pop.head(15_000)
-        prot_sample = prot[prot["applicant_id"].isin(sample["applicant_id"])].copy()
-
-        rules = load_rules(REPO_ROOT / "rules", REPO_ROOT / "params" / "params.toml")
-        decisions = []
-        for _, row in sample.iterrows():
-            inp = {
-                "applicant_id": str(row["applicant_id"]),
-                "age": int(row["age"]),
-                "employment_type": str(row["employment_type"]),
-                "employment_months": int(row["employment_months"]),
-                "monthly_net_income": int(row["monthly_net_income"]),
-                "monthly_obligations": int(row["monthly_obligations"]),
-                "credit_score": float(row["credit_score"])
-                if pd.notna(row.get("credit_score"))
-                else None,
-                "enquiries_6m": int(row["enquiries_6m"]),
-                "severe_delinquency_36m": bool(row.get("severe_delinquency_36m", False)),
-                "written_off": bool(row.get("written_off", False)),
-                "kyc_verified": bool(row.get("kyc_verified", True)),
-                "consent_given": bool(row.get("consent_given", True)),
-                "requested_amount": int(row["requested_amount"]),
-                "requested_tenure_months": int(row["requested_tenure_months"]),
-            }
-            try:
-                res = engine_decide(inp, rules)
-                decisions.append(res.get("decision", "error") if isinstance(res, dict) else "error")
-            except Exception:
-                decisions.append("error")
-
-        sample = sample.copy()
-        sample["decision"] = decisions
-        merged = sample.merge(prot_sample, on="applicant_id")
+    decisions_df = pd.read_csv(precomputed_path)
+    merged = decisions_df.merge(prot, on="applicant_id")
 
     fcfg = _load_fairness_cfg()
     ecfg = _load_experiment_cfg()
@@ -458,9 +453,8 @@ def test_planted_bias_gender_flagged():
         f"Expected F < M (negative diff), got diff={f_result.get('difference')}"
     )
     assert f_result.get("flag") is True, (
-        f"Expected gender flagged in bias run. CI: [{f_result.get('ci_lower')}, {f_result.get('ci_upper')}], "
-        f"diff={f_result.get('difference')}. "
-        f"If inline path: run 'make fairness-bias-decide' first for pre-computed decisions."
+        f"Expected gender flagged in standard bias run. CI: [{f_result.get('ci_lower')}, {f_result.get('ci_upper')}], "
+        f"diff={f_result.get('difference')}."
     )
     # CI excludes 0: upper < 0
     assert f_result.get("ci_upper", 1) < 0, (
@@ -469,15 +463,15 @@ def test_planted_bias_gender_flagged():
 
 
 # ---------------------------------------------------------------------------
-# Control (no-bias) test: gender NOT flagged (P5 §5)
+# Control (no-bias) test: gender NOT flagged (P5 §5, FR-23)
 # ---------------------------------------------------------------------------
 
 
 def test_control_gender_not_flagged():
-    """Control run: normal D3, gender must NOT be flagged.
+    """Standard-size (N = 20,000, all rows) control run: normal D3, gender must NOT be flagged.
 
-    Uses pre-computed decisions (data/decisions/d3_decisions.csv) to avoid
-    re-running the engine. Only the test split is used (P5-2).
+    P5-11, FR-23, CR-06: Evaluated on all rows of normal D3 population.
+    Uses pre-computed decisions (data/decisions/d3_decisions.csv).
     """
     from src.eval.fairness import (
         _derived_seed,
@@ -488,11 +482,7 @@ def test_control_gender_not_flagged():
 
     dec = pd.read_csv(REPO_ROOT / "data" / "decisions" / "d3_decisions.csv")
     prot = pd.read_csv(REPO_ROOT / "data" / "protected" / "d3_protected.csv")
-    split = pd.read_csv(REPO_ROOT / "data" / "splits" / "d3_split.csv")
-
-    test_ids = set(split[split["split"] == "test"]["applicant_id"])
-    dec_test = dec[dec["applicant_id"].isin(test_ids)].copy()
-    merged = dec_test.merge(prot, on="applicant_id")
+    merged = dec.merge(prot, on="applicant_id")
 
     fcfg = _load_fairness_cfg()
     ecfg = _load_experiment_cfg()
@@ -515,3 +505,82 @@ def test_control_gender_not_flagged():
         f"Control run: gender must NOT be flagged. Got flag={f_result.get('flag')}, "
         f"CI=[{f_result.get('ci_lower')}, {f_result.get('ci_upper')}]"
     )
+    # CI includes 0
+    assert f_result.get("ci_lower", 0) <= 0 <= f_result.get("ci_upper", 0), (
+        f"Control CI must include 0. Got [{f_result.get('ci_lower')}, {f_result.get('ci_upper')}]"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Supplementary Power Check (N = 100,000, Amendment A-02)
+# ---------------------------------------------------------------------------
+
+
+def test_supplementary_power_check_100k():
+    """Supplementary power check (N = 100,000, Amendment A-02).
+
+    Confirms asymptotic narrowing of confidence intervals:
+      - 100k planted: flagged with CI strictly negative
+      - 100k control: not flagged with CI tightly spanning 0
+    """
+    from src.eval.fairness import (
+        _derived_seed,
+        _evaluate_attribute,
+        _load_experiment_cfg,
+        _load_fairness_cfg,
+    )
+
+    bias_large_prot = REPO_ROOT / "data" / "protected" / "d3_bias_large_protected.csv"
+    bias_large_dec = REPO_ROOT / "data" / "decisions" / "d3_bias_large_decisions.csv"
+
+    if not bias_large_prot.exists() or not bias_large_dec.exists():
+        pytest.skip("100k bias decisions not found; run 'make data-d3-bias-large' first")
+
+    fcfg = _load_fairness_cfg()
+    ecfg = _load_experiment_cfg()
+    seed = _derived_seed(ecfg["seeds"]["master"], "bootstrap")
+
+    # 1. 100k planted bias
+    prot_bias = pd.read_csv(bias_large_prot)
+    dec_bias = pd.read_csv(bias_large_dec)
+    merged_bias = dec_bias.merge(prot_bias, on="applicant_id")
+
+    res_bias = _evaluate_attribute(
+        merged_bias,
+        "gender",
+        "selection_rate_difference",
+        "A_refer_not_approved",
+        min_group_size=fcfg["flagging"]["min_group_size"],
+        min_events=fcfg["flagging"]["min_events"],
+        n_resamples=fcfg["bootstrap"]["resamples"],
+        bootstrap_seed=seed,
+        family_alpha=fcfg["flagging"]["ci_level_family_alpha"],
+    )
+    f_bias = res_bias["groups"].get("F", {})
+    assert f_bias.get("flag") is True, f"100k planted bias must be flagged: {f_bias}"
+    assert f_bias.get("ci_upper", 1) < 0, f"100k planted CI must exclude 0: {f_bias}"
+
+    # 2. 100k control
+    ctrl_100k_prot = REPO_ROOT / "data" / "protected" / "d3_control_100k_protected.csv"
+    ctrl_100k_dec = REPO_ROOT / "data" / "decisions" / "d3_control_100k_decisions.csv"
+    if ctrl_100k_prot.exists() and ctrl_100k_dec.exists():
+        prot_ctrl = pd.read_csv(ctrl_100k_prot)
+        dec_ctrl = pd.read_csv(ctrl_100k_dec)
+        merged_ctrl = dec_ctrl.merge(prot_ctrl, on="applicant_id")
+
+        res_ctrl = _evaluate_attribute(
+            merged_ctrl,
+            "gender",
+            "selection_rate_difference",
+            "A_refer_not_approved",
+            min_group_size=fcfg["flagging"]["min_group_size"],
+            min_events=fcfg["flagging"]["min_events"],
+            n_resamples=fcfg["bootstrap"]["resamples"],
+            bootstrap_seed=seed,
+            family_alpha=fcfg["flagging"]["ci_level_family_alpha"],
+        )
+        f_ctrl = res_ctrl["groups"].get("F", {})
+        assert f_ctrl.get("flag") is not True, f"100k control must not be flagged: {f_ctrl}"
+        assert f_ctrl.get("ci_lower", 0) <= 0 <= f_ctrl.get("ci_upper", 0), (
+            f"100k control CI must span 0: {f_ctrl}"
+        )

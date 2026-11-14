@@ -28,7 +28,7 @@ def temp_rules_dir(tmp_path: Path) -> Path:
 
 class TestRuleLoader:
     def test_RT01_baseline_loads(self):
-        """RT-01: Baseline rule set loads cleanly with 20 active rules, 2 disabled, 21 reason codes."""
+        """RT-01, NFR-05: Baseline rule set loads cleanly with 20 active rules, 2 disabled, 21 reason codes."""
         ruleset = load_rules(REAL_RULES_DIR, REAL_PARAMS_PATH)
         assert ruleset is not None
         active_rules = [r for r in ruleset.rules.values() if r.status == "active"]

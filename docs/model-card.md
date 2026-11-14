@@ -140,7 +140,7 @@ Implemented in Phase 5 per `docs/fairness-audit-plan.md` and `config/fairness.to
 - **Populations**:
   - D2: Held-out test split ($N = 46,127$ applicants, 776 rule approvals).
   - D3: Held-out test split ($N = 3,000$ applicants).
-  - Pipeline test: Full D3 population ($N = 100,000$ with synthetic bias injected; normal D3 control $N = 20,000$).
+  - Pipeline test: Standard D3 population ($N = 20,000$, all rows) with planted bias (-15% income shift on female applicants, $F < M$ selection-rate difference $-0.0151$, 95% CI $[-0.0286, -0.0013]$, strictly excluding 0; flagged). Control on standard D3 population ($N = 20,000$, diff $+0.0031$, 95% CI $[-0.0100, +0.0168]$, not flagged). Supplementary power check at $N = 100,000$ (Amendment A-02: planted diff $-0.0186$, 95% CI $[-0.0247, -0.0127]$, flagged; control diff $+0.0012$, 95% CI $[-0.0049, +0.0071]$, not flagged).
 - **Systems evaluated**:
   1. Rule-based expert system under Treatment A (refer = denied, headline) and Treatment B (refer excluded).
   2. Logistic Regression operating at matched approval rate threshold ($\tau = 0.1479$ on D2, $\tau = 0.50$ on D3).
@@ -149,8 +149,8 @@ Implemented in Phase 5 per `docs/fairness-audit-plan.md` and `config/fairness.to
   - D2: Equal Opportunity Difference (approval rate gap among applicants with $TARGET = 0$, group minus reference group).
   - D3: Selection Rate Difference (approval rate gap, group minus reference group).
 - **Flagging rule**: Bonferroni-corrected percentile bootstrap CI (1,000 resamples, derived seed `bootstrap`) at level $1 - 0.05 / n_{\text{non-ref}}$. Flag triggered only if CI excludes 0. Groups under 100 applicants are marked `too_small` and never scored as findings (D-06). Groups with fewer than 20 approvals are marked `unstable`.
-- **Counterfactual swap**: 1,000 D3 rows rerun with shuffled protected attributes produce identical decisions (0 changes) across the rule system (FR-20) and ML models (DR-02).
-- **Proxy review**: Logistic regression trained on D2 features predicting `CODE_GENDER` achieves an AUC reported in `reports/fairness/summary.json` as a proxy risk metric.
+- **Counterfactual swap**: 1,000 D3 rows rerun with shuffled protected attributes produce identical decisions (0 changes) across all three systems: the rule system (FR-20), Logistic Regression, and HistGradientBoosting (DR-02).
+- **Proxy review**: Logistic regression trained on D2 features predicting `CODE_GENDER` achieves an AUC of **0.6745** reported in `reports/fairness/summary.json` as a proxy signal (P5-9: report only; no action).
 - **Outputs**: Detailed metrics in `reports/fairness/d2_*.json`, `reports/fairness/d3_*.json`, `reports/fairness/d2_tables.md`, and `reports/fairness/d3_tables.md`.
 - **Mitigation**: Per P5-10, no mitigations applied in this academic prototype.
 
@@ -195,3 +195,7 @@ Implemented in Phase 5 per `docs/fairness-audit-plan.md` and `config/fairness.to
   - Completed Section 8: noted Lean Mode exclusion of SHAP faithfulness.
   - Completed Section 9: documented fairness evaluation results across D2 and D3, counterfactual swap, and proxy review.
   - Added Phase 5 and reproduce targets to Section 11.
+- **2026-11-14**: Phase 5/6 patch round.
+  - Updated Section 9 with pre-registered standard-size planted-bias ($N=20,000$) and control results, plus supplementary 100k power check (Amendment A-02).
+  - Recorded 0 changes across rule engine, LR, and GB on counterfactual swap (1,000 rows each).
+  - Explicitly stated gender proxy signal AUC = 0.6745 (P5-9: report only; no action).

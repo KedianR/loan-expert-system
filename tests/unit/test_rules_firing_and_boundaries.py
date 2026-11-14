@@ -69,6 +69,7 @@ class TestValidationRules:
         assert step["status"] == "not_fired"
 
     def test_V02_firing_on_consent_false(self, rule_set):
+        """CR-03, FR-02: Consent flag recorded; V02 fires when consent is false."""
         res = decide(app_mod({"consent_given": False}), rule_set)
         assert res["decision"] == "ineligible"
         assert "CONSENT_NOT_GIVEN" in res["reason_codes"]

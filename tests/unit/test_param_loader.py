@@ -127,6 +127,7 @@ class TestPT01:
     """PT-01: No change. Loads cleanly with correct types."""
 
     def test_loads_with_no_errors(self):
+        """NFR-04: All policy thresholds in params/params.toml load cleanly without errors."""
         result = _load_toml_string(BASELINE_TOML)
         assert result.ok, f"Expected no errors, got: {result.errors}"
 

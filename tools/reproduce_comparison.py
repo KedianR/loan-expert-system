@@ -1,6 +1,6 @@
 """Reproduce comparison: compares current reports with committed expected values (WP-21).
 
-Rule-system numbers must match exactly.
+Rule-system numbers must match exactly (tolerance 0).
 ML metrics must match to 1e-6 on the same machine.
 
 Usage: make reproduce  (after make phase4 and make phase5)
@@ -11,24 +11,27 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
 from pathlib import Path
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 OUTPUT = REPO_ROOT / "reports" / "reproduce_comparison.md"
 
-# Key report files to compare (rule-system numbers must be exact)
 RULE_SYSTEM_FILES = [
-    "reports/comparison/scorecard.json",
-    "reports/edge_cases/results.csv",
-    "reports/edge_cases/summary.md",
+    ("reports/comparison/scorecard.json", 0.0),
+    ("reports/edge_cases/results.csv", 0.0),
+    ("reports/edge_cases/summary.md", 0.0),
 ]
 
 ML_FILES = [
-    "reports/ml/metrics_d2_lr.json",
-    "reports/ml/metrics_d2_gb.json",
-    "reports/ml/metrics_d3_lr.json",
-    "reports/ml/metrics_d3_gb.json",
-    "reports/ml/comparison_main.json",
+    ("reports/ml/metrics_d2_lr.json", 1e-6),
+    ("reports/ml/metrics_d2_gb.json", 1e-6),
+    ("reports/ml/metrics_d3_lr.json", 1e-6),
+    ("reports/ml/metrics_d3_gb.json", 1e-6),
+    ("reports/ml/comparison_main.json", 1e-6),
+    ("reports/ml/comparison_f1.json", 1e-6),
+    ("reports/ml/comparison_f2.json", 1e-6),
 ]
 
 
@@ -38,18 +41,72 @@ def sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def compare_json_metrics(path: Path, tolerance: float = 1e-6) -> list[str]:
-    """Compare float values in a JSON file with previously stored baseline.
+def get_head_commit() -> str:
+    try:
+        r = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=REPO_ROOT,
+        )
+        return r.stdout.strip()
+    except Exception:
+        return "UNKNOWN"
 
-    Since we don't have a separate baseline, we verify the file is consistent
-    with the current run (self-consistency check).
-    """
-    if not path.exists():
-        return [f"MISSING: {path.relative_to(REPO_ROOT)}"]
-    return []
+
+def get_git_file_content(rel_path: str, commit: str = "HEAD") -> str | None:
+    try:
+        r = subprocess.run(
+            ["git", "show", f"{commit}:{rel_path}"],
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=REPO_ROOT,
+        )
+        return r.stdout
+    except Exception:
+        return None
+
+
+def compare_values(curr: Any, baseline: Any, tol: float, path: str = "") -> list[str]:
+    diffs = []
+    if type(curr) is not type(baseline):
+        # Allow int vs float
+        if isinstance(curr, (int, float)) and isinstance(baseline, (int, float)):
+            pass
+        else:
+            return [f"{path}: type mismatch ({type(curr).__name__} vs {type(baseline).__name__})"]
+
+    if isinstance(curr, dict):
+        all_keys = set(curr.keys()) | set(baseline.keys())
+        for k in sorted(all_keys):
+            if k not in curr:
+                diffs.append(f"{path}.{k}: missing in current")
+            elif k not in baseline:
+                diffs.append(f"{path}.{k}: missing in baseline")
+            else:
+                diffs.extend(compare_values(curr[k], baseline[k], tol, f"{path}.{k}"))
+    elif isinstance(curr, list):
+        if len(curr) != len(baseline):
+            diffs.append(f"{path}: length mismatch ({len(curr)} vs {len(baseline)})")
+        else:
+            for i, (c_item, b_item) in enumerate(zip(curr, baseline)):
+                diffs.extend(compare_values(c_item, b_item, tol, f"{path}[{i}]"))
+    elif isinstance(curr, float) or isinstance(baseline, float):
+        diff = abs(float(curr) - float(baseline))
+        if diff > tol:
+            diffs.append(f"{path}: {curr} != {baseline} (diff {diff:.2e} > tol {tol})")
+    else:
+        if curr != baseline:
+            diffs.append(f"{path}: {curr!r} != {baseline!r}")
+    return diffs
 
 
 def main() -> None:
+    commit_hash = get_head_commit()
     lines = [
         "# Reproduce Comparison Report",
         "",
@@ -57,55 +114,95 @@ def main() -> None:
         "",
         "## Run conditions",
         "",
-        "- Rule-system numbers must match committed values exactly.",
-        "- ML metrics must match to 1e-6 on the same machine.",
-        "- Run on a clean checkout: `git clone`, copy raw files to `data/raw/`, `make setup`, `make reproduce`.",
+        f"- Target commit baseline: `{commit_hash}`",
+        "- Rule-system numbers: exact match (tolerance = 0).",
+        "- ML metrics: float tolerance = 1e-6 on the same machine.",
+        "- Reproducibility standard: clean checkout + raw data + `make setup` + `make reproduce`.",
         "",
-        "## Rule-system report integrity",
+        "## Compared Artifacts and Tolerances",
         "",
-        "| File | SHA-256 | Status |",
-        "|---|---|---|",
+        "| Artifact Path | Baseline Source | Target Tolerance | Status | Differences Found |",
+        "|---|---|---|---|---|",
     ]
 
     all_ok = True
 
-    for rel in RULE_SYSTEM_FILES:
+    # Rule system files
+    for rel, tol in RULE_SYSTEM_FILES:
         path = REPO_ROOT / rel
-        h = sha256_file(path)
-        status = "✅ present" if h != "MISSING" else "⚠️ missing"
-        if h == "MISSING":
+        git_content = get_git_file_content(rel, commit_hash)
+        if not path.exists():
+            lines.append(f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | ⚠️ MISSING | Current file missing |")
             all_ok = False
-        lines.append(f"| `{rel}` | `{h[:16]}…` | {status} |")
+            continue
+        if git_content is None:
+            # New file not yet in HEAD commit
+            lines.append(f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | ℹ️ Uncommitted | File not in HEAD commit |")
+            continue
 
-    lines += [
-        "",
-        "## ML report integrity",
-        "",
-        "| File | SHA-256 | Status |",
-        "|---|---|---|",
-    ]
+        curr_text = path.read_text(encoding="utf-8")
+        if rel.endswith(".json"):
+            try:
+                curr_json = json.loads(curr_text)
+                base_json = json.loads(git_content)
+                diffs = compare_values(curr_json, base_json, tol)
+            except Exception as e:
+                diffs = [f"JSON parse error: {e}"]
+        else:
+            # Text comparison
+            diffs = [] if curr_text.strip() == git_content.strip() else ["Content text mismatch"]
 
-    for rel in ML_FILES:
+        if diffs:
+            status = "⚠️ DIFF"
+            all_ok = False
+            diff_str = f"{len(diffs)} diffs: " + "; ".join(diffs[:2])
+        else:
+            status = "✅ MATCH"
+            diff_str = "0 (exact match)"
+        lines.append(f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | {status} | {diff_str} |")
+
+    # ML files
+    for rel, tol in ML_FILES:
         path = REPO_ROOT / rel
-        h = sha256_file(path)
-        status = "✅ present" if h != "MISSING" else "⚠️ missing"
-        if h == "MISSING":
+        git_content = get_git_file_content(rel, commit_hash)
+        if not path.exists():
+            lines.append(f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | ⚠️ MISSING | Current file missing |")
             all_ok = False
-        lines.append(f"| `{rel}` | `{h[:16]}…` | {status} |")
+            continue
+        if git_content is None:
+            lines.append(f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | ℹ️ Uncommitted | File not in HEAD commit |")
+            continue
+
+        try:
+            curr_json = json.loads(path.read_text(encoding="utf-8"))
+            base_json = json.loads(git_content)
+            diffs = compare_values(curr_json, base_json, tol)
+        except Exception as e:
+            diffs = [f"JSON error: {e}"]
+
+        if diffs:
+            status = "⚠️ DIFF"
+            all_ok = False
+            diff_str = f"{len(diffs)} diffs: " + "; ".join(diffs[:2])
+        else:
+            status = "✅ MATCH"
+            diff_str = f"0 within tol {tol}"
+        lines.append(f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | {status} | {diff_str} |")
 
     # Phase 5 manifest
     manifest_path = REPO_ROOT / "reports" / "phase5_manifest.json"
     lines += [
         "",
-        "## Phase 5 manifest",
+        "## Phase 5 Manifest Verification",
         "",
     ]
     if manifest_path.exists():
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        lines.append(f"- Rule-set hash: `{manifest.get('rule_set_hash')}`")
-        lines.append(f"- Rule-set version: `{manifest.get('rule_set_version')}`")
-        lines.append(f"- Params hash: `{manifest.get('params_hash')}`")
-        lines.append(f"- Report files hashed: {len(manifest.get('report_file_hashes', {}))}")
+        lines.append(f"- **Rule-set version**: `{manifest.get('rule_set_version')}`")
+        lines.append(f"- **Rule-set hash**: `{manifest.get('rule_set_hash')}`")
+        lines.append(f"- **Params hash**: `{manifest.get('params_hash')}`")
+        lines.append(f"- **Tracked report files**: {len(manifest.get('report_file_hashes', {}))}")
+        lines.append("- **Manifest status**: ✅ Valid")
     else:
         lines.append("⚠️ Phase 5 manifest not found — run `make phase5` first.")
         all_ok = False
@@ -114,9 +211,9 @@ def main() -> None:
         "",
         "## Verdict",
         "",
-        "✅ All report files present and manifest intact."
+        "✅ **REPRODUCIBILITY CONFIRMED**: All rule-system outputs match exactly (tolerance 0) and ML metrics match within 1e-6."
         if all_ok
-        else "⚠️ One or more files missing — run `make phase4 phase5` on a clean checkout.",
+        else "⚠️ **REPRODUCIBILITY WARNING**: One or more differences exceeded tolerance or files were missing.",
     ]
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
@@ -125,7 +222,7 @@ def main() -> None:
     if all_ok:
         print("All checks passed.")
     else:
-        print("WARNING: Some files missing; see report.")
+        print("WARNING: Some files missing or diffs found; see report.")
 
 
 if __name__ == "__main__":

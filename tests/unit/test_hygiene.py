@@ -34,7 +34,7 @@ REAL_PARAMS_PATH = REPO_ROOT / "params" / "params.toml"
 
 class TestHygieneFaults:
     def test_completeness_gap_seeded_fault(self, tmp_path: Path):
-        """Seeded fault: Remove band C from parameters: points with score >= 650 reach default NO_RULE_APPLICABLE."""
+        """FR-18: Run rule hygiene checks; seeded fault: Remove band C -> COMPLETENESS_GAP."""
         rs = load_rules(REAL_RULES_DIR, REAL_PARAMS_PATH)
         assert rs is not None
 

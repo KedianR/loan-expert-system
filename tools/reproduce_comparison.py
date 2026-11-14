@@ -132,12 +132,16 @@ def main() -> None:
         path = REPO_ROOT / rel
         git_content = get_git_file_content(rel, commit_hash)
         if not path.exists():
-            lines.append(f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | ⚠️ MISSING | Current file missing |")
+            lines.append(
+                f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | ⚠️ MISSING | Current file missing |"
+            )
             all_ok = False
             continue
         if git_content is None:
             # New file not yet in HEAD commit
-            lines.append(f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | ℹ️ Uncommitted | File not in HEAD commit |")
+            lines.append(
+                f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | ℹ️ Uncommitted | File not in HEAD commit |"
+            )
             continue
 
         curr_text = path.read_text(encoding="utf-8")
@@ -166,11 +170,15 @@ def main() -> None:
         path = REPO_ROOT / rel
         git_content = get_git_file_content(rel, commit_hash)
         if not path.exists():
-            lines.append(f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | ⚠️ MISSING | Current file missing |")
+            lines.append(
+                f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | ⚠️ MISSING | Current file missing |"
+            )
             all_ok = False
             continue
         if git_content is None:
-            lines.append(f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | ℹ️ Uncommitted | File not in HEAD commit |")
+            lines.append(
+                f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | ℹ️ Uncommitted | File not in HEAD commit |"
+            )
             continue
 
         try:

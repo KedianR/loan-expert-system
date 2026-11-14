@@ -36,6 +36,7 @@ data/splits/
 data/decisions/
 data/group_sizes/
 data/synthetic/d3_*
+!data/synthetic/*.py
 models/
 
 # Keep reports/ml/ and data/manifest.json tracked

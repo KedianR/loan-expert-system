@@ -154,6 +154,9 @@ def _check_secrets_scan() -> list[str]:
         for f in tracked:
             for pat in sensitive_patterns:
                 if pat in f:
+                    # Allow python generator source files in data/synthetic/; ban generated datasets (.csv)
+                    if pat == "data/synthetic/d3_" and f.endswith(".py"):
+                        continue
                     violations.append(f"TRACKED: {f}")
     except Exception as e:
         violations.append(f"Could not run git ls-files: {e}")

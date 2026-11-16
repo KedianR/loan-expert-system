@@ -6,6 +6,13 @@
   <title>LoanCheck — About</title>
   <link rel="stylesheet" href="/static/tokens.css">
   <link rel="stylesheet" href="/static/style.css">
+  <script>
+    if (location.protocol === 'file:') {
+      document.querySelectorAll('link[rel="stylesheet"]').forEach(l => {
+        l.href = l.getAttribute('href').replace('/static/', './');
+      });
+    }
+  </script>
 </head>
 <body>
   <header class="app-bar" role="banner">

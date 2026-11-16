@@ -1,0 +1,99 @@
+/* Design tokens — src/ui/static/tokens.css */
+
+:root {
+  /* ── Colour palette: neutral greys ── */
+  --c-bg:              #f5f7fa;
+  --c-surface:         #ffffff;
+  --c-surface-raised:  #eef1f5;
+  --c-border:          #d0d7e2;
+  --c-border-subtle:   #e8ecf2;
+  --c-text:            #0f1923;
+  --c-text-muted:      #5a6579;
+  --c-text-on-accent:  #ffffff;
+
+  /* ── Accent: deep teal ── */
+  --c-accent:          #0d6e7f;
+  --c-accent-hover:    #095a69;
+  --c-accent-subtle:   #e0f4f7;
+
+  /* ── Semantic ── */
+  --c-eligible:        #15803d;
+  --c-eligible-bg:     #dcfce7;
+  --c-ineligible:      #b91c1c;
+  --c-ineligible-bg:   #fee2e2;
+  --c-refer:           #b45309;
+  --c-refer-bg:        #fef3c7;
+
+  /* ── Spacing scale (4px steps, sp-1=4px … sp-12=48px) ── */
+  --sp-1:   4px;
+  --sp-2:   8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  20px;
+  --sp-6:  24px;
+  --sp-7:  28px;
+  --sp-8:  32px;
+  --sp-9:  36px;
+  --sp-10: 40px;
+  --sp-11: 44px;
+  --sp-12: 48px;
+
+  /* ── Border radius ── */
+  --r-sm:  4px;
+  --r-md:  8px;
+  --r-lg:  12px;
+  --r-xl:  16px;
+
+  /* ── Shadows ── */
+  --sh-sm: 0 1px 3px 0 rgba(15,25,35,0.08), 0 1px 2px -1px rgba(15,25,35,0.06);
+  --sh-md: 0 4px 8px -2px rgba(15,25,35,0.10), 0 2px 4px -2px rgba(15,25,35,0.06);
+  --sh-lg: 0 12px 24px -4px rgba(15,25,35,0.12), 0 4px 8px -2px rgba(15,25,35,0.06);
+
+  /* ── Type scale ── */
+  --fs-xs:   11px;
+  --fs-sm:   13px;
+  --fs-base: 15px;
+  --fs-md:   17px;
+  --fs-lg:   20px;
+  --fs-xl:   24px;
+  --fs-2xl:  30px;
+  --fs-3xl:  38px;
+
+  /* ── Font weight ── */
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* ── Dark greys ── */
+    --c-bg:              #0d1117;
+    --c-surface:         #161b22;
+    --c-surface-raised:  #1f2733;
+    --c-border:          #2e3a4a;
+    --c-border-subtle:   #21293a;
+    --c-text:            #e6eaf0;
+    --c-text-muted:      #8b97a8;
+    --c-text-on-accent:  #ffffff;
+
+    /* ── Dark accent (lightened for contrast on dark surface ≥4.5:1) ── */
+    --c-accent:          #22a8c0;
+    --c-accent-hover:    #2bbdd8;
+    --c-accent-subtle:   #0d2e34;
+
+    /* ── Dark semantic (adjusted lightness, stays readable on dark surface) ── */
+    --c-eligible:        #4ade80;
+    --c-eligible-bg:     #0a2e1a;
+    --c-ineligible:      #f87171;
+    --c-ineligible-bg:   #2d0d0d;
+    --c-refer:           #fbbf24;
+    --c-refer-bg:        #2d1f04;
+
+    /* ── Shadows adapt to dark ── */
+    --sh-sm: 0 1px 3px 0 rgba(0,0,0,0.30), 0 1px 2px -1px rgba(0,0,0,0.20);
+    --sh-md: 0 4px 8px -2px rgba(0,0,0,0.35), 0 2px 4px -2px rgba(0,0,0,0.20);
+    --sh-lg: 0 12px 24px -4px rgba(0,0,0,0.40), 0 4px 8px -2px rgba(0,0,0,0.25);
+  }
+}

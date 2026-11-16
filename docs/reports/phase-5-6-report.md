@@ -1,8 +1,25 @@
-# Phase 5 and 6 Report (Lean Mode Close-Out & Patch Round 2)
+# Phase 5 and 6 Report (Lean Mode Close-Out & Patch Round 3)
 
 Date: 2026-11-16  
-Commit hash: 465205f (patch round 2 verification and close-out commit)  
-Agent session: phase5-6-patch-round-2  
+Commit hash: `9be67e497757a541c7ff80fd4670525b1093580c` (This hash identifies the code and verification baseline prior to this final report edit; it will be followed by the documentation close-out commit)  
+Agent session: phase5-6-patch-round-3  
+
+---
+
+## Patch Round 3 Close-Out Summary
+
+- **Item 1 (Amendment A-03 in `docs/fairness-amendments.md`)**: Logged all 6 post-hoc implementation corrections (D3 ML decision orientation, NaN flag hardening, P5-5 applied across all metrics, gender×age_band intersection added, dual-treatment markdown tables generated, percentile-vs-BCa wording alignment); documented what changed, rationale, affected published numbers, and marked "Results viewed before logging: Yes".
+- **Item 2 (Evidence for D3 and fairness fixes)**:
+  - **2a (Bootstrap method)**: `Select-String -Path src\eval\*.py -Pattern "bca|percentile|method=|resample"` confirms bootstrap is standard percentile bootstrap (`np.percentile(valid_stats, 100 * alpha / 2)` and `100 * (1 - alpha / 2)`), NOT BCa.
+  - **2b (D3 employment crosstabs)**: On D3 test split ($N=3,000$), verified LR agreement is 80.97% (2,429/3,000; 571 disagreements) and GB agreement is 98.53% (2,956/3,000; 44 disagreements), matching the exact sum of per-group disagreements (`other`=0, `salaried`=395/36, `self_employed`=176/8).
+  - **2c (Test source)**: Source of `test_per_group_ml_selection_consistent_with_overall_agreement` in `tests/unit/test_fairness.py` lines 648–717 verified and cited.
+  - **2d (`git diff src/eval/edge_cases.py`)**: Confirmed only `obligations_source: "synthetic"` was added; D3 model decision threshold (`prob >= 0.5` = eligible) is unchanged.
+  - **2e (D2 agreement figures)**: 96.87% (LR) and 96.82% (GB) are measured against binary rule eligibility on D2 test split ($N=46,127$, where rule approves 776); both rule and LR approve 27 applicants, and both rule and GB approve 50 applicants (agreement is driven by 98.3% common true negatives).
+- **Item 3 (P5-5 consistency)**: Printed D2 rule-system age-band test rows ($N=46,127$); cohort 60+ has 23 approvals and 23 approved repayers ($23 \ge 20$), legitimately satisfying the stability threshold and correctly scored and flagged with EOD = -0.0141 (Section 7.2 of final report corrected from older draft claim); `src/eval/fairness.py` line 386 refined so stability check strictly evaluates approved repayers count for EOD (zero flags changed).
+- **Item 4 (Traceability)**: The 9 requirements unmet in round 1 (FR-10, FR-15, FR-18, FR-20, FR-22, NFR-06, CR-01, CR-05, CR-06) mapped to their covering tests and assertion logic; NFR-06 is designated as measured by timing benchmark rather than covered by a unit test; dynamic requirement count reports 46 covered by tests + 1 measured (47 total).
+- **Item 5 (UI audit verification)**: `python -m pytest --collect-only -q tests/unit/test_ui.py` collected 8 tests; verified that `POST /ui/decide` calls `_get_service().decide(body)` which invokes `DecisionService.decide()` and writes append-only audit records to `data/audit.db`, using the identical store and engine path as the REST API (FR-10, FR-15).
+- **Item 6 (Final report edits)**: Synchronized `docs/final-report.md` and `docs/reports/phase-5-6-evidence/final-report.md` byte-for-byte with date 16 November 2026, commit hash `9be67e4` quoted in header with reconciliation note, regulatory mapping marked with `(confirm)`, audit immutability citing `(FR-10, NFR-08)`, Section 6 context note added contrasting ML default rates (1.39% LR, 1.27% GB) against rules (3.35%) and noting GB's upper bound is below rules' lower bound, Section 7.1 mechanism reworded as hypothesis, Section 7.2 separating K05 income floor (68.29% women vs 49.42% men fail) from E01 tenure, Section 7.3 counterfactual swap disclaimer added (procedural blindness, not demographic fairness), and Sections 8.7/10 audit writing confirmed.
+- **Item 7 (Clean clone reproduction)**: Fresh clone executed `make reproduce` (Python 3.14.2, wall time 512.5s = 8.5 min) at commit `9be67e497757a541c7ff80fd4670525b1093580c` with all checks passing; negative control verified by mutating `difference = 0.9999` in `reports/fairness/d3_rule_system.json`, which produced return code 1, printed `WARNING: Some files missing or diffs found; see report.`, and recorded diff line in `reports/reproduce_comparison.md`; negative change reverted and clean reproduction confirmed.
 
 ---
 
@@ -312,7 +329,7 @@ All required supporting evidence files have been verified and placed in `docs/re
 | `make oracle-diff` | Parity verification between pure-Python engine and oracle on D1 | **PASS** |
 | `make test` | Full test suite execution (198 tests) | **PASS** |
 | `make phase5` | Edge cases, comparison scorecard, fairness evaluation, manifest | **PASS** |
-| `make traceability` | Dynamic requirement-to-test mapping (47/47 covered) | **PASS** |
+| `make traceability` | Dynamic requirement verification (46 covered by tests + 1 measured; 47 total) | **PASS** |
 | `make check-docs` | Document consistency, scorecard check, and sensitive file scan | **PASS** |
 | `make reproduce` | Verify zero-divergence reproduction on clean clone / current repo | **PASS** |
 
@@ -331,7 +348,6 @@ OK: rules\fields.toml loaded with 0 warning(s) and no errors.
 python -m src.engine.rule_loader rules params/params.toml
 OK: rules loaded successfully (22 rules across 7 layers, 21 reason codes).
 python -m src.engine.hygiene
-Rule Firing Matrix (D1 Dataset)
 ----------------------------------------
 V04        | 2            | OK                            
 AMOUNT_LIMITED_BY_PRODUCT_MAXIMUM | 0            | Unreachable by design (DT-3)  
@@ -345,12 +361,34 @@ OK: all hygiene checks passed with zero findings.
 ```text
 python -m src.engine.param_loader params/params.toml
 OK: params/params.toml loaded with 0 warning(s) and no errors.
+    18 scalar parameters, 3 band(s).
 python -m src.engine.field_loader rules/fields.toml
 OK: rules\fields.toml loaded with 0 warning(s) and no errors.
+    27 fields (15 input, 12 derived).
 python -m src.engine.rule_loader rules params/params.toml
 OK: rules loaded successfully (22 rules across 7 layers, 21 reason codes).
 python -m src.engine.hygiene
+
+Rule Firing Matrix (D1 Dataset)
 ----------------------------------------
+Rule ID    | Fired Count  | Notes                         
+----------------------------------------
+A01        | 47           | OK                            
+A02        | 47           | OK                            
+A03        | 5            | OK                            
+A04        | 12           | OK                            
+E01        | 1            | OK                            
+E02        | 47           | OK                            
+K01        | 1            | OK                            
+K02        | 1            | OK                            
+K03        | 3            | OK                            
+K04        | 3            | OK                            
+K05        | 3            | OK                            
+K06        | 2            | OK                            
+P01        | 42           | OK                            
+R01        | 2            | OK                            
+R02        | 3            | OK                            
+R03        | 2            | OK                            
 V01        | 16           | OK                            
 V02        | 2            | OK                            
 V03        | 2            | OK                            
@@ -380,7 +418,7 @@ tests\unit\test_ui.py ........                                           [100%]
     from starlette.testclient import TestClient as TestClient  # noqa
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-======================= 198 passed, 1 warning in 46.35s =======================
+======================= 198 passed, 1 warning in 22.01s =======================
 ```
 
 #### 5. `make phase5`
@@ -410,7 +448,7 @@ Phase 5 manifest written to C:\Users\asus\Documents\Learning\AI_Class_Project\lo
 ```text
 python tools/traceability.py
 Traceability report written to C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system\reports\traceability.md and C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system\docs\reports\phase-5-6-evidence\traceability.md
-Requirements covered: 47/47
+Requirements: 46 covered by tests + 1 measured (47 total)
 ```
 
 #### 7. `make check-docs`
@@ -439,7 +477,27 @@ Check-docs: all consistency checks passed.
 
 #### 8. `make reproduce`
 ```text
+Loading D3 data...
+Evaluating D3 rule system...
+  Written: C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system\reports\fairness\d3_rule_system.json
+Evaluating D3 ML models...
+  Written: C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system\reports\fairness\d3_lr.json
+  Written: C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system\reports\fairness\d3_gb.json
+Running counterfactual swap across rule engine, LR, and GB...
+Evaluating D3 gender×age_band intersection...
+Computing gender-from-features AUC...
+Summary written to C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system\reports\fairness\summary.json
+  Written: C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system\reports\fairness\d2_tables.md
+  Written: C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system\reports\fairness\d3_tables.md
+Fairness evaluation complete.
+python tools/phase5_manifest.py
+Phase 5 manifest written to C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system\reports\phase5_manifest.json
+  Rule-set hash: sha256:eb7073a388817e0a455997c0c2ea86ccb25524cdff07faf8bf5ca98bb267be5a
+  Params hash: sha256:4c2698607ae7ea824fc62f39a84ac52fa69db1b59c0657ffeb152b0960885373
+  Report files hashed: 28
+"=== Phase 5 complete ==="
 python tools/reproduce_comparison.py
 Reproduce comparison written to C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system\reports\reproduce_comparison.md and C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system\docs\reports\phase-5-6-evidence\reproduce_comparison.md
 All checks passed.
+"=== Reproduce complete ==="
 ```

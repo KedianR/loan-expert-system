@@ -14,6 +14,7 @@ import hashlib
 import json
 import os
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -393,6 +394,7 @@ def main() -> None:
         print("All checks passed.")
     else:
         print("WARNING: Some files missing or diffs found; see report.")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

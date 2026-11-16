@@ -4,6 +4,7 @@
 **Author:** Antigravity / Engineering Team  
 **Date:** 16 November 2026  
 **Version:** 1.0.0 (`rules-1.0.0+params-0.1.0`)  
+**Commit Hash:** `9be67e497757a541c7ff80fd4670525b1093580c` (This hash identifies the code and verification baseline prior to this final report edit; it will be followed by the documentation close-out commit).  
 **Repository Pin:** `tests/golden/rule_set_pin.json` (`sha256:eb7073a388817e0a455997c0c2ea86ccb25524cdff07faf8bf5ca98bb267be5a`)
 
 ---

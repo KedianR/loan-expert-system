@@ -314,6 +314,7 @@ All required supporting evidence files have been verified and placed in `docs/re
 | `make phase5` | Edge cases, comparison scorecard, fairness evaluation, manifest | **PASS** |
 | `make traceability` | Dynamic requirement-to-test mapping (47/47 covered) | **PASS** |
 | `make check-docs` | Document consistency, scorecard check, and sensitive file scan | **PASS** |
+| `make reproduce` | Verify zero-divergence reproduction on clean clone / current repo | **PASS** |
 
 ---
 
@@ -401,7 +402,7 @@ python tools/phase5_manifest.py
 Phase 5 manifest written to C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system\reports\phase5_manifest.json
   Rule-set hash: sha256:eb7073a388817e0a455997c0c2ea86ccb25524cdff07faf8bf5ca98bb267be5a
   Params hash: sha256:4c2698607ae7ea824fc62f39a84ac52fa69db1b59c0657ffeb152b0960885373
-  Report files hashed: 29
+  Report files hashed: 28
 "=== Phase 5 complete ==="
 ```
 
@@ -434,4 +435,11 @@ Informational notes (2):
   Doc mentions rule ID 'K07' not in active rules/*.toml (historical/catalog note)
   Doc mentions rule ID 'P04' not in active rules/*.toml (historical/catalog note)
 Check-docs: all consistency checks passed.
+```
+
+#### 8. `make reproduce`
+```text
+python tools/reproduce_comparison.py
+Reproduce comparison written to C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system\reports\reproduce_comparison.md and C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system\docs\reports\phase-5-6-evidence\reproduce_comparison.md
+All checks passed.
 ```

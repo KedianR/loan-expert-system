@@ -26,7 +26,7 @@ def sha256_file(path: Path) -> str | None:
 def main() -> None:
     report_files = []
     for f in sorted(REPORTS_DIR.rglob("*")):
-        if f.is_file() and f != OUTPUT:
+        if f.is_file() and f != OUTPUT and f.name != "reproduce_comparison.md":
             report_files.append(f)
 
     file_hashes = {}

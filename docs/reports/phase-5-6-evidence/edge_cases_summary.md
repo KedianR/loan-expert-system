@@ -1,8 +1,8 @@
-# Edge Cases Summary (WP-18, FR-24, P5-13)
+# Edge Case Evaluation Summary (WP-18, FR-24, NFR-01)
 
-Comprehensive evaluation of 64 edge cases across 5 categories comparing Rule System with ML Baselines (Logistic Regression and Gradient Boosting).
+Total edge cases evaluated: **64** across 5 categories.
 
-## 1. Category Counts and Rule System Results
+## 1. Rule System Performance vs Rule Catalog Expectations
 
 | Category | Total | Matched Catalog | Differs (Explained) | Differs (Unexplained) |
 |---|---|---|---|---|
@@ -13,30 +13,9 @@ Comprehensive evaluation of 64 edge cases across 5 categories comparing Rule Sys
 | **AD** (Adversarial / Gamed Inputs) | 7 | 6 | 1 | 0 |
 | **Total** | **64** | **61** | **3** | **0** |
 
-## 2. Full Explanation of the Three Differences (OQ-012)
+## 2. ML Baseline Agreement with Rule System (D3 Models)
 
-The 3 cases where rule outcome differs from isolated catalog threshold expectation are all explained by end-to-end policy formula interaction:
-
-1. **EC-TB-16** (FOIR below cap: monthly obligations INR 39,999 on monthly income INR 80,000):
-   - *Isolated threshold expectation*: eligible (clears E01 as FOIR = 0.4999875 <= 0.50).
-   - *Actual system outcome*: ineligible with reason code INSUFFICIENT_REPAYMENT_CAPACITY.
-   - *Mechanism*: Under Band B, the post-loan FOIR cap is 0.50 (Formula F4). Maximum affordable EMI is (80000 * 0.50) - 39999 = INR 1. Formula F7 yields loan capacity of ~INR 25, which is strictly below min_amount (INR 50,000). Rule A03 correctly fires, denying the loan.
-
-2. **EC-TB-17** (FOIR at cap: monthly obligations INR 40,000 on monthly income INR 80,000):
-   - *Isolated threshold expectation*: eligible (clears E01 as FOIR = 0.50 <= 0.50).
-   - *Actual system outcome*: ineligible with reason code INSUFFICIENT_REPAYMENT_CAPACITY.
-   - *Mechanism*: Post-loan FOIR cap is 0.50. Max affordable EMI is (80000 * 0.50) - 40000 = INR 0. Principal capacity is INR 0 < min_amount (INR 50,000). Rule A03 fires.
-
-3. **EC-AD-02** (Adversarial boundary gaming: obligations set to exactly INR 40,000):
-   - *Isolated threshold expectation*: eligible.
-   - *Actual system outcome*: ineligible with reason code INSUFFICIENT_REPAYMENT_CAPACITY.
-   - *Mechanism*: Identical capacity exhaustion mechanism as EC-TB-17. Prevents lending to over-leveraged applicants even when eligibility threshold is technically skirted.
-
-**Resolution in Open Questions (OQ-012)**: System behaviour is mathematically correct per Formulas F4, F7, and Golden Vector TV6. Logged in docs/open-questions.md as an explained design interaction.
-
-## 3. ML Baseline Agreement with Rule System (D3 Models)
-
-Note: ML binary prediction (operating threshold 0.5 on probability of eligible) is compared against rule outcome, mapping REFER to not-eligible.
+Note: ML binary prediction (threshold 0.5) is compared against rule outcome, mapping REFER to not-eligible.
 
 | Category | Total | Matched Rules | Differs (Explained) | Differs (Unexplained) |
 |---|---|---|---|---|
@@ -47,7 +26,7 @@ Note: ML binary prediction (operating threshold 0.5 on probability of eligible) 
 | **AD** (Adversarial / Gamed Inputs) | 7 | 6 | 1 | 0 |
 | **Total** | **64** | **42** | **22** | **0** |
 
-## 4. Explanations of All 64 Cases (Actual Outputs, No Templates)
+## 3. Explanations of All 64 Cases (Actual Outputs, No Templates)
 
 Each case below reflects the actual outputs of the Rule System and D3 ML models (Logistic Regression and Gradient Boosting with operating threshold 0.5 for eligibility).
 

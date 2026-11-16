@@ -1,7 +1,7 @@
 # Phase 5 and 6 Report (Lean Mode Close-Out & Patch Round 2)
 
 Date: 2026-11-16  
-Commit hash: HEAD (to be pinned after final commit)  
+Commit hash: a413219 (final patch round HEAD)  
 Agent session: phase5-6-patch-round-2  
 
 ---

@@ -1523,7 +1523,7 @@ def run_fairness_evaluation(repo_root: Path | str = REPO_ROOT) -> None:
     # Auto-generate standard bias dataset if missing (e.g. during clean checkout)
     if not (bias_prot_path.exists() and bias_dec_path.exists()):
         try:
-            from data.synthetic.d3_generator import generate_datasets as generate_d3
+            from data.synthetic.d3_generator import generate_d3
             from src.engine.engine import decide as engine_decide
             from src.engine.rule_loader import load_rules
 
@@ -1533,9 +1533,9 @@ def run_fairness_evaluation(repo_root: Path | str = REPO_ROOT) -> None:
             bias_dec_path.parent.mkdir(parents=True, exist_ok=True)
             generate_d3(
                 size=20000,
-                out_population=bias_pop_path,
-                out_protected=bias_prot_path,
-                apply_bias=True,
+                bias_enabled=True,
+                out_population_path=bias_pop_path,
+                out_protected_path=bias_prot_path,
             )
             bias_pop = pd.read_csv(bias_pop_path)
             rules = load_rules(REPO_ROOT / "rules", REPO_ROOT / "params" / "params.toml")

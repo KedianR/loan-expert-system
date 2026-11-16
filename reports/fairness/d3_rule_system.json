@@ -15,7 +15,8 @@
         "age_band",
         "region_tier",
         "employment_type",
-        "income_band"
+        "income_band",
+        "gender_x_age_band"
       ],
       "primary_metric": "selection_rate_difference",
       "results": [
@@ -67,8 +68,16 @@
             "F": {
               "size": 1487,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.462004,
+              "reference_rate": 0.482485,
+              "difference": 0.957551,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 0.9576,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             }
           },
           "max_minus_min_gap": null
@@ -201,20 +210,44 @@
             "21-29": {
               "size": 670,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.465672,
+              "reference_rate": 0.444588,
+              "difference": 1.047424,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.0474,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             },
             "30-39": {
               "size": 723,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.489627,
+              "reference_rate": 0.444588,
+              "difference": 1.101305,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.1013,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             },
             "50-59": {
               "size": 760,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.489474,
+              "reference_rate": 0.444588,
+              "difference": 1.100961,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.101,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             },
             "60+": {
               "size": 71,
@@ -223,7 +256,7 @@
               "flag": null
             }
           },
-          "max_minus_min_gap": null
+          "max_minus_min_gap": 0.053881
         },
         {
           "attribute": "age_band",
@@ -369,17 +402,33 @@
             "1": {
               "size": 938,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.489339,
+              "reference_rate": 0.457856,
+              "difference": 1.068763,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.0688,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             },
             "3": {
               "size": 579,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.481865,
+              "reference_rate": 0.457856,
+              "difference": 1.052439,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.0524,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             }
           },
-          "max_minus_min_gap": null
+          "max_minus_min_gap": 0.016324
         },
         {
           "attribute": "region_tier",
@@ -460,6 +509,9 @@
               "group_rate": 0.0,
               "reference_rate": 0.5323501427212178,
               "difference": -0.5323501427212178,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
               "flag": null,
               "note": "Fewer than 20 approvals (group=0, ref=1119)"
             },
@@ -497,17 +549,32 @@
             "other": {
               "size": 139,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "unstable",
+              "group_rate": 0.0,
+              "reference_rate": 0.5323501427212178,
+              "difference": 0.0,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "note": "Fewer than 20 approvals or zero reference rate"
             },
             "self_employed": {
               "size": 759,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.392622,
+              "reference_rate": 0.53235,
+              "difference": 0.737526,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 0.7375,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             }
           },
-          "max_minus_min_gap": null
+          "max_minus_min_gap": 0.737526
         },
         {
           "attribute": "employment_type",
@@ -643,23 +710,47 @@
             "Q1": {
               "size": 735,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.368707,
+              "reference_rate": 0.480818,
+              "difference": 0.766833,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 0.7668,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             },
             "Q2": {
               "size": 762,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.535433,
+              "reference_rate": 0.480818,
+              "difference": 1.113587,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.1136,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             },
             "Q4": {
               "size": 721,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.50208,
+              "reference_rate": 0.480818,
+              "difference": 1.04422,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.0442,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             }
           },
-          "max_minus_min_gap": null
+          "max_minus_min_gap": 0.346754
         },
         {
           "attribute": "income_band",
@@ -730,6 +821,402 @@
             }
           },
           "max_minus_min_gap": null
+        },
+        {
+          "attribute": "gender_x_age_band",
+          "metric": "selection_rate_difference",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "F x 40-49",
+          "reference_group_size": 397,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.994444,
+          "groups": {
+            "F x 40-49": {
+              "size": 397,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "F x 21-29": {
+              "size": 316,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.455696,
+              "reference_rate": 0.438287,
+              "difference": 0.017409,
+              "ci_lower": -0.094726,
+              "ci_upper": 0.117761,
+              "ci_level": 0.994444,
+              "flag": false,
+              "four_fifths_ratio": 1.0397,
+              "note": ""
+            },
+            "F x 30-39": {
+              "size": 359,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.467967,
+              "reference_rate": 0.438287,
+              "difference": 0.029679,
+              "ci_lower": -0.065015,
+              "ci_upper": 0.120628,
+              "ci_level": 0.994444,
+              "flag": false,
+              "four_fifths_ratio": 1.0677,
+              "note": ""
+            },
+            "F x 50-59": {
+              "size": 375,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.482667,
+              "reference_rate": 0.438287,
+              "difference": 0.04438,
+              "ci_lower": -0.058147,
+              "ci_upper": 0.146155,
+              "ci_level": 0.994444,
+              "flag": false,
+              "four_fifths_ratio": 1.1013,
+              "note": ""
+            },
+            "F x 60+": {
+              "size": 40,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            },
+            "M x 21-29": {
+              "size": 354,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.474576,
+              "reference_rate": 0.438287,
+              "difference": 0.036289,
+              "ci_lower": -0.067922,
+              "ci_upper": 0.132407,
+              "ci_level": 0.994444,
+              "flag": false,
+              "four_fifths_ratio": 1.0828,
+              "note": ""
+            },
+            "M x 30-39": {
+              "size": 364,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.510989,
+              "reference_rate": 0.438287,
+              "difference": 0.072702,
+              "ci_lower": -0.018934,
+              "ci_upper": 0.171481,
+              "ci_level": 0.994444,
+              "flag": false,
+              "four_fifths_ratio": 1.1659,
+              "note": ""
+            },
+            "M x 40-49": {
+              "size": 379,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.451187,
+              "reference_rate": 0.438287,
+              "difference": 0.0129,
+              "ci_lower": -0.079996,
+              "ci_upper": 0.113753,
+              "ci_level": 0.994444,
+              "flag": false,
+              "four_fifths_ratio": 1.0294,
+              "note": ""
+            },
+            "M x 50-59": {
+              "size": 385,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.496104,
+              "reference_rate": 0.438287,
+              "difference": 0.057817,
+              "ci_lower": -0.039159,
+              "ci_upper": 0.161645,
+              "ci_level": 0.994444,
+              "flag": false,
+              "four_fifths_ratio": 1.1319,
+              "note": ""
+            },
+            "M x 60+": {
+              "size": 31,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": 0.059802
+        },
+        {
+          "attribute": "gender_x_age_band",
+          "metric": "selection_rate_ratio",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "F x 40-49",
+          "reference_group_size": 397,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.994444,
+          "groups": {
+            "F x 40-49": {
+              "size": 397,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "F x 21-29": {
+              "size": 316,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.455696,
+              "reference_rate": 0.438287,
+              "difference": 1.039721,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.0397,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
+            },
+            "F x 30-39": {
+              "size": 359,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.467967,
+              "reference_rate": 0.438287,
+              "difference": 1.067717,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.0677,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
+            },
+            "F x 50-59": {
+              "size": 375,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.482667,
+              "reference_rate": 0.438287,
+              "difference": 1.101257,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.1013,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
+            },
+            "F x 60+": {
+              "size": 40,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            },
+            "M x 21-29": {
+              "size": 354,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.474576,
+              "reference_rate": 0.438287,
+              "difference": 1.082798,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.0828,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
+            },
+            "M x 30-39": {
+              "size": 364,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.510989,
+              "reference_rate": 0.438287,
+              "difference": 1.165877,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.1659,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
+            },
+            "M x 40-49": {
+              "size": 379,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.451187,
+              "reference_rate": 0.438287,
+              "difference": 1.029433,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.0294,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
+            },
+            "M x 50-59": {
+              "size": 385,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.496104,
+              "reference_rate": 0.438287,
+              "difference": 1.131915,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.1319,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
+            },
+            "M x 60+": {
+              "size": 31,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": 0.136444
+        },
+        {
+          "attribute": "gender_x_age_band",
+          "metric": "false_approval_rate_difference",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "F x 40-49",
+          "reference_group_size": 397,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.994444,
+          "groups": {
+            "F x 40-49": {
+              "size": 397,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "F x 21-29": {
+              "size": 316,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "F x 30-39": {
+              "size": 359,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "F x 50-59": {
+              "size": 375,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "F x 60+": {
+              "size": 40,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            },
+            "M x 21-29": {
+              "size": 354,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "M x 30-39": {
+              "size": 364,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "M x 40-49": {
+              "size": 379,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "M x 50-59": {
+              "size": 385,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "M x 60+": {
+              "size": 31,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "gender_x_age_band",
+          "metric": "default_rate_among_approved",
+          "treatment": "A_refer_not_approved",
+          "reference_group": "F x 40-49",
+          "reference_group_size": 397,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.994444,
+          "groups": {
+            "F x 40-49": {
+              "size": 397,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "F x 21-29": {
+              "size": 316,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "F x 30-39": {
+              "size": 359,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "F x 50-59": {
+              "size": 375,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "F x 60+": {
+              "size": 40,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            },
+            "M x 21-29": {
+              "size": 354,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "M x 30-39": {
+              "size": 364,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "M x 40-49": {
+              "size": 379,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "M x 50-59": {
+              "size": 385,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "M x 60+": {
+              "size": 31,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
         }
       ]
     },
@@ -740,7 +1227,8 @@
         "age_band",
         "region_tier",
         "employment_type",
-        "income_band"
+        "income_band",
+        "gender_x_age_band"
       ],
       "primary_metric": "selection_rate_difference",
       "results": [
@@ -792,8 +1280,16 @@
             "F": {
               "size": 1487,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.502193,
+              "reference_rate": 0.525937,
+              "difference": 0.954855,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 0.9549,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             }
           },
           "max_minus_min_gap": null
@@ -926,20 +1422,44 @@
             "21-29": {
               "size": 670,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.501608,
+              "reference_rate": 0.487977,
+              "difference": 1.027932,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.0279,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             },
             "30-39": {
               "size": 723,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.531532,
+              "reference_rate": 0.487977,
+              "difference": 1.089254,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.0893,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             },
             "50-59": {
               "size": 760,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.534483,
+              "reference_rate": 0.487977,
+              "difference": 1.095302,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.0953,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             },
             "60+": {
               "size": 71,
@@ -948,7 +1468,7 @@
               "flag": null
             }
           },
-          "max_minus_min_gap": null
+          "max_minus_min_gap": 0.06737
         },
         {
           "attribute": "age_band",
@@ -1094,17 +1614,33 @@
             "1": {
               "size": 938,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.531866,
+              "reference_rate": 0.497801,
+              "difference": 1.068431,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.0684,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             },
             "3": {
               "size": 579,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.52741,
+              "reference_rate": 0.497801,
+              "difference": 1.059481,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.0595,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             }
           },
-          "max_minus_min_gap": null
+          "max_minus_min_gap": 0.00895
         },
         {
           "attribute": "region_tier",
@@ -1185,6 +1721,9 @@
               "group_rate": 0.0,
               "reference_rate": 0.5631605435329643,
               "difference": -0.5631605435329643,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
               "flag": null,
               "note": "Fewer than 20 approvals (group=0, ref=1119)"
             },
@@ -1222,17 +1761,32 @@
             "other": {
               "size": 139,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "unstable",
+              "group_rate": 0.0,
+              "reference_rate": 0.5631605435329643,
+              "difference": 0.0,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "note": "Fewer than 20 approvals or zero reference rate"
             },
             "self_employed": {
               "size": 759,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.408779,
+              "reference_rate": 0.563161,
+              "difference": 0.725866,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 0.7259,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             }
           },
-          "max_minus_min_gap": null
+          "max_minus_min_gap": 0.725866
         },
         {
           "attribute": "employment_type",
@@ -1368,23 +1922,47 @@
             "Q1": {
               "size": 735,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.394469,
+              "reference_rate": 0.528833,
+              "difference": 0.745924,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 0.7459,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             },
             "Q2": {
               "size": 762,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.58037,
+              "reference_rate": 0.528833,
+              "difference": 1.097455,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.0975,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             },
             "Q4": {
               "size": 721,
               "is_reference": false,
-              "status": "not_computed",
-              "flag": null
+              "status": "scored",
+              "group_rate": 0.552672,
+              "reference_rate": 0.528833,
+              "difference": 1.045079,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.0451,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
             }
           },
-          "max_minus_min_gap": null
+          "max_minus_min_gap": 0.351531
         },
         {
           "attribute": "income_band",
@@ -1451,6 +2029,402 @@
               "size": 721,
               "is_reference": false,
               "status": "no_target",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "gender_x_age_band",
+          "metric": "selection_rate_difference",
+          "treatment": "B_refer_excluded",
+          "reference_group": "F x 40-49",
+          "reference_group_size": 397,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.994444,
+          "groups": {
+            "F x 40-49": {
+              "size": 397,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "F x 21-29": {
+              "size": 316,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.488136,
+              "reference_rate": 0.47541,
+              "difference": 0.012726,
+              "ci_lower": -0.099053,
+              "ci_upper": 0.115874,
+              "ci_level": 0.994444,
+              "flag": false,
+              "four_fifths_ratio": 1.0268,
+              "note": ""
+            },
+            "F x 30-39": {
+              "size": 359,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.512195,
+              "reference_rate": 0.47541,
+              "difference": 0.036785,
+              "ci_lower": -0.061116,
+              "ci_upper": 0.130734,
+              "ci_level": 0.994444,
+              "flag": false,
+              "four_fifths_ratio": 1.0774,
+              "note": ""
+            },
+            "F x 50-59": {
+              "size": 375,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.52924,
+              "reference_rate": 0.47541,
+              "difference": 0.05383,
+              "ci_lower": -0.049566,
+              "ci_upper": 0.163842,
+              "ci_level": 0.994444,
+              "flag": false,
+              "four_fifths_ratio": 1.1132,
+              "note": ""
+            },
+            "F x 60+": {
+              "size": 40,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            },
+            "M x 21-29": {
+              "size": 354,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.513761,
+              "reference_rate": 0.47541,
+              "difference": 0.038352,
+              "ci_lower": -0.068374,
+              "ci_upper": 0.139807,
+              "ci_level": 0.994444,
+              "flag": false,
+              "four_fifths_ratio": 1.0807,
+              "note": ""
+            },
+            "M x 30-39": {
+              "size": 364,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.550296,
+              "reference_rate": 0.47541,
+              "difference": 0.074886,
+              "ci_lower": -0.023029,
+              "ci_upper": 0.179136,
+              "ci_level": 0.994444,
+              "flag": false,
+              "four_fifths_ratio": 1.1575,
+              "note": ""
+            },
+            "M x 40-49": {
+              "size": 379,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.501466,
+              "reference_rate": 0.47541,
+              "difference": 0.026056,
+              "ci_lower": -0.073247,
+              "ci_upper": 0.132833,
+              "ci_level": 0.994444,
+              "flag": false,
+              "four_fifths_ratio": 1.0548,
+              "note": ""
+            },
+            "M x 50-59": {
+              "size": 385,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.539548,
+              "reference_rate": 0.47541,
+              "difference": 0.064138,
+              "ci_lower": -0.035501,
+              "ci_upper": 0.169872,
+              "ci_level": 0.994444,
+              "flag": false,
+              "four_fifths_ratio": 1.1349,
+              "note": ""
+            },
+            "M x 60+": {
+              "size": 31,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": 0.06216
+        },
+        {
+          "attribute": "gender_x_age_band",
+          "metric": "selection_rate_ratio",
+          "treatment": "B_refer_excluded",
+          "reference_group": "F x 40-49",
+          "reference_group_size": 397,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.994444,
+          "groups": {
+            "F x 40-49": {
+              "size": 397,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "F x 21-29": {
+              "size": 316,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.488136,
+              "reference_rate": 0.47541,
+              "difference": 1.026768,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.0268,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
+            },
+            "F x 30-39": {
+              "size": 359,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.512195,
+              "reference_rate": 0.47541,
+              "difference": 1.077376,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.0774,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
+            },
+            "F x 50-59": {
+              "size": 375,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.52924,
+              "reference_rate": 0.47541,
+              "difference": 1.113228,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.1132,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
+            },
+            "F x 60+": {
+              "size": 40,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            },
+            "M x 21-29": {
+              "size": 354,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.513761,
+              "reference_rate": 0.47541,
+              "difference": 1.080671,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.0807,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
+            },
+            "M x 30-39": {
+              "size": 364,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.550296,
+              "reference_rate": 0.47541,
+              "difference": 1.157519,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.1575,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
+            },
+            "M x 40-49": {
+              "size": 379,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.501466,
+              "reference_rate": 0.47541,
+              "difference": 1.054808,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.0548,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
+            },
+            "M x 50-59": {
+              "size": 385,
+              "is_reference": false,
+              "status": "scored",
+              "group_rate": 0.539548,
+              "reference_rate": 0.47541,
+              "difference": 1.134911,
+              "ci_lower": null,
+              "ci_upper": null,
+              "ci_level": null,
+              "flag": null,
+              "four_fifths_ratio": 1.1349,
+              "note": "Point ratio (screening signal only; no CI needed per plan)."
+            },
+            "M x 60+": {
+              "size": 31,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": 0.130751
+        },
+        {
+          "attribute": "gender_x_age_band",
+          "metric": "false_approval_rate_difference",
+          "treatment": "B_refer_excluded",
+          "reference_group": "F x 40-49",
+          "reference_group_size": 397,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.994444,
+          "groups": {
+            "F x 40-49": {
+              "size": 397,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "F x 21-29": {
+              "size": 316,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "F x 30-39": {
+              "size": 359,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "F x 50-59": {
+              "size": 375,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "F x 60+": {
+              "size": 40,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            },
+            "M x 21-29": {
+              "size": 354,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "M x 30-39": {
+              "size": 364,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "M x 40-49": {
+              "size": 379,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "M x 50-59": {
+              "size": 385,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "M x 60+": {
+              "size": 31,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            }
+          },
+          "max_minus_min_gap": null
+        },
+        {
+          "attribute": "gender_x_age_band",
+          "metric": "default_rate_among_approved",
+          "treatment": "B_refer_excluded",
+          "reference_group": "F x 40-49",
+          "reference_group_size": 397,
+          "family_alpha": 0.05,
+          "bonferroni_ci_level_per_group": 0.994444,
+          "groups": {
+            "F x 40-49": {
+              "size": 397,
+              "is_reference": true,
+              "status": "reference"
+            },
+            "F x 21-29": {
+              "size": 316,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "F x 30-39": {
+              "size": 359,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "F x 50-59": {
+              "size": 375,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "F x 60+": {
+              "size": 40,
+              "is_reference": false,
+              "status": "too_small",
+              "flag": null
+            },
+            "M x 21-29": {
+              "size": 354,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "M x 30-39": {
+              "size": 364,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "M x 40-49": {
+              "size": 379,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "M x 50-59": {
+              "size": 385,
+              "is_reference": false,
+              "status": "no_target",
+              "flag": null
+            },
+            "M x 60+": {
+              "size": 31,
+              "is_reference": false,
+              "status": "too_small",
               "flag": null
             }
           },

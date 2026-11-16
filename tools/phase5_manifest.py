@@ -18,7 +18,9 @@ OUTPUT = REPORTS_DIR / "phase5_manifest.json"
 def sha256_file(path: Path) -> str | None:
     if not path.exists():
         return None
-    return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+    # Normalize CRLF to LF for cross-platform deterministic hashing
+    data = path.read_bytes().replace(b"\r\n", b"\n")
+    return "sha256:" + hashlib.sha256(data).hexdigest()
 
 
 def main() -> None:

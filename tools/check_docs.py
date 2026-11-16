@@ -217,6 +217,70 @@ def main() -> None:
     else:
         print("  OK: All parameter names mentioned in docs exist in params/params.toml.")
 
+    # 4c. Cross-check scorecard in docs/final-report.md against reports/comparison/scorecard.json:
+    print("\n=== Scorecard consistency check ===")
+    scorecard_path = REPO_ROOT / "reports" / "comparison" / "scorecard.json"
+    final_report_path = REPO_ROOT / "docs" / "final-report.md"
+    if scorecard_path.exists() and final_report_path.exists():
+        try:
+            import json
+
+            scorecard = json.loads(scorecard_path.read_text(encoding="utf-8"))["scores"]
+            content = final_report_path.read_text(encoding="utf-8")
+            sec6_match = re.search(
+                r"## 6\. Comparison:.*?\n\n(.*?)\n\n\*(?:Note on|Context)", content, re.DOTALL
+            )
+            if not sec6_match:
+                issues.append("Could not find Section 6 scorecard table in docs/final-report.md")
+            else:
+                table_text = sec6_match.group(1)
+                current_criterion = None
+                parsed_scores: dict[str, dict[str, int]] = {}
+                crit_map = {
+                    "transparency": "transparency",
+                    "auditability": "auditability",
+                    "edge cases": "edge_cases",
+                    "regulatory defensibility": "regulatory_defensibility",
+                }
+                sys_map = {
+                    "rule system": "rule_system",
+                    "logistic regression": "logistic_regression",
+                    "gradient boosting": "gradient_boosting",
+                }
+                for line in table_text.splitlines():
+                    if not line.strip().startswith("|") or "Criterion" in line or "|---" in line:
+                        continue
+                    parts = [p.strip() for p in line.split("|")[1:-1]]
+                    if len(parts) >= 3:
+                        crit_col, sys_col, score_col = parts[0], parts[1], parts[2]
+                        crit_clean = crit_col.replace("**", "").strip().lower()
+                        if crit_clean in crit_map:
+                            current_criterion = crit_map[crit_clean]
+                        sys_clean = sys_col.replace("**", "").strip().lower()
+                        if sys_clean in sys_map and current_criterion:
+                            digit_match = re.search(r"\d+", score_col)
+                            if digit_match:
+                                parsed_scores.setdefault(sys_map[sys_clean], {})[
+                                    current_criterion
+                                ] = int(digit_match.group(0))
+                for sys_name, crit_dict in scorecard.items():
+                    for crit_name, data in crit_dict.items():
+                        expected = data["score"]
+                        actual = parsed_scores.get(sys_name, {}).get(crit_name)
+                        if actual != expected:
+                            issues.append(
+                                f"Scorecard mismatch for {sys_name}.{crit_name}: "
+                                f"scorecard.json={expected}, docs/final-report.md={actual}"
+                            )
+                if not any("Scorecard mismatch" in s for s in issues):
+                    print(
+                        "  OK: Scorecard in docs/final-report.md exactly matches reports/comparison/scorecard.json."
+                    )
+        except Exception as e:
+            issues.append(f"Error checking scorecard consistency: {e}")
+    else:
+        print("  SKIP: scorecard.json or final-report.md not found.")
+
     # 5. Secrets scan
     print("\n=== Secrets and sensitive file scan ===")
     secret_violations = _check_secrets_scan()

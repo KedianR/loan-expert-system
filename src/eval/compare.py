@@ -118,7 +118,7 @@ def build_scorecard_data() -> dict[str, Any]:
                         "reports/edge_cases/summary.md",
                         "reports/edge_cases/results.csv",
                     ],
-                    "justification": "Silently imputes missing mandatory data with median training values without schema validation, and smoothly crosses policy thresholds without discrete bounds.",
+                    "justification": "Evaluated on 64 edge cases. Pipeline flags missing fields with indicators, but approves applicants with null mandatory income (EC-MD-01) and evaluates boundary thresholds continuously without discrete policy bounds.",
                 },
                 "regulatory_defensibility": {
                     "score": 1,
@@ -154,7 +154,7 @@ def build_scorecard_data() -> dict[str, Any]:
                         "reports/edge_cases/summary.md",
                         "reports/edge_cases/results.csv",
                     ],
-                    "justification": "Imputes missing values without error flagging and produces continuous prediction manifolds across hard policy thresholds.",
+                    "justification": "Evaluated on 64 edge cases. Tree pipeline handles missing data via imputation and indicator flags without error, but approves applicants with missing mandatory income (EC-MD-01) and lacks schema-level refusal.",
                 },
                 "regulatory_defensibility": {
                     "score": 1,

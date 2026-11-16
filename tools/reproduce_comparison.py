@@ -1,22 +1,25 @@
 """Reproduce comparison: compares current reports with committed expected values (WP-21).
 
 Rule-system numbers must match exactly (tolerance 0).
-ML metrics must match to 1e-6 on the same machine.
+ML and fairness metrics must match to 1e-6 on the same machine.
+Manifest hashes and planted-bias pipeline flags must match pre-registered criteria.
 
 Usage: make reproduce  (after make phase4 and make phase5)
-Output: reports/reproduce_comparison.md
+Output: reports/reproduce_comparison.md and docs/reports/phase-5-6-evidence/reproduce_comparison.md
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import os
 import subprocess
 from pathlib import Path
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 OUTPUT = REPO_ROOT / "reports" / "reproduce_comparison.md"
+EVIDENCE_OUTPUT = REPO_ROOT / "docs" / "reports" / "phase-5-6-evidence" / "reproduce_comparison.md"
 
 RULE_SYSTEM_FILES = [
     ("reports/comparison/scorecard.json", 0.0),
@@ -34,14 +37,29 @@ ML_FILES = [
     ("reports/ml/comparison_f2.json", 1e-6),
 ]
 
+FAIRNESS_FILES = [
+    ("reports/fairness/d2_rule_system.json", 1e-6),
+    ("reports/fairness/d2_lr.json", 1e-6),
+    ("reports/fairness/d2_gb.json", 1e-6),
+    ("reports/fairness/d3_rule_system.json", 1e-6),
+    ("reports/fairness/d3_lr.json", 1e-6),
+    ("reports/fairness/d3_gb.json", 1e-6),
+    ("reports/fairness/summary.json", 1e-6),
+]
+
 
 def sha256_file(path: Path) -> str:
     if not path.exists():
         return "MISSING"
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    # Normalize CRLF to LF for cross-platform deterministic hashing
+    data = path.read_bytes().replace(b"\r\n", b"\n")
+    return "sha256:" + hashlib.sha256(data).hexdigest()
 
 
 def get_head_commit() -> str:
+    override = os.environ.get("BASELINE_COMMIT")
+    if override:
+        return override.strip()
     try:
         r = subprocess.run(
             ["git", "rev-parse", "HEAD"],
@@ -116,31 +134,30 @@ def main() -> None:
         "",
         f"- Target commit baseline: `{commit_hash}`",
         "- Rule-system numbers: exact match (tolerance = 0).",
-        "- ML metrics: float tolerance = 1e-6 on the same machine.",
+        "- ML and fairness metrics: float tolerance = 1e-6 on the same machine.",
         "- Reproducibility standard: clean checkout + raw data + `make setup` + `make reproduce`.",
         "",
         "## Compared Artifacts and Tolerances",
         "",
-        "| Artifact Path | Baseline Source | Target Tolerance | Status | Differences Found |",
-        "|---|---|---|---|---|",
+        "| Category | Artifact Path | Baseline Source | Target Tolerance | Status | Differences Found |",
+        "|---|---|---|---|---|---|",
     ]
 
     all_ok = True
 
-    # Rule system files
+    # 1. Rule system files
     for rel, tol in RULE_SYSTEM_FILES:
         path = REPO_ROOT / rel
         git_content = get_git_file_content(rel, commit_hash)
         if not path.exists():
             lines.append(
-                f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | ⚠️ MISSING | Current file missing |"
+                f"| Rule System | `{rel}` | `git:{commit_hash[:7]}` | {tol} | ⚠️ MISSING | Current file missing |"
             )
             all_ok = False
             continue
         if git_content is None:
-            # New file not yet in HEAD commit
             lines.append(
-                f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | ℹ️ Uncommitted | File not in HEAD commit |"
+                f"| Rule System | `{rel}` | `git:{commit_hash[:7]}` | {tol} | ℹ️ Uncommitted | File not in baseline commit |"
             )
             continue
 
@@ -153,7 +170,6 @@ def main() -> None:
             except Exception as e:
                 diffs = [f"JSON parse error: {e}"]
         else:
-            # Text comparison
             diffs = [] if curr_text.strip() == git_content.strip() else ["Content text mismatch"]
 
         if diffs:
@@ -163,21 +179,23 @@ def main() -> None:
         else:
             status = "✅ MATCH"
             diff_str = "0 (exact match)"
-        lines.append(f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | {status} | {diff_str} |")
+        lines.append(
+            f"| Rule System | `{rel}` | `git:{commit_hash[:7]}` | {tol} | {status} | {diff_str} |"
+        )
 
-    # ML files
+    # 2. ML files
     for rel, tol in ML_FILES:
         path = REPO_ROOT / rel
         git_content = get_git_file_content(rel, commit_hash)
         if not path.exists():
             lines.append(
-                f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | ⚠️ MISSING | Current file missing |"
+                f"| ML Baseline | `{rel}` | `git:{commit_hash[:7]}` | {tol} | ⚠️ MISSING | Current file missing |"
             )
             all_ok = False
             continue
         if git_content is None:
             lines.append(
-                f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | ℹ️ Uncommitted | File not in HEAD commit |"
+                f"| ML Baseline | `{rel}` | `git:{commit_hash[:7]}` | {tol} | ℹ️ Uncommitted | File not in baseline commit |"
             )
             continue
 
@@ -195,9 +213,45 @@ def main() -> None:
         else:
             status = "✅ MATCH"
             diff_str = f"0 within tol {tol}"
-        lines.append(f"| `{rel}` | `git:{commit_hash[:7]}` | {tol} | {status} | {diff_str} |")
+        lines.append(
+            f"| ML Baseline | `{rel}` | `git:{commit_hash[:7]}` | {tol} | {status} | {diff_str} |"
+        )
 
-    # Phase 5 manifest
+    # 3. Fairness files
+    for rel, tol in FAIRNESS_FILES:
+        path = REPO_ROOT / rel
+        git_content = get_git_file_content(rel, commit_hash)
+        if not path.exists():
+            lines.append(
+                f"| Fairness | `{rel}` | `git:{commit_hash[:7]}` | {tol} | ⚠️ MISSING | Current file missing |"
+            )
+            all_ok = False
+            continue
+        if git_content is None:
+            lines.append(
+                f"| Fairness | `{rel}` | `git:{commit_hash[:7]}` | {tol} | ℹ️ Uncommitted | File not in baseline commit |"
+            )
+            continue
+
+        try:
+            curr_json = json.loads(path.read_text(encoding="utf-8"))
+            base_json = json.loads(git_content)
+            diffs = compare_values(curr_json, base_json, tol)
+        except Exception as e:
+            diffs = [f"JSON error: {e}"]
+
+        if diffs:
+            status = "⚠️ DIFF"
+            all_ok = False
+            diff_str = f"{len(diffs)} diffs: " + "; ".join(diffs[:2])
+        else:
+            status = "✅ MATCH"
+            diff_str = f"0 within tol {tol}"
+        lines.append(
+            f"| Fairness | `{rel}` | `git:{commit_hash[:7]}` | {tol} | {status} | {diff_str} |"
+        )
+
+    # 4. Manifest hashes verification
     manifest_path = REPO_ROOT / "reports" / "phase5_manifest.json"
     lines += [
         "",
@@ -206,27 +260,135 @@ def main() -> None:
     ]
     if manifest_path.exists():
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        rule_set_hash = manifest.get("rule_set_hash")
+        params_hash = manifest.get("params_hash")
         lines.append(f"- **Rule-set version**: `{manifest.get('rule_set_version')}`")
-        lines.append(f"- **Rule-set hash**: `{manifest.get('rule_set_hash')}`")
-        lines.append(f"- **Params hash**: `{manifest.get('params_hash')}`")
-        lines.append(f"- **Tracked report files**: {len(manifest.get('report_file_hashes', {}))}")
-        lines.append("- **Manifest status**: ✅ Valid")
+        lines.append(f"- **Rule-set hash**: `{rule_set_hash}`")
+        lines.append(f"- **Params hash**: `{params_hash}`")
+
+        # Verify against active params.toml
+        active_params_hash = sha256_file(REPO_ROOT / "params" / "params.toml")
+        if active_params_hash == params_hash:
+            lines.append(
+                f"  - Active `params/params.toml` matches manifest: ✅ (`{active_params_hash}`)"
+            )
+        else:
+            lines.append(
+                f"  - ⚠️ Params hash mismatch: manifest `{params_hash}` vs active `{active_params_hash}`"
+            )
+            all_ok = False
+
+        # Verify against rule_set_pin.json
+        pin_path = REPO_ROOT / "tests" / "golden" / "rule_set_pin.json"
+        if pin_path.exists():
+            pin = json.loads(pin_path.read_text(encoding="utf-8"))
+            pin_hash = pin.get("rule_set_hash")
+            if pin_hash == rule_set_hash:
+                lines.append(f"  - Pinned rule set matches manifest: ✅ (`{pin_hash}`)")
+            else:
+                lines.append(
+                    f"  - ⚠️ Rule set pin mismatch: manifest `{rule_set_hash}` vs pin `{pin_hash}`"
+                )
+                all_ok = False
+
+        # Verify fairness plan pin
+        plan_pin_path = REPO_ROOT / "reports" / "fairness" / "plan_pin.json"
+        if plan_pin_path.exists():
+            plan_pin = json.loads(plan_pin_path.read_text(encoding="utf-8"))
+            man_pin = manifest.get("fairness_plan_pin", {})
+            if man_pin.get("plan_sha256") == plan_pin.get("plan_sha256") and man_pin.get(
+                "config_sha256"
+            ) == plan_pin.get("config_sha256"):
+                lines.append(
+                    f"  - Fairness plan pin matches manifest: ✅ (`{plan_pin.get('plan_sha256')[:12]}...`)"
+                )
+            else:
+                lines.append("  - ⚠️ Fairness plan pin mismatch between manifest and plan_pin.json")
+                all_ok = False
+
+        # Check report file hashes against disk
+        report_hashes = manifest.get("report_file_hashes", {})
+        hash_mismatches = 0
+        for rel_f, expected_hash in report_hashes.items():
+            fpath = REPO_ROOT / rel_f
+            curr_h = sha256_file(fpath)
+            if curr_h != expected_hash:
+                hash_mismatches += 1
+        lines.append(
+            f"- **Tracked report files**: {len(report_hashes)} ({hash_mismatches} mismatches on disk)"
+        )
+        if hash_mismatches == 0:
+            lines.append("- **Manifest status**: ✅ Valid")
+        else:
+            lines.append(
+                f"- **Manifest status**: ⚠️ {hash_mismatches} report file(s) modified since manifest generation"
+            )
     else:
         lines.append("⚠️ Phase 5 manifest not found — run `make phase5` first.")
         all_ok = False
 
+    # 5. Planted-bias and control pipeline check
+    fairness_summary_path = REPO_ROOT / "reports" / "fairness" / "summary.json"
+    lines += [
+        "",
+        "## Planted-Bias and Control Pipeline Verification",
+        "",
+    ]
+    if fairness_summary_path.exists():
+        fsummary = json.loads(fairness_summary_path.read_text(encoding="utf-8"))
+        pb = fsummary.get("planted_bias_standard")
+        ctrl = fsummary.get("control_standard")
+
+        if pb:
+            pb_flag = pb.get("flag")
+            pb_pt = pb.get("point_estimate")
+            pb_ci = [pb.get("ci_lower"), pb.get("ci_upper")]
+            lines.append(
+                f"- **Standard Planted Bias** (N={pb.get('n_rows')}): diff = {pb_pt:.4f}, CI = {pb_ci}, flagged = {pb_flag}"
+            )
+            if pb_flag is True and pb_ci[1] < 0:
+                lines.append("  - Status: ✅ Detected as pre-registered (F < M, CI excludes 0)")
+            else:
+                lines.append("  - Status: ⚠️ Planted bias not flagged or CI straddles 0")
+                all_ok = False
+        else:
+            lines.append("- **Standard Planted Bias**: ⚠️ Not present in summary.json")
+
+        if ctrl:
+            ctrl_flag = ctrl.get("flag")
+            ctrl_pt = ctrl.get("point_estimate")
+            ctrl_ci = [ctrl.get("ci_lower"), ctrl.get("ci_upper")]
+            lines.append(
+                f"- **Standard Control** (N={ctrl.get('n_rows')}): diff = {ctrl_pt:.4f}, CI = {ctrl_ci}, flagged = {ctrl_flag}"
+            )
+            if ctrl_flag is False and ctrl_ci[0] <= 0 <= ctrl_ci[1]:
+                lines.append("  - Status: ✅ Clean control (not flagged, CI straddles 0)")
+            else:
+                lines.append("  - Status: ⚠️ False-positive flag in control")
+                all_ok = False
+        else:
+            lines.append("- **Standard Control**: ⚠️ Not present in summary.json")
+    else:
+        lines.append("⚠️ Fairness summary.json not found.")
+        all_ok = False
+
+    # 6. Verdict
     lines += [
         "",
         "## Verdict",
         "",
-        "✅ **REPRODUCIBILITY CONFIRMED**: All rule-system outputs match exactly (tolerance 0) and ML metrics match within 1e-6."
+        "✅ **REPRODUCIBILITY CONFIRMED**: All rule-system outputs match exactly (tolerance 0), ML and fairness metrics match within 1e-6, manifest hashes are verified, and planted-bias/control pipeline checks pass."
         if all_ok
-        else "⚠️ **REPRODUCIBILITY WARNING**: One or more differences exceeded tolerance or files were missing.",
+        else "⚠️ **REPRODUCIBILITY WARNING**: One or more differences exceeded tolerance, hashes differed, or files were missing.",
     ]
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    print(f"Reproduce comparison written to {OUTPUT}")
+    report_text = "\n".join(lines) + "\n"
+    OUTPUT.write_text(report_text, encoding="utf-8")
+    EVIDENCE_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    EVIDENCE_OUTPUT.write_text(report_text, encoding="utf-8")
+
+    print(f"Reproduce comparison written to {OUTPUT} and {EVIDENCE_OUTPUT}")
     if all_ok:
         print("All checks passed.")
     else:

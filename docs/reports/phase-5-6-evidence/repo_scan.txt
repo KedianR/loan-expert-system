@@ -1,0 +1,29 @@
+# Repository Tracking & Secrets Scan Evidence (DR-01, DR-02, DR-03)
+
+Total tracked files in git index: 238
+Sensitive patterns scanned: ['data/raw/', 'data/protected/', 'data/mapped/', 'data/splits/', 'data/decisions/', 'data/synthetic/d3_', 'models/', 'kaggle.json']
+
+Violations found: 0
+Result: CLEAN (zero sensitive or protected data paths tracked by git).
+
+## Sample of Checked Non-Sensitive Tracked Files:
+- .gitignore
+- AGENTS.md
+- Makefile
+- api/openapi.yaml
+- check_data.py
+- config/app.toml
+- config/d2_mapping.toml
+- config/experiment.toml
+- config/fairness.toml
+- config/generator.toml
+- config/ml.toml
+- config/notice_frame.toml
+- data/checksums/home_credit.sha256
+- data/d1/d1_cases.json
+- data/d1/oracle_diff.md
+- data/d1/oracle_expected.json
+- data/manifest.json
+- data/synthetic/d1_generator.py
+- data/synthetic/d3_generator.py
+- docs/00-reference.md

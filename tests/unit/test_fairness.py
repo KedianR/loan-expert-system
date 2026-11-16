@@ -584,3 +584,134 @@ def test_supplementary_power_check_100k():
         assert f_ctrl.get("ci_lower", 0) <= 0 <= f_ctrl.get("ci_upper", 0), (
             f"100k control CI must span 0: {f_ctrl}"
         )
+
+
+def test_nan_value_or_ci_never_carries_flag():
+    """A4.1: A nan value or nan CI must never carry a flag; status must be unstable or not_computed."""
+    from src.eval.fairness import _compute_group_metric
+
+    # Group with 0 rows or 0 events produces NaN
+    ref_df = pd.DataFrame({"decision": ["eligible"] * 50, "target": [0] * 50})
+    grp_df = pd.DataFrame({"decision": ["ineligible"] * 50, "target": [0] * 50})
+
+    # When min_events is set to 100, approvals (50) < min_events -> unstable
+    m = _compute_group_metric(
+        ref_df=ref_df,
+        grp_df=grp_df,
+        metric_name="default_rate_among_approved",
+        treat="A_refer_not_approved",
+        n_resamples=10,
+        bootstrap_seed=42,
+        ci_level=0.95,
+        min_events=20,
+    )
+    # grp_df has 0 approvals -> fewer than 20 -> unstable, flag is None
+    assert m["status"] in ("unstable", "not_computed"), f"Expected unstable, got {m}"
+    assert m["flag"] is not True, f"Must never carry a flag on unstable: {m}"
+
+
+def test_P5_5_unstable_applied_to_all_metrics():
+    """A4.2: P5-5 (< 20 approvals in group or reference) must be applied to every metric."""
+    from src.eval.fairness import _compute_group_metric
+
+    # 10 approvals in group (< min_events=20)
+    ref_df = pd.DataFrame({"decision": ["eligible"] * 100, "target": [0] * 90 + [1] * 10})
+    grp_df = pd.DataFrame(
+        {"decision": ["eligible"] * 10 + ["ineligible"] * 90, "target": [0] * 95 + [1] * 5}
+    )
+
+    metrics = [
+        "selection_rate_difference",
+        "selection_rate_ratio",
+        "equal_opportunity_difference",
+        "false_approval_rate_difference",
+        "default_rate_among_approved",
+    ]
+
+    for metric in metrics:
+        m = _compute_group_metric(
+            ref_df=ref_df,
+            grp_df=grp_df,
+            metric_name=metric,
+            treat="A_refer_not_approved",
+            n_resamples=10,
+            bootstrap_seed=42,
+            ci_level=0.95,
+            min_events=20,
+        )
+        assert m["status"] == "unstable", (
+            f"Metric {metric} must be unstable when approvals < 20, got {m}"
+        )
+        assert m["flag"] is not True, f"Metric {metric} must not flag when unstable"
+
+
+def test_per_group_ml_selection_consistent_with_overall_agreement():
+    """A3, FR-23: Check per-group ML selection is consistent with overall agreement figure.
+
+    Verifies:
+      - D3: GB model agrees with rule decisions on >= 98% of test rows (44 disagreements / 3000).
+      - D3: For 'other' employment type, GB selection rate is 0.0 (0/139), matching rule system.
+      - D2: LR and GB overall agreement with rule eligibility is >= 95%.
+    """
+    import joblib
+
+    from src.ml.features import load_ml_config, prepare_dataframe
+
+    # 1. D3 consistency
+    d3_pop = pd.read_csv(REPO_ROOT / "data" / "synthetic" / "d3_population.csv")
+    d3_split = pd.read_csv(REPO_ROOT / "data" / "splits" / "d3_split.csv")
+    d3_dec = pd.read_csv(REPO_ROOT / "data" / "decisions" / "d3_decisions.csv")
+    test_ids_d3 = set(d3_split[d3_split["split"] == "test"]["applicant_id"])
+
+    pop_test_d3 = d3_pop[d3_pop["applicant_id"].isin(test_ids_d3)].copy()
+    dec_test_d3 = d3_dec[d3_dec["applicant_id"].isin(test_ids_d3)].copy()
+
+    gb_data_d3 = joblib.load(REPO_ROOT / "models" / "d3_gb.joblib")
+    pipe_gb = gb_data_d3["pipeline"] if isinstance(gb_data_d3, dict) else gb_data_d3
+    ml_cfg = load_ml_config(REPO_ROOT / "config" / "ml.toml")
+
+    feat_d3 = prepare_dataframe(pop_test_d3.copy(), ml_cfg)
+    exclude = {
+        "applicant_id",
+        "TARGET",
+        "sim_default",
+        "split",
+        "income_band",
+        "employment_type_x",
+        "employment_type_y",
+    }
+    cols_d3 = [c for c in feat_d3.columns if c not in exclude]
+
+    proba_d3 = pipe_gb.predict_proba(feat_d3[cols_d3])[:, 1]
+    # In D3, target is eligible (1), so prob >= 0.5 is eligible
+    gb_elig_d3 = proba_d3 >= 0.5
+    rule_elig_d3 = (dec_test_d3["decision"] == "eligible").values
+
+    overall_agree = (gb_elig_d3 == rule_elig_d3).mean()
+    assert overall_agree >= 0.98, f"D3 GB agreement must be >= 98%, got {overall_agree:.4f}"
+
+    # For 'other' employment type: rule system approves 0; GB must also approve 0
+    merged_d3 = pop_test_d3.copy()
+    merged_d3["gb_elig"] = gb_elig_d3
+    other_approvals = merged_d3[merged_d3["employment_type"] == "other"]["gb_elig"].sum()
+    assert other_approvals == 0, f"D3 GB approved {other_approvals} 'other' applicants; expected 0"
+
+    # 2. D2 consistency
+    d2_map = pd.read_csv(REPO_ROOT / "data" / "mapped" / "d2_mapped.csv")
+    d2_split = pd.read_csv(REPO_ROOT / "data" / "splits" / "d2_split.csv")
+    d2_dec = pd.read_csv(REPO_ROOT / "data" / "decisions" / "d2_decisions.csv")
+    test_ids_d2 = set(d2_split[d2_split["split"] == "test"]["applicant_id"])
+
+    pop_test_d2 = d2_map[d2_map["applicant_id"].isin(test_ids_d2)].copy()
+    dec_test_d2 = d2_dec[d2_dec["applicant_id"].isin(test_ids_d2)].copy()
+    feat_d2 = prepare_dataframe(pop_test_d2.copy(), ml_cfg)
+    cols_d2 = [c for c in feat_d2.columns if c not in exclude]
+
+    gb_data_d2 = joblib.load(REPO_ROOT / "models" / "d2_gb.joblib")
+    pipe_d2 = gb_data_d2["pipeline"]
+    proba_d2 = pipe_d2.predict_proba(feat_d2[cols_d2])[:, 1]
+    # D2: target is default (1), so prob < 0.0680 is eligible
+    gb_elig_d2 = proba_d2 < 0.0680
+    rule_elig_d2 = (dec_test_d2["decision"] == "eligible").values
+    agree_d2 = (gb_elig_d2 == rule_elig_d2).mean()
+    assert agree_d2 >= 0.95, f"D2 GB agreement must be >= 95%, got {agree_d2:.4f}"

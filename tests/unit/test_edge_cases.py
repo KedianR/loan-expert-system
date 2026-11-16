@@ -121,3 +121,21 @@ def test_FR24_expected_csv_committed_before_results() -> None:
         exp_mtime = (REPO_ROOT / "reports" / "edge_cases" / "expected.csv").stat().st_mtime
         res_mtime = (REPO_ROOT / "reports" / "edge_cases" / "results.csv").stat().st_mtime
         assert exp_mtime <= res_mtime, "expected.csv timestamp is after results.csv"
+
+
+def test_FR24_no_ml_row_for_valid_input_has_error_status() -> None:
+    """FR-24, WP-18: No ML row for a valid-input case has status 'error'."""
+    results_path = REPO_ROOT / "reports" / "edge_cases" / "results.csv"
+    assert results_path.exists(), f"Missing {results_path}"
+
+    with open(results_path, encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            cid = row["case_id"]
+            rule_dec = row["rule_decision"]
+            # A valid-input case passes schema validation (rule_decision != 'validation_error')
+            if rule_dec != "validation_error":
+                lr_dec = row.get("lr_decision", "")
+                gb_dec = row.get("gb_decision", "")
+                assert lr_dec != "error", f"Case {cid} has LR error status"
+                assert gb_dec != "error", f"Case {cid} has GB error status"

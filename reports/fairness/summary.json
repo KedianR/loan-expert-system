@@ -147,5 +147,19 @@
   "gender_from_features_auc": {
     "auc": 0.6745,
     "note": "AUC of a logistic regression on D2 model features predicting gender (CODE_GENDER). Report only; never used as a threshold or finding."
+  },
+  "planted_bias_standard": {
+    "n_rows": 20000,
+    "point_estimate": -0.015145,
+    "ci_lower": -0.028638,
+    "ci_upper": -0.001298,
+    "flag": true
+  },
+  "control_standard": {
+    "n_rows": 20000,
+    "point_estimate": 0.003141,
+    "ci_lower": -0.009987,
+    "ci_upper": 0.016753,
+    "flag": false
   }
 }

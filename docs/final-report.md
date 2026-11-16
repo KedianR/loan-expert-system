@@ -2,7 +2,7 @@
 
 **Project:** Unsecured Personal Loan Eligibility Expert System in INR  
 **Author:** Antigravity / Engineering Team  
-**Date:** 13 November 2026  
+**Date:** 14 November 2026  
 **Version:** 1.0.0 (`rules-1.0.0+params-0.1.0`)  
 **Repository Pin:** `tests/golden/rule_set_pin.json` (`sha256:eb7073a388817e0a455997c0c2ea86ccb25524cdff07faf8bf5ca98bb267be5a`)
 
@@ -14,7 +14,7 @@ Automated credit decisioning systems in retail finance face a fundamental tensio
 
 Contemporary machine learning (ML) models, while effective at ranking default probabilities, act as black-box scoring mechanisms. Post-hoc explanation techniques (such as SHAP or LIME) are statistical approximations that lack exact faithfulness to individual model decisions, may vary across implementations, and do not provide deterministic logical deduction.
 
-This project designs, implements, and rigorously evaluates a **first-order logic, rule-based expert system** for unsecured personal loan eligibility in Indian Rupees (INR). Production rules decide `ELIGIBLE`, `INELIGIBLE`, or `REFER`, compute maximum loan capacity and risk-based pricing, and emit a complete, cryptographically verified explanation trace of every rule that fired. A machine learning baseline (Logistic Regression and HistGradientBoosting) is constructed solely as a comparative benchmark to contrast accuracy, explainability, operational cost, and fairness properties.
+This project designs, implements, and rigorously evaluates a **rule-based expert system utilizing predicate-based production rules in TOML, evaluated by a pure-Python AST evaluator** for unsecured personal loan eligibility in Indian Rupees (INR). Production rules decide `ELIGIBLE`, `INELIGIBLE`, or `REFER`, compute maximum loan capacity and risk-based pricing, and emit a complete, **hash-pinned and replay-checked trace** of every rule that fired. A machine learning baseline (Logistic Regression and HistGradientBoosting) is constructed solely as a comparative benchmark to contrast accuracy, explainability, operational cost, and fairness properties.
 
 ---
 
@@ -85,22 +85,22 @@ The edge-case suite (`reports/edge_cases/summary.md`) evaluated 64 stress cases 
 
 ## 6. Comparison: Rule System vs. ML Baselines (FR-22)
 
-Following `docs/comparison-methodology.md`, the expert system and ML baselines (Logistic Regression and HistGradientBoosting) were evaluated across the four pre-registered criteria on a scale of 0 to 3 using exact document anchors, documented in `reports/comparison/scorecard.json` and `reports/comparison/scorecard.md`:
+Following `docs/comparison-methodology.md`, the expert system and ML baselines (Logistic Regression and Gradient Boosting) were evaluated across the four pre-registered criteria on a scale of 0 to 3 using exact document anchors, documented in `reports/comparison/scorecard.json` and `reports/comparison/scorecard.md`:
 
 | Criterion | System | Score | Anchor Met | Artifact Citations | Rationale |
 |---|---|:---:|---|---|---|
-| **Transparency** | Rule System | **3** | Full logical trace per decision; rules directly readable by a domain expert; condition language has formal semantics | `rules/*.toml`, `src/explain/trace.py`, `schemas/trace.schema.json` | Every decision produces an exhaustive step-by-step trace of evaluated and fired rules with plain-text TOML conditions directly readable by underwriters. |
-| | Logistic Regression | **1** | Global feature importances or linear weights visible, but individual decisions require post-hoc local approximations | `reports/ml/metrics_d2_lr.json`, `reports/ml/metrics_d3_lr.json` | Global linear coefficients and local linear feature contributions are directly computable, but feature interactions and non-linear thresholds are not represented. |
-| | Gradient Boosting | **0** | Black-box model: ensemble or non-linear, explanations are post-hoc approximations (SHAP, LIME) with known unfaithfulness risks | `reports/ml/metrics_d2_gb.json`, `reports/ml/metrics_d3_gb.json` | Tree ensemble with 100 iterations is a non-linear black box requiring post-hoc approximations that lack guaranteed local faithfulness. |
-| **Auditability** | Rule System | **3** | Bitwise-reproducible audit log with cryptographic hash pin; rule set versioned as data; every decision links to rule version | `src/audit/store.py`, `tests/golden/rule_set_pin.json`, `reports/phase5_manifest.json` | Every decision logs a canonical input hash and rule-set version hash to an append-only SQLite store with immutability triggers, verifying byte-identical replay. |
-| | Logistic Regression | **1** | Model artifact versioned, training data hash recorded, but individual scoring decisions not logged to append-only store | `models/d2_lr.joblib`, `models/d3_lr.joblib`, `reports/ml/comparison_main.json` | Model serialized with joblib and training commit hashes recorded, but individual predictions do not produce tamper-evident audit records. |
-| | Gradient Boosting | **1** | Model artifact versioned, training data hash recorded, but individual scoring decisions not logged to append-only store | `models/d2_gb.joblib`, `models/d3_gb.joblib`, `reports/ml/comparison_main.json` | Model artifact and training data hashes recorded, but inference calls lack append-only cryptographic audit logging. |
-| **Edge cases** | Rule System | **3** | Systematic catalog with formal test harness; handles missing/contradictory/adversarial inputs gracefully by design; zero unexplained failures | `docs/edge-case-catalog.md`, `reports/edge_cases/results.csv`, `reports/edge_cases/summary.md` | Evaluated on 64 edge cases across 5 categories with 61 exact catalog matches and 3 mathematically explained capacity exhaustion differences (OQ-012). |
-| | Logistic Regression | **0** | No systematic edge-case testing; silent failures, extreme predictions, or NaN propagation on out-of-distribution inputs | `reports/edge_cases/results.csv`, `src/ml/features.py` | Does not reject missing mandatory fields but silently imputes with medians, producing continuous non-compensatory credit violations. |
-| | Gradient Boosting | **0** | No systematic edge-case testing; silent failures, extreme predictions, or NaN propagation on out-of-distribution inputs | `reports/edge_cases/results.csv`, `src/ml/features.py` | Lacks non-compensatory policy thresholds, allowing high income to compensate for disqualifying credit history and boundary gaming. |
-| **Regulatory defensibility** | Rule System | **3** | Direct adherence to relevant regulations (e.g. adverse-action notice requirements, non-discrimination, auditability); mapping document complete | `docs/regulatory-mapping.md`, `rules/reason_codes.toml`, `src/explain/notice.py` | Fully satisfies CR-01 to CR-06: adverse-action reasons derived strictly from fired rules, KFS offer disclosures, consent tracking, human oversight, and bias review. |
-| | Logistic Regression | **1** | Indirect adherence possible with post-hoc tooling, but creates legal/compliance risk | `docs/regulatory-mapping.md`, `docs/model-card.md` | Post-hoc attributions cannot guarantee that adverse-action reason codes reflect actual decisive factors, presenting ECOA compliance risks. |
-| | Gradient Boosting | **1** | Indirect adherence possible with post-hoc tooling, but creates legal/compliance risk | `docs/regulatory-mapping.md`, `docs/model-card.md` | Complex non-linear interactions prevent legally defensible adverse-action disclosures under RBI and US ECOA frameworks without external approximation tools. |
+| **Transparency** | Rule System | **3** | Every decision lists the rules that fired and the facts they used, and the applicant-facing reasons are exactly the reason codes of those rules (tested on all of D1). | `tests/integration/test_phase3_api_and_audit.py`, `src/explain/notice.py` | Every decision generates an exact trace containing only fired rules, with adverse notices rendered verbatim from reason code definitions in rules/reason_codes.toml. |
+| | Logistic Regression | **2** | Each decision has an exact, per-decision explanation from the model's own arithmetic (the logistic regression's feature contributions), but the explanation is a score contribution, not a policy reason the applicant can act on. | `src/ml/baseline.py`, `reports/ml/metrics_d3_lr.json` | Linear feature contributions provide exact additive logit shifts per applicant, but output numerical score weights rather than actionable policy clauses. |
+| | Gradient Boosting | **1** | Only a global explanation exists (permutation importance), not one per decision. | `reports/ml/metrics_d3_gb.json` | Provides global tree feature importances only; non-linear ensemble interactions lack exact closed-form per-decision explanations without complex local approximations. |
+| **Auditability** | Rule System | **3** | A stored record per decision, a version for the logic used, and a replay that reproduces the decision and trace, with a mismatch reported when a parameter changes. | `tests/integration/test_phase3_api_and_audit.py`, `tests/golden/rule_set_pin.json`, `data/manifest.json` | Every decision is committed to an append-only SQLite audit log with input SHA-256 and ruleset hash, verifiable via byte-identical replay. |
+| | Logistic Regression | **2** | Versioned artifact and seed, and the numbers reproduce, but no per-decision record or replay. | `models/d3_lr.joblib`, `reports/ml/metrics_d3_lr.json` | Model training reproduces deterministically from derived seed with recorded dataset and split hashes, but lacks an append-only decision audit store and replay capability. |
+| | Gradient Boosting | **2** | Versioned artifact and seed, and the numbers reproduce, but no per-decision record or replay. | `models/d3_gb.joblib`, `reports/ml/metrics_d3_gb.json` | Reproducible training pipeline from fixed seed and versioned split hashes, without individual decision tracing or replay store. |
+| **Edge cases** | Rule System | **3** | No unexplained difference in any category; every missing-data and boundary case ends in a stated outcome. | `reports/edge_cases/summary.md`, `reports/edge_cases/results.csv` | Evaluated on 64 edge cases across 5 categories with 61 exact catalog matches, 3 explained FOIR-capacity interactions (OQ-012), and zero unexplained differences. |
+| | Logistic Regression | **1** | An unexplained difference in the missing-data or boundary categories. | `reports/edge_cases/summary.md`, `reports/edge_cases/results.csv` | Evaluated on 64 edge cases. Pipeline flags missing fields with indicators, but approves applicants with null mandatory income (EC-MD-01) and evaluates boundary thresholds continuously without discrete policy bounds. |
+| | Gradient Boosting | **1** | An unexplained difference in the missing-data or boundary categories. | `reports/edge_cases/summary.md`, `reports/edge_cases/results.csv` | Evaluated on 64 edge cases. Tree pipeline handles missing data via imputation and indicator flags without error, but approves applicants with missing mandatory income (EC-MD-01) and lacks schema-level refusal. |
+| **Regulatory defensibility** | Rule System | **3** | All six rows met with evidence. | `docs/regulatory-mapping.md` | Fully satisfies requirements CR-01 to CR-06 with verifiable tests for specific reason notices, KFS summaries, consent enforcement, and human referral. |
+| | Logistic Regression | **1** | Two or three rows partly met or gaps. | `docs/regulatory-mapping.md` | Meets CR-05 (model card) and CR-06 (bias testing), but leaves gaps on CR-01 (actionable specific adverse reasons), CR-02 (KFS offer terms), and CR-04 (human referral). |
+| | Gradient Boosting | **1** | Two or three rows partly met or gaps. | `docs/regulatory-mapping.md` | Meets CR-05 and CR-06, but cannot provide per-decision adverse reasons (CR-01), loan terms (CR-02), or human review routing (CR-04). |
 
 *Note on Scoring Methodology*: In strict accordance with `docs/comparison-methodology.md`, criteria are scored on a discrete 0 to 3 scale using documented qualitative anchors. Criteria are not averaged and no weights are applied.
 
@@ -108,14 +108,14 @@ Following `docs/comparison-methodology.md`, the expert system and ML baselines (
 
 > **Context note**: D2 rests on 776 approvals with overlapping intervals and D3 agreement is partly circular.
 
-| Metric / Attribute | Rule System (Treatment A) | Logistic Regression | HistGradientBoosting |
-|---|---|---|---|
-| **D2 Test Approval Rate** | 1.68% (776 / 46,127) | 1.56% (matched $\tau=0.1479$) | 1.71% (matched $\tau=0.0680$) |
-| **D2 Default Rate among Approved** | 3.35% (95% CI: 2.11%–4.68%) | 1.39% (95% CI: 0.58%–2.34%) | 1.27% (95% CI: 0.52%–2.17%) |
-| **D2 ROC AUC** | N/A (deterministic decision) | 0.7248 | 0.7378 |
-| **D2 Expected Cost per Applicant ($C_{FN}/C_{FP}=5$)** | 0.9058 | 0.9050 | 0.9035 |
-| **D3 Agreement with Policy ($\tau=0.50$)** | 100.0% (reference) | 80.97% | 98.53% |
-| **D3 Test ROC AUC** | N/A | 0.8852 | 0.9902 |
+| Metric / Attribute | Rule System (Treatment A) | Rule System (Treatment B) | Logistic Regression | HistGradientBoosting |
+|---|---|---|---|---|
+| **D2 Test Approval Rate** | 1.68% (776 / 46,127) | 1.84% (776 / 42,072) | 1.56% (matched $\tau=0.1479$) | 1.71% (matched $\tau=0.0680$) |
+| **D2 Default Rate among Approved** | 3.35% (95% CI: 2.14%–4.70%) | 3.35% (95% CI: 2.12%–4.67%) | 1.39% (95% CI: 0.56%–2.42%) | 1.27% (95% CI: 0.58%–2.12%) |
+| **D2 ROC AUC** | N/A (discrete rules) | N/A (discrete rules) | 0.7248 | 0.7378 |
+| **D2 Expected Cost per Applicant ($C_{FN}/C_{FP}=5$)** | 0.9058 | 0.8993 | 0.9050 | 0.9035 |
+| **D3 Agreement with Policy ($\tau=0.50$)** | 100.0% (reference) | 100.0% (reference) | 80.97% | 98.53% |
+| **D3 Test ROC AUC** | N/A | N/A | 0.8852 | 0.9902 |
 
 ---
 
@@ -124,15 +124,21 @@ Following `docs/comparison-methodology.md`, the expert system and ML baselines (
 The fairness review was executed strictly under the pinned audit protocol (`docs/fairness-audit-plan.md`, `reports/fairness/plan_pin.json`, `config/fairness.toml`).
 
 ### 7.1 Pipeline Validation Test (Pre-registered and Supplementary)
-- **Standard-Size Planted Bias Test (Pre-registered, P5-11)**: Evaluated on the standard synthetic D3 population with 15% income penalty planted on female applicants ($N = 20,000$, all rows, rules only). The pipeline successfully flagged gender on selection-rate difference: point estimate **$-0.0151$**, 95% bootstrap CI **$[-0.0286, -0.0013]$** (strictly excludes 0, $F < M$; **Flag = True**).
+Evaluation under the pre-registered pipeline (`selection_rate_difference`, reference group M, evaluated group F, family-wise $\alpha = 0.05$ with Percentile bootstrap CIs (P5-4)):
+- **Standard-Size Planted Bias Test (Pre-registered, P5-11)**: Evaluated on the standard synthetic D3 population with 15% income penalty planted on female applicants ($N = 20,000$, all rows, rules only). The pipeline detected the shift at standard size (marginally: upper bound -0.0013, close to zero; point estimate **$-0.0151$**, 95% bootstrap CI **$[-0.0286, -0.0013]$**, strictly excludes 0, $F < M$; **Flag = True**).
 - **Standard-Size Control Test (Pre-registered, P5-11)**: On the unperturbed standard synthetic D3 population ($N = 20,000$, all rows), gender selection-rate difference was **$+0.0031$**, 95% bootstrap CI **$[-0.0100, +0.0168]$** (straddles 0; **Flag = False**).
-- **Supplementary 100,000-Row Power Check (Amendment A-02)**: Evaluated on $N = 100,000$ to confirm asymptotic confidence interval narrowing. Planted run: difference $-0.0186$, 95% CI $[-0.0247, -0.0127]$ (flagged). Control run: difference $+0.0012$, 95% CI $[-0.0049, +0.0071]$ (not flagged).
+- **Supplementary 100,000-Row Power Check (Amendment A-02)**: Evaluated on $N = 100,000$ to confirm asymptotic confidence interval narrowing. Planted run: clearly detected at 100,000 (difference **$-0.0186$**, 95% CI **$[-0.0247, -0.0127]$**; **Flag = True**). Control run: difference **$+0.0012$**, 95% CI **$[-0.0049, +0.0071]$**; **Flag = False**).
+- **Mechanism of Effect**: A 15% income reduction for female applicants shifts the selection rate by roughly 1.5 to 1.9 percentage points (point estimates -0.0151 and -0.0186). This occurs because income operates through affordability rules (FOIR, disposable income, income floors) that affect only marginal applicants near threshold boundaries, rather than the entire population.
 - **12-Row Hand Check**: Exact numerical point estimates matched manual mathematical derivations across Treatment A and Treatment B selection rates and EOD (`tests/unit/test_fairness.py`).
 
 ### 7.2 Findings on D2 Benchmark ($N = 46,127$)
 Cited from `reports/fairness/d2_tables.md` and `reports/fairness/d2_rule_system.json`:
-- **Low Baseline Approval Rate**: Because of conservative policy thresholds (income floor K05 and fallback obligations ASM-D4), the rule system approves only 1.68% of D2 test applicants (776 total).
-- **Equal Opportunity Difference (EOD)**: Male approval rate among repayers ($TARGET = 0$) was 2.22% vs. 1.54% for females (difference $+0.0067$, 95% CI $[+0.0036, +0.0101]$). This statistically significant gap arises because female applicants in the Home Credit sample have systematically lower recorded formal monthly income, failing the absolute ₹25,000 income floor (K05) at higher rates.
+- **Low Baseline Approval Rate**: Because of conservative policy thresholds (income floor K05, minimum employment E01, and fallback obligations ASM-D4), the rule system approves only 1.68% of D2 test applicants (776 total).
+- **Equal Opportunity Difference (EOD)** across Primary Attributes:
+  - *Gender*: Male approval rate among repayers ($TARGET = 0$) was 2.22% vs. 1.54% for females (difference $+0.0067$, 95% CI $[+0.0036, +0.0101]$, flagged). This statistically significant gap arises because female applicants in the Home Credit sample have systematically lower recorded formal monthly income, failing the minimum monthly income floor of ₹15,000 (E01/K05) at higher rates.
+  - *Age Band* (ref: 30-39): Cohort 21-29 has lower approval among repayers (difference $-0.0102$, 95% CI $[-0.0144, -0.0060]$, flagged) and cohort 60+ has lower approval (difference $-0.0141$, 95% CI $[-0.0180, -0.0102]$, flagged), while cohort 40-49 has higher approval (difference $+0.0095$, 95% CI $[+0.0045, +0.0146]$, flagged). Cohort 50-59 straddles zero (difference $-0.0012$, 95% CI $[-0.0058, +0.0033]$, not flagged).
+  - *Employment Type* (ref: salaried): Self-employed applicants show a slight positive difference among repayers (difference $+0.0042$, 95% CI $[+0.0004, +0.0080]$, flagged). Applicants with employment type `other` are **never approved under the rules** (0 approvals, failing E01 which requires salaried $\ge 6$ months or self-employed $\ge 24$ months); having fewer than 20 approvals, this slice is marked `unstable` per P5-5 with no flag.
+  - *Income Band* (ref: Q1): Reference quartile Q1 has 0 approvals (failing the ₹15,000 income floor); with $<20$ approvals in the reference group, all comparisons are marked `unstable` per P5-5 with no flag.
 - **Small Cell and Instability Limits**: Intersectional slices and rare groups (e.g., academic degrees, older cohorts) contain fewer than 20 approvals, correctly reported as `unstable` or `too_small` per protocol P5-5.
 
 ### 7.3 Counterfactual Swap and Proxy Analysis
@@ -150,18 +156,22 @@ The following limits govern this coursework release and must be stated without o
    - Only 776 applicants are approved by the rules on D2 test data. All subgroup findings rest on very small approval cell sizes with overlapping confidence intervals.
    - D2 suffers from historical lender selection bias (outcomes observed only for historically approved applicants).
 3. **Circularity in D3**: D3 synthetic labels represent the rule engine's own decisions; ML performance on D3 measures imitation fidelity, not real credit risk.
-4. **Regulatory Confirm Items**: Items marked "confirm" in `docs/regulatory-mapping.md` (RBI Digital Lending Directions implementation nuances, CFPB Regulation B updates, EU AI Act enforcement dates) rest on legal summaries and require primary gazette re-verification.
+4. **Regulatory Confirm Items**: Items marked "confirm" in `docs/regulatory-mapping.md` (RBI Digital Lending Directions implementation nuances, CFPB Regulation B updates (confirm), EU AI Act enforcement dates) rest on legal summaries and require primary gazette re-verification.
 5. **Batch Throughput (NFR-06)**:
    - 1,000 D3 rows through the full service path with audit logging ran at 10.9 rows per second, which would take approximately 15 minutes for 10,000 rows.
    - `make decide-d3` (engine-direct path) evaluated 20,000 rows in 19.89 seconds (1,005.6 rows per second).
    - *Scope limit*: The NFR-06 requirement of evaluating a batch of 10,000 decisions under 5 minutes holds for the **engine-direct path only**. Batch processing through the full API and audit persistence layer requires database connection pooling or batched inserts for production scale.
 6. **Lean-Mode Scope Cuts**: In accordance with `docs/06-test-plan.md` ("Lean mode"), the following tests were not conducted: Fairlearn library cross-check, formal SHAP faithfulness tests, comprehensive rule coverage percentages, sensitivity sweeps, and loader edge-case stress tests.
-7. **Known Polish Items**: The following known polish items are documented:
+7. **Operational Review Process Scope**: Demonstration UI surfaces scoring and decision outputs independently without persistent database mutation; production-scale deployment requires managed review queue infrastructure and human override tracking.
+8. **Unanalysed Protected Attributes**: Demographic attributes such as religion, caste, sexual orientation, and disability were not captured in public benchmark D2 or synthetic dataset D3, and were therefore not evaluated in algorithmic fairness audits.
+9. **ML Edge Cases Handling**: Continuous ML models lack schema rejection gates; missing mandatory income is median-imputed with an indicator flag rather than rejected, resulting in approvals on incomplete inputs (e.g. EC-MD-01).
+10. **Few-Default Screening Metrics on D2**: On D2 test data, only 26 defaults exist among the 776 approved applicants (96.65% non-default rate), producing wide bootstrap confidence intervals on default metrics.
+11. **Known Polish Items**: The following known polish items are documented:
    - *Reviewer page facts*: Facts are displayed as Python dictionary representation in the reviewer queue view.
    - *Review report ML block*: Placeholder string in `src/api/review_report.py` retained to preserve Phase 3 test pass.
    - *R01 credit score null handling*: R01 referral handles None values correctly, but condition structure can be streamlined.
    - *Notice formatting*: Rounding on fee percentages and zero-max offer displays.
-8. **Dependency Warning Note**:
+12. **Dependency Warning Note**:
    - `starlette.testclient` issues a deprecation warning regarding `httpx` (`'app' shortcut is deprecated...`). The pinned dependency list was not modified during this phase; this warning is noted as an upstream deprecation that does not impact test correctness.
 
 ---
@@ -181,9 +191,10 @@ All gate commands have passed cleanly:
 - `make check`: PASS (float ban, ruff lint, ruff format, param checks, rule checks)
 - `make check-rules`: PASS (rule syntax, schemas, and rule hygiene analysis)
 - `make oracle-diff`: PASS (0 differences on D1 reference suite)
-- `make test`: PASS (208 total unit, property, golden, and integration tests across all test suites)
+- `make test`: PASS (198 total unit, property, golden, and integration tests across all test suites)
 - `make phase5`: PASS (edge-case catalog, comparison scorecard, fairness audit, and manifest)
 - `make reproduce`: PASS (Phase 4 and Phase 5 reproducibility verified against git HEAD)
-- `make traceability`: PASS (45 of 45 requirement IDs mapped to tests; 100% coverage)
-- `make check-docs`: PASS (0 missing rule IDs, 0 missing reason codes, secrets scan clean)
+- `make traceability`: PASS (47 of 47 requirement IDs mapped to tests; 100% coverage)
+- `make check-docs`: PASS (0 missing rule IDs, 0 missing reason codes, secrets scan clean, scorecard consistency verified)
+
 

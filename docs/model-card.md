@@ -161,7 +161,7 @@ Implemented in Phase 5 per `docs/fairness-audit-plan.md` and `config/fairness.to
 - **Illustrative policy**: Policy thresholds and rules are illustrative academic constructs (D-02); they do not reflect commercial credit underwriting standards.
 - **Fallback obligations**: 65.0% of D2 applicants (199,824 of 307,511) lack bureau active records or annuities and rely on the Beta fallback distribution (ASM-D4).
 - **Referrals from unknown facts**: In D2 test split, 4,055 applicants receive a `refer` decision under policy rules primarily due to missing bureau data (`severe_delinquency_36m` unknown in 70.0% of rows; `written_off` unknown in 14.3%).
-- **Policy range constraints**: 190,865 D2 rows fall below the policy monthly income floor (K05, ₹25,000); 34,671 fail requested tenure bounds (V04).
+- **Policy range constraints**: Many D2 rows fall below the policy monthly income floor (K05, ₹15,000 for salaried / ₹20,000 for self-employed); 34,671 fail requested tenure bounds (V04).
 - **Selection bias**: Repayment data in D2 exists only for previously approved applicants; true default rates on rejected populations are unobserved.
 - **Circularity in D3**: D3 labels are generated to evaluate rule imitation; performance on D3 is an audit of fidelity, not credit risk forecasting.
 - **Lean mode cuts**: Per `docs/06-test-plan.md` Lean mode: Fairlearn cross-check, SHAP faithfulness, coverage analysis, and sensitivity checks are excluded.

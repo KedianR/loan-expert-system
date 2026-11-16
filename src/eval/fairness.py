@@ -307,28 +307,63 @@ def _compute_group_metric(
     """Compute one metric for one (group, reference) pair."""
     has_target = "target" in ref_df.columns
 
+    # Count approvals for P5-5 stability check
+    if treat == "A_refer_not_approved":
+        grp_approvals = int((grp_df["decision"] == "eligible").sum())
+        ref_approvals = int((ref_df["decision"] == "eligible").sum())
+    else:
+        grp_approvals = int((grp_df[grp_df["decision"] != "refer"]["decision"] == "eligible").sum())
+        ref_approvals = int((ref_df[ref_df["decision"] != "refer"]["decision"] == "eligible").sum())
+
     if metric_name == "selection_rate_difference":
         grp_rate = _selection_rate(grp_df["decision"], treat)
         ref_rate = _selection_rate(ref_df["decision"], treat)
         diff = grp_rate - ref_rate
 
-        # Stability: check number of approvals
-        if treat == "A_refer_not_approved":
-            grp_events = (grp_df["decision"] == "eligible").sum()
-            ref_events = (ref_df["decision"] == "eligible").sum()
-        else:
-            grp_events = (grp_df[grp_df["decision"] != "refer"]["decision"] == "eligible").sum()
-            ref_events = (ref_df[ref_df["decision"] != "refer"]["decision"] == "eligible").sum()
-
-        if grp_events < min_events or ref_events < min_events:
+        # Stability: check number of approvals (P5-5)
+        if grp_approvals < min_events or ref_approvals < min_events:
             return {
                 "status": "unstable",
-                "group_rate": float(grp_rate),
-                "reference_rate": float(ref_rate),
-                "difference": float(diff),
+                "group_rate": float(grp_rate) if not np.isnan(grp_rate) else None,
+                "reference_rate": float(ref_rate) if not np.isnan(ref_rate) else None,
+                "difference": float(diff) if not np.isnan(diff) else None,
+                "ci_lower": None,
+                "ci_upper": None,
+                "ci_level": None,
                 "flag": None,
-                "note": f"Fewer than {min_events} approvals (group={grp_events}, ref={ref_events})",
+                "note": f"Fewer than {min_events} approvals (group={grp_approvals}, ref={ref_approvals})",
             }
+
+    elif metric_name == "selection_rate_ratio":
+        grp_rate = _selection_rate(grp_df["decision"], treat)
+        ref_rate = _selection_rate(ref_df["decision"], treat)
+        ratio = (grp_rate / ref_rate) if (not np.isnan(ref_rate) and ref_rate > 0) else float("nan")
+
+        # Stability: check number of approvals (P5-5)
+        if grp_approvals < min_events or ref_approvals < min_events or np.isnan(ratio):
+            return {
+                "status": "unstable",
+                "group_rate": float(grp_rate) if not np.isnan(grp_rate) else None,
+                "reference_rate": float(ref_rate) if not np.isnan(ref_rate) else None,
+                "difference": float(ratio) if not np.isnan(ratio) else None,
+                "ci_lower": None,
+                "ci_upper": None,
+                "ci_level": None,
+                "flag": None,
+                "note": f"Fewer than {min_events} approvals or zero reference rate",
+            }
+        return {
+            "status": "scored",
+            "group_rate": round(float(grp_rate), 6),
+            "reference_rate": round(float(ref_rate), 6),
+            "difference": round(float(ratio), 6),
+            "ci_lower": None,
+            "ci_upper": None,
+            "ci_level": None,
+            "flag": None,
+            "four_fifths_ratio": round(float(ratio), 4),
+            "note": "Point ratio (screening signal only; no CI needed per plan).",
+        }
 
     elif metric_name == "equal_opportunity_difference":
         if not has_target:
@@ -338,22 +373,30 @@ def _compute_group_metric(
         ref_rate = _eod(ref_df["decision"], ref_df["target"], treat)
         diff = grp_rate - ref_rate
 
-        # Stability: at least min_events approved repayers
+        # Stability: at least min_events approved repayers (P5-5) AND min_events approvals
         if treat == "A_refer_not_approved":
-            grp_events = ((grp_df["decision"] == "eligible") & (grp_df["target"] == 0)).sum()
-            ref_events = ((ref_df["decision"] == "eligible") & (ref_df["target"] == 0)).sum()
+            grp_events = int(((grp_df["decision"] == "eligible") & (grp_df["target"] == 0)).sum())
+            ref_events = int(((ref_df["decision"] == "eligible") & (ref_df["target"] == 0)).sum())
         else:
             grp_nr = grp_df[grp_df["decision"] != "refer"]
             ref_nr = ref_df[ref_df["decision"] != "refer"]
-            grp_events = ((grp_nr["decision"] == "eligible") & (grp_nr["target"] == 0)).sum()
-            ref_events = ((ref_nr["decision"] == "eligible") & (ref_nr["target"] == 0)).sum()
+            grp_events = int(((grp_nr["decision"] == "eligible") & (grp_nr["target"] == 0)).sum())
+            ref_events = int(((ref_nr["decision"] == "eligible") & (ref_nr["target"] == 0)).sum())
 
-        if grp_events < min_events or ref_events < min_events:
+        if (
+            grp_approvals < min_events
+            or ref_approvals < min_events
+            or grp_events < min_events
+            or ref_events < min_events
+        ):
             return {
                 "status": "unstable",
-                "group_rate": float(grp_rate),
-                "reference_rate": float(ref_rate),
-                "difference": float(diff),
+                "group_rate": float(grp_rate) if not np.isnan(grp_rate) else None,
+                "reference_rate": float(ref_rate) if not np.isnan(ref_rate) else None,
+                "difference": float(diff) if not np.isnan(diff) else None,
+                "ci_lower": None,
+                "ci_upper": None,
+                "ci_level": None,
                 "flag": None,
                 "note": f"Fewer than {min_events} approved repayers (group={grp_events}, ref={ref_events})",
             }
@@ -366,12 +409,40 @@ def _compute_group_metric(
         ref_rate = _false_approval_rate(ref_df["decision"], ref_df["target"], treat)
         diff = grp_rate - ref_rate
 
+        # Stability: check number of approvals (P5-5 applied to every metric)
+        if grp_approvals < min_events or ref_approvals < min_events:
+            return {
+                "status": "unstable",
+                "group_rate": float(grp_rate) if not np.isnan(grp_rate) else None,
+                "reference_rate": float(ref_rate) if not np.isnan(ref_rate) else None,
+                "difference": float(diff) if not np.isnan(diff) else None,
+                "ci_lower": None,
+                "ci_upper": None,
+                "ci_level": None,
+                "flag": None,
+                "note": f"Fewer than {min_events} approvals (group={grp_approvals}, ref={ref_approvals})",
+            }
+
     elif metric_name == "default_rate_among_approved":
         if not has_target:
             return {"status": "no_target", "flag": None}
         grp_rate = _default_rate_among_approved(grp_df["decision"], grp_df["target"])
         ref_rate = _default_rate_among_approved(ref_df["decision"], ref_df["target"])
         diff = grp_rate - ref_rate
+
+        # Stability: check number of approvals (P5-5 applied to every metric)
+        if grp_approvals < min_events or ref_approvals < min_events:
+            return {
+                "status": "unstable",
+                "group_rate": float(grp_rate) if not np.isnan(grp_rate) else None,
+                "reference_rate": float(ref_rate) if not np.isnan(ref_rate) else None,
+                "difference": float(diff) if not np.isnan(diff) else None,
+                "ci_lower": None,
+                "ci_upper": None,
+                "ci_level": None,
+                "flag": None,
+                "note": f"Fewer than {min_events} approvals (group={grp_approvals}, ref={ref_approvals})",
+            }
 
     else:
         return {"status": "not_computed", "flag": None}
@@ -401,8 +472,23 @@ def _compute_group_metric(
         ci_level=ci_level,
     )
 
-    # Flag if CI excludes 0
-    flag = not (ci_lo <= 0 <= ci_hi)
+    # Handle NaN in bootstrap or difference (P5-5, Sub-item 1 fix)
+    if np.isnan(ci_lo) or np.isnan(ci_hi) or np.isnan(diff):
+        return {
+            "status": "unstable",
+            "group_rate": round(float(grp_rate), 6) if not np.isnan(grp_rate) else None,
+            "reference_rate": round(float(ref_rate), 6) if not np.isnan(ref_rate) else None,
+            "difference": round(float(diff), 6) if not np.isnan(diff) else None,
+            "ci_lower": None,
+            "ci_upper": None,
+            "ci_level": None,
+            "flag": None,
+            "four_fifths_ratio": None,
+            "note": "Metric or bootstrap CI produced NaN; flagged as unstable per P5-5.",
+        }
+
+    # Flag strictly if CI excludes 0 (P5-4)
+    flag = bool(ci_lo > 0 or ci_hi < 0)
 
     # Four-fifths ratio (screening signal only, never flags on its own — P5-4)
     fourfifths: float | None = None
@@ -551,6 +637,14 @@ def _evaluate_dataset(
     ):
         merged = _add_income_band(merged, income_quartiles)
 
+    # Intersectional attribute: gender x age_band (P5-1, cells >= 100 evaluated)
+    if "gender" in merged.columns and "age_band" in merged.columns:
+        merged["gender_x_age_band"] = (
+            merged["gender"].astype(str) + " x " + merged["age_band"].astype(str)
+        )
+        if "gender_x_age_band" not in attributes:
+            attributes = list(attributes) + ["gender_x_age_band"]
+
     all_attributes = [a for a in attributes if a in merged.columns]
     attribute_results = []
 
@@ -626,9 +720,12 @@ def _score_ml(
     return pipeline.predict_proba(df_feat[feature_cols])[:, 1]
 
 
-def _score_to_decision(scores: np.ndarray, threshold: float) -> pd.Series:
+def _score_to_decision(scores: np.ndarray, threshold: float, is_d3: bool = True) -> pd.Series:
     """Convert probability scores to decisions using a threshold (P5-6)."""
-    # score BELOW threshold → eligible (low default probability = good applicant)
+    # For D3 models, target is eligible (1), so score >= threshold -> eligible.
+    # For D2 models, target is TARGET (default = 1), so score < threshold -> eligible.
+    if is_d3:
+        return pd.Series(["eligible" if s >= threshold else "ineligible" for s in scores])
     return pd.Series(["eligible" if s < threshold else "ineligible" for s in scores])
 
 
@@ -1347,7 +1444,8 @@ def run_fairness_evaluation(repo_root: Path | str = REPO_ROOT) -> None:
             continue
 
         d3_ml_dec = d3_pop_test[["applicant_id"]].copy()
-        d3_ml_dec["decision"] = ["eligible" if p < threshold else "ineligible" for p in proba]
+        # D3 model predicts probability of class 1 (eligible); operating threshold is 0.5.
+        d3_ml_dec["decision"] = ["eligible" if p >= threshold else "ineligible" for p in proba]
 
         d3_ml_results = {}
         for treat in treats:
@@ -1414,6 +1512,62 @@ def run_fairness_evaluation(repo_root: Path | str = REPO_ROOT) -> None:
     print("Computing gender-from-features AUC...")
     gender_auc = _gender_from_features_auc(d2_mapped, d2_protected, d2_split, ml_cfg)
 
+    # Planted-bias and control evaluation (P5 §5, P5-11)
+    planted_bias_standard = None
+    control_standard = None
+    bias_prot_path = REPO_ROOT / "data" / "protected" / "d3_bias_protected.csv"
+    bias_dec_path = REPO_ROOT / "data" / "decisions" / "d3_bias_decisions.csv"
+    ctrl_prot_path = REPO_ROOT / "data" / "protected" / "d3_protected.csv"
+    ctrl_dec_path = REPO_ROOT / "data" / "decisions" / "d3_decisions.csv"
+
+    if bias_prot_path.exists() and bias_dec_path.exists():
+        prot_b = pd.read_csv(bias_prot_path)
+        dec_b = pd.read_csv(bias_dec_path)
+        merged_b = dec_b.merge(prot_b, on="applicant_id")
+        res_b = _evaluate_attribute(
+            merged_b,
+            "gender",
+            "selection_rate_difference",
+            "A_refer_not_approved",
+            fairness_cfg["flagging"]["min_group_size"],
+            fairness_cfg["flagging"]["min_events"],
+            fairness_cfg["bootstrap"]["resamples"],
+            bootstrap_seed,
+            fairness_cfg["flagging"]["ci_level_family_alpha"],
+        )
+        f_b = res_b["groups"].get("F", {})
+        planted_bias_standard = {
+            "n_rows": len(merged_b),
+            "point_estimate": f_b.get("difference"),
+            "ci_lower": f_b.get("ci_lower"),
+            "ci_upper": f_b.get("ci_upper"),
+            "flag": f_b.get("flag"),
+        }
+
+    if ctrl_prot_path.exists() and ctrl_dec_path.exists():
+        prot_c = pd.read_csv(ctrl_prot_path)
+        dec_c = pd.read_csv(ctrl_dec_path)
+        merged_c = dec_c.merge(prot_c, on="applicant_id")
+        res_c = _evaluate_attribute(
+            merged_c,
+            "gender",
+            "selection_rate_difference",
+            "A_refer_not_approved",
+            fairness_cfg["flagging"]["min_group_size"],
+            fairness_cfg["flagging"]["min_events"],
+            fairness_cfg["bootstrap"]["resamples"],
+            bootstrap_seed,
+            fairness_cfg["flagging"]["ci_level_family_alpha"],
+        )
+        f_c = res_c["groups"].get("F", {})
+        control_standard = {
+            "n_rows": len(merged_c),
+            "point_estimate": f_c.get("difference"),
+            "ci_lower": f_c.get("ci_lower"),
+            "ci_upper": f_c.get("ci_upper"),
+            "flag": f_c.get("flag"),
+        }
+
     # Write summary report
     summary = {
         "counterfactual_swap_rule": swap_rule,
@@ -1421,6 +1575,8 @@ def run_fairness_evaluation(repo_root: Path | str = REPO_ROOT) -> None:
         "counterfactual_swap_gb": swap_gb,
         "d3_gender_age_band_intersection": intersection_result,
         "gender_from_features_auc": gender_auc,
+        "planted_bias_standard": planted_bias_standard,
+        "control_standard": control_standard,
     }
     out_path = REPORTS_DIR / "summary.json"
     out_path.write_text(json.dumps(summary, indent=2, default=str) + "\n", encoding="utf-8")
@@ -1440,51 +1596,14 @@ def _write_report(name: str, data: dict) -> None:
 
 
 def _write_markdown_tables() -> None:
-    """Write a Markdown table per dataset with group sizes first."""
+    """Write Markdown tables per dataset covering both Treatment A and Treatment B (P5-3)."""
     for dataset in ["d2", "d3"]:
-        systems = ["rule_system", "lr", "gb"]
-        rows = []
-        for system in systems:
-            report_path = REPORTS_DIR / f"{dataset}_{system}.json"
-            if not report_path.exists():
-                continue
-            report = json.loads(report_path.read_text(encoding="utf-8"))
-            # Pick treatment A as headline
-            treat_key = "A_refer_not_approved"
-            treat_data = report.get("treatments", {}).get(treat_key, {})
-            for attr_result in treat_data.get("results", []):
-                attr = attr_result.get("attribute", "")
-                metric = attr_result.get("metric", "")
-                for grp, gdata in attr_result.get("groups", {}).items():
-                    rows.append(
-                        {
-                            "system": system,
-                            "attribute": attr,
-                            "metric": metric,
-                            "group": grp,
-                            "size": gdata.get("size", ""),
-                            "is_reference": gdata.get("is_reference", False),
-                            "status": gdata.get("status", ""),
-                            "rate": gdata.get("group_rate", ""),
-                            "reference_rate": gdata.get("reference_rate", ""),
-                            "difference": gdata.get("difference", ""),
-                            "ci_lower": gdata.get("ci_lower", ""),
-                            "ci_upper": gdata.get("ci_upper", ""),
-                            "flag": gdata.get("flag", ""),
-                        }
-                    )
-
-        if not rows:
-            continue
-
         lines = [
-            f"# Fairness Tables — {dataset.upper()} (Treatment A: refer = not approved)",
+            f"# Fairness Tables — {dataset.upper()}",
             "",
             "> Limits from docs/fairness-audit-plan.md section 1 apply to all findings.",
             "> Groups shown as 'too_small' (< 100) or 'unstable' (< 20 events) are not findings.",
             "",
-            "| System | Attribute | Metric | Group | Size | Status | Rate | Ref Rate | Diff | CI Low | CI High | Flag |",
-            "|---|---|---|---|---|---|---|---|---|---|---|---|",
         ]
 
         def _fmt(val: Any) -> str:
@@ -1492,19 +1611,52 @@ def _write_markdown_tables() -> None:
                 return f"{val:.4f}"
             return str(val) if val is not None else ""
 
-        for r in rows:
-            flag_str = "🚩" if r["flag"] is True else ("" if r["flag"] is False else str(r["flag"]))
+        for treat_key, treat_title in [
+            ("A_refer_not_approved", "Treatment A (refer = not approved)"),
+            ("B_refer_excluded", "Treatment B (refer rows excluded)"),
+        ]:
+            lines.append(f"## {treat_title}")
+            lines.append("")
+            if treat_key == "B_refer_excluded":
+                lines.append(
+                    "> Note: ML baseline models produce binary eligible/ineligible decisions with no "
+                    "referral state, so Treatment B is identical to Treatment A for ML models. "
+                    "Rule system results exclude REFER cases."
+                )
+                lines.append("")
+
             lines.append(
-                f"| {r['system']} | {r['attribute']} | {r['metric']} | "
-                f"{'**' + r['group'] + '** (ref)' if r['is_reference'] else r['group']} | "
-                f"{r['size']} | {r['status']} | "
-                f"{_fmt(r['rate'])} | "
-                f"{_fmt(r['reference_rate'])} | "
-                f"{_fmt(r['difference'])} | "
-                f"{_fmt(r['ci_lower'])} | "
-                f"{_fmt(r['ci_upper'])} | "
-                f"{flag_str} |"
+                "| System | Attribute | Metric | Group | Size | Status | Rate | Ref Rate | Diff | CI Low | CI High | Flag |"
             )
+            lines.append("|---|---|---|---|---|---|---|---|---|---|---|---|")
+
+            systems = ["rule_system", "lr", "gb"]
+            for system in systems:
+                report_path = REPORTS_DIR / f"{dataset}_{system}.json"
+                if not report_path.exists():
+                    continue
+                report = json.loads(report_path.read_text(encoding="utf-8"))
+                treat_data = report.get("treatments", {}).get(treat_key, {})
+                for attr_result in treat_data.get("results", []):
+                    attr = attr_result.get("attribute", "")
+                    metric = attr_result.get("metric", "")
+                    for grp, gdata in attr_result.get("groups", {}).items():
+                        is_ref = gdata.get("is_reference", False)
+                        grp_str = f"**{grp}** (ref)" if is_ref else str(grp)
+                        flag_val = gdata.get("flag")
+                        flag_str = (
+                            "🚩"
+                            if flag_val is True
+                            else ("" if flag_val is False else str(flag_val or ""))
+                        )
+                        lines.append(
+                            f"| {system} | {attr} | {metric} | {grp_str} | "
+                            f"{gdata.get('size', '')} | {gdata.get('status', '')} | "
+                            f"{_fmt(gdata.get('group_rate'))} | {_fmt(gdata.get('reference_rate'))} | "
+                            f"{_fmt(gdata.get('difference'))} | {_fmt(gdata.get('ci_lower'))} | "
+                            f"{_fmt(gdata.get('ci_upper'))} | {flag_str} |"
+                        )
+            lines.append("")
 
         md_path = REPORTS_DIR / f"{dataset}_tables.md"
         md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")

@@ -1,141 +1,275 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loan Eligibility — Try an Application</title>
-<link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LoanCheck — Apply</title>
+  <link rel="stylesheet" href="/static/tokens.css">
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<header>
-  <div class="banner" role="alert">Prototype. Illustrative policy values and synthetic or public data. Not a real lending decision.</div>
-  <nav>
-    <a href="/">Try an Application</a>
-    <a href="/results">Project Results</a>
-    <a href="/about">About</a>
-  </nav>
-</header>
-<main>
-  <h1>Loan Eligibility Check</h1>
-
-  <section class="presets-section">
-    <label for="preset-select"><strong>Load a preset (TV1–TV9):</strong></label>
-    <select id="preset-select">
-      <option value="">— choose a preset —</option>
-    </select>
-  </section>
-
-  <form id="app-form" novalidate>
-    <fieldset>
-      <legend>Applicant Details</legend>
-      <div class="field">
-        <label for="applicant_id">Applicant ID</label>
-        <input type="text" id="applicant_id" name="applicant_id" value="demo-001">
-      </div>
-      <div class="field">
-        <label for="age">Age (years)</label>
-        <input type="number" id="age" name="age" min="18" max="80" required>
-        <span class="field-error" id="err-age"></span>
-      </div>
-      <div class="field">
-        <label for="employment_type">Employment Type</label>
-        <select id="employment_type" name="employment_type" required>
-          <option value="salaried">Salaried</option>
-          <option value="self_employed">Self-Employed</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="employment_months">Employment Duration (months)</label>
-        <input type="number" id="employment_months" name="employment_months" min="0" required>
-        <span class="field-error" id="err-employment_months"></span>
-      </div>
-      <div class="field">
-        <label for="monthly_net_income">Monthly Net Income (₹)</label>
-        <input type="number" id="monthly_net_income" name="monthly_net_income" min="0" required>
-        <span class="field-error" id="err-monthly_net_income"></span>
-      </div>
-      <div class="field">
-        <label for="monthly_obligations">Monthly Obligations (₹)</label>
-        <input type="number" id="monthly_obligations" name="monthly_obligations" min="0" required>
-        <span class="field-error" id="err-monthly_obligations"></span>
-      </div>
-      <div class="field">
-        <label for="credit_score">Credit Score (leave blank if unknown)</label>
-        <input type="number" id="credit_score" name="credit_score" min="300" max="900">
-      </div>
-      <div class="field">
-        <label for="enquiries_6m">Credit Enquiries (last 6 months)</label>
-        <input type="number" id="enquiries_6m" name="enquiries_6m" min="0" required>
-        <span class="field-error" id="err-enquiries_6m"></span>
-      </div>
-      <div class="field">
-        <label for="requested_amount">Requested Loan Amount (₹)</label>
-        <input type="number" id="requested_amount" name="requested_amount" min="0" required>
-        <span class="field-error" id="err-requested_amount"></span>
-      </div>
-      <div class="field">
-        <label for="requested_tenure_months">Requested Tenure (months)</label>
-        <input type="number" id="requested_tenure_months" name="requested_tenure_months" min="0" required>
-        <span class="field-error" id="err-requested_tenure_months"></span>
-      </div>
-    </fieldset>
-
-    <fieldset>
-      <legend>Verification &amp; Flags</legend>
-      <div class="field checkbox-field">
-        <input type="checkbox" id="kyc_verified" name="kyc_verified" checked>
-        <label for="kyc_verified">KYC Verified</label>
-      </div>
-      <div class="field checkbox-field">
-        <input type="checkbox" id="consent_given" name="consent_given" checked>
-        <label for="consent_given">Consent Given</label>
-      </div>
-      <div class="field checkbox-field">
-        <input type="checkbox" id="severe_delinquency_36m" name="severe_delinquency_36m">
-        <label for="severe_delinquency_36m">Severe Delinquency (last 36 months)</label>
-      </div>
-      <div class="field checkbox-field">
-        <input type="checkbox" id="written_off" name="written_off">
-        <label for="written_off">Written Off</label>
-      </div>
-    </fieldset>
-
-    <button type="submit" id="submit-btn">Check Eligibility</button>
-  </form>
-
-  <section id="result-section" hidden aria-live="polite">
-    <h2>Result</h2>
-    <div id="decision-box" class="decision-box">
-      <span id="decision-label" class="decision-label"></span>
+  <header class="app-bar" role="banner">
+    <div class="app-bar__inner">
+      <span class="app-bar__brand">LoanCheck</span>
+      <nav class="app-bar__nav" aria-label="Main navigation">
+        <a href="/" class="nav-link" aria-current="page">Apply</a>
+        <a href="/results" class="nav-link">Results</a>
+        <a href="/about" class="nav-link">About</a>
+      </nav>
     </div>
+  </header>
 
-    <div id="offer-section" hidden>
-      <h3>Offer Summary</h3>
-      <table class="offer-table">
-        <tr><th>Recommended Amount</th><td id="offer-amount"></td></tr>
-        <tr><th>Interest Band</th><td id="offer-band"></td></tr>
-      </table>
-    </div>
+  <div class="disclaimer-strip" role="alert" aria-live="polite">
+    Prototype. Illustrative policy values and synthetic or public data. Not a real lending decision.
+  </div>
 
-    <div id="reasons-section">
-      <h3>Reasons</h3>
-      <ul id="reasons-list"></ul>
-    </div>
+  <main id="main-content">
+    <div class="layout-two-col">
 
-    <details id="trace-section">
-      <summary>Rule Trace (click to expand)</summary>
-      <pre id="trace-content"></pre>
-    </details>
+      <!-- Left column: application form -->
+      <div id="form-col">
+        <form id="app-form" novalidate>
 
-    <div id="ml-section" class="ml-block">
-      <h3>ML Baseline Score <span class="ml-caveat">(comparison only)</span></h3>
-      <p class="ml-disclaimer">This score does not feed the decision. It is a ranking score, not a probability.</p>
-      <div id="ml-content"></div>
-    </div>
-  </section>
-</main>
-<script src="/static/app.js"></script>
+          <!-- Card 1 — Applicant -->
+          <div class="card">
+            <h2 class="card__title">Applicant</h2>
+
+            <div class="form-group">
+              <label for="applicant_id">Applicant ID</label>
+              <input
+                type="text"
+                id="applicant_id"
+                name="applicant_id"
+                pattern="[A-Za-z0-9_-]+"
+                maxlength="64"
+                required
+                autocomplete="off"
+                aria-describedby="hint-applicant_id err-applicant_id"
+              >
+              <span class="form-group__hint" id="hint-applicant_id">Letters, digits, hyphens and underscores only</span>
+              <span class="form-group__error" id="err-applicant_id" aria-live="polite"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="age">Age</label>
+              <div class="form-group__input-row">
+                <input
+                  type="number"
+                  id="age"
+                  name="age"
+                  min="0"
+                  max="120"
+                  aria-describedby="hint-age err-age unit-age"
+                >
+                <span class="form-group__unit" id="unit-age">years</span>
+              </div>
+              <span class="form-group__hint" id="hint-age">Must be 18 or older to apply</span>
+              <span class="form-group__error" id="err-age" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <!-- Card 2 — Employment & Income -->
+          <div class="card">
+            <h2 class="card__title">Employment &amp; Income</h2>
+
+            <div class="form-group">
+              <label for="employment_type">Employment type</label>
+              <select id="employment_type" name="employment_type" required aria-describedby="err-employment_type">
+                <option value="">— select —</option>
+                <option value="salaried">Salaried</option>
+                <option value="self_employed">Self-employed</option>
+                <option value="other">Other</option>
+              </select>
+              <span class="form-group__error" id="err-employment_type" aria-live="polite"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="employment_months">Employment duration</label>
+              <div class="form-group__input-row">
+                <input
+                  type="number"
+                  id="employment_months"
+                  name="employment_months"
+                  min="0"
+                  max="600"
+                  aria-describedby="err-employment_months unit-employment_months"
+                >
+                <span class="form-group__unit" id="unit-employment_months">months</span>
+              </div>
+              <span class="form-group__error" id="err-employment_months" aria-live="polite"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="monthly_net_income">Monthly net income</label>
+              <div class="form-group__input-row">
+                <span class="form-group__unit form-group__unit--prefix">₹</span>
+                <input
+                  type="number"
+                  id="monthly_net_income"
+                  name="monthly_net_income"
+                  min="0"
+                  aria-describedby="hint-monthly_net_income err-monthly_net_income"
+                >
+              </div>
+              <span class="form-group__hint" id="hint-monthly_net_income">Take-home pay after tax</span>
+              <span class="form-group__error" id="err-monthly_net_income" aria-live="polite"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="monthly_obligations">Monthly obligations</label>
+              <div class="form-group__input-row">
+                <span class="form-group__unit form-group__unit--prefix">₹</span>
+                <input
+                  type="number"
+                  id="monthly_obligations"
+                  name="monthly_obligations"
+                  min="0"
+                  aria-describedby="hint-monthly_obligations err-monthly_obligations"
+                >
+              </div>
+              <span class="form-group__hint" id="hint-monthly_obligations">EMIs, rent, and other fixed commitments</span>
+              <span class="form-group__error" id="err-monthly_obligations" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <!-- Card 3 — Credit history -->
+          <div class="card">
+            <h2 class="card__title">Credit history</h2>
+
+            <div class="form-group">
+              <label for="credit_score">Credit score</label>
+              <input
+                type="number"
+                id="credit_score"
+                name="credit_score"
+                min="300"
+                max="900"
+                aria-describedby="hint-credit_score err-credit_score"
+              >
+              <span class="form-group__hint" id="hint-credit_score">Leave blank if unknown (300–900)</span>
+              <span class="form-group__error" id="err-credit_score" aria-live="polite"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="enquiries_6m">Credit enquiries</label>
+              <div class="form-group__input-row">
+                <input
+                  type="number"
+                  id="enquiries_6m"
+                  name="enquiries_6m"
+                  min="0"
+                  aria-describedby="err-enquiries_6m unit-enquiries_6m"
+                >
+                <span class="form-group__unit" id="unit-enquiries_6m">in last 6 months</span>
+              </div>
+              <span class="form-group__error" id="err-enquiries_6m" aria-live="polite"></span>
+            </div>
+
+            <div class="form-group form-group--check">
+              <input type="checkbox" id="severe_delinquency_36m" name="severe_delinquency_36m">
+              <label for="severe_delinquency_36m">Severe delinquency in last 36 months</label>
+            </div>
+
+            <div class="form-group form-group--check">
+              <input type="checkbox" id="written_off" name="written_off">
+              <label for="written_off">Account written off</label>
+            </div>
+          </div>
+
+          <!-- Card 4 — Loan request -->
+          <div class="card">
+            <h2 class="card__title">Loan request</h2>
+
+            <div class="form-group">
+              <label for="requested_amount">Requested amount</label>
+              <div class="form-group__input-row">
+                <span class="form-group__unit form-group__unit--prefix">₹</span>
+                <input
+                  type="number"
+                  id="requested_amount"
+                  name="requested_amount"
+                  min="1"
+                  aria-describedby="err-requested_amount"
+                >
+              </div>
+              <span class="form-group__error" id="err-requested_amount" aria-live="polite"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="requested_tenure_months">Requested tenure</label>
+              <div class="form-group__input-row">
+                <input
+                  type="number"
+                  id="requested_tenure_months"
+                  name="requested_tenure_months"
+                  min="1"
+                  aria-describedby="err-requested_tenure_months unit-requested_tenure_months"
+                >
+                <span class="form-group__unit" id="unit-requested_tenure_months">months</span>
+              </div>
+              <span class="form-group__error" id="err-requested_tenure_months" aria-live="polite"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="region_tier">Region tier</label>
+              <input
+                type="number"
+                id="region_tier"
+                name="region_tier"
+                min="1"
+                max="3"
+                aria-describedby="hint-region_tier err-region_tier"
+              >
+              <span class="form-group__hint" id="hint-region_tier">1 = metro, 2 = urban, 3 = semi-urban (optional)</span>
+              <span class="form-group__error" id="err-region_tier" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <!-- Card 5 — Verification & Consent -->
+          <div class="card">
+            <h2 class="card__title">Verification &amp; Consent</h2>
+
+            <div class="form-group form-group--check">
+              <input type="checkbox" id="kyc_verified" name="kyc_verified">
+              <label for="kyc_verified">KYC verified</label>
+            </div>
+
+            <div class="form-group form-group--check">
+              <input type="checkbox" id="consent_given" name="consent_given" required aria-describedby="err-consent_given">
+              <label for="consent_given">I consent to the credit check (required)</label>
+              <span class="form-group__error" id="err-consent_given" aria-live="polite"></span>
+            </div>
+          </div>
+
+          <!-- Form actions -->
+          <div class="form-actions">
+            <button type="submit" id="submit-btn" class="btn btn--primary">Check eligibility</button>
+            <button type="button" id="clear-btn" class="btn btn--ghost">Clear form</button>
+          </div>
+
+        </form>
+      </div><!-- /#form-col -->
+
+      <!-- Right column: preset panel -->
+      <div id="preset-col">
+        <div class="card preset-panel" id="preset-panel">
+          <h2 class="card__title">Try an example</h2>
+          <p class="card__hint">Load a test vector to see a sample decision.</p>
+          <div id="preset-buttons" class="preset-list">
+            <!-- JS fills this -->
+          </div>
+        </div>
+      </div><!-- /#preset-col -->
+
+    </div><!-- /.layout-two-col -->
+
+    <!-- Report section — hidden until JS populates it -->
+    <section id="report-section" hidden aria-live="polite">
+      <!-- JS fills this entirely -->
+    </section>
+
+  </main>
+
+  <script type="module" src="/static/ui.js"></script>
 </body>
 </html>
-

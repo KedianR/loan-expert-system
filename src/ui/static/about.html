@@ -1,85 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loan Eligibility — About</title>
-<link rel="stylesheet" href="/static/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LoanCheck — About</title>
+  <link rel="stylesheet" href="/static/tokens.css">
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<header>
-  <div class="banner" role="alert">Prototype. Illustrative policy values and synthetic or public data. Not a real lending decision.</div>
-  <nav>
-    <a href="/">Try an Application</a>
-    <a href="/results">Project Results</a>
-    <a href="/about">About</a>
-  </nav>
-</header>
-<main>
-  <h1>About This System</h1>
+  <header class="app-bar" role="banner">
+    <div class="app-bar__inner">
+      <span class="app-bar__brand">LoanCheck</span>
+      <nav class="app-bar__nav" aria-label="Main navigation">
+        <a href="/" class="nav-link">Apply</a>
+        <a href="/results" class="nav-link">Results</a>
+        <a href="/about" class="nav-link" aria-current="page">About</a>
+      </nav>
+    </div>
+  </header>
 
-  <section>
-    <h2>What this is</h2>
-    <p>
-      This is an academic prototype of a rule-based loan eligibility expert system for
-      unsecured personal loans in INR. It is built for a coursework project and uses
-      illustrative policy values and synthetic or publicly available data only.
-      It is <strong>not</strong> a real lending system and must not be used for any real
-      credit decision.
-    </p>
-  </section>
+  <div class="disclaimer-strip" role="alert" aria-live="polite">
+    Prototype. Illustrative policy values and synthetic or public data. Not a real lending decision.
+  </div>
 
-  <section>
-    <h2>Three possible decisions</h2>
-    <dl>
-      <dt><strong class="decision-eligible">ELIGIBLE</strong></dt>
-      <dd>The application meets all policy rules. A recommended loan amount and interest band are shown. This is a prototype result, not a real offer.</dd>
-      <dt><strong class="decision-refer">REFER</strong></dt>
-      <dd>The application cannot be decided automatically and is referred to a human reviewer for further assessment.</dd>
-      <dt><strong class="decision-ineligible">INELIGIBLE</strong></dt>
-      <dd>The application does not meet one or more policy rules. The specific reasons are shown.</dd>
-    </dl>
-  </section>
+  <main id="main-content">
+    <h1>About this system</h1>
 
-  <section>
-    <h2>Policy values</h2>
-    <p>
-      All thresholds, rates and limits used by the system are illustrative (D-02 in the design log).
-      They are stored in <code>params/params.toml</code> and are not real credit policy.
-    </p>
-  </section>
+    <!-- Section: What it is -->
+    <section class="about-section" aria-labelledby="sec-what">
+      <h2 id="sec-what">What it is</h2>
+      <p>
+        LoanCheck is an academic prototype of a rule-based expert system for assessing eligibility for
+        an unsecured personal loan denominated in Indian Rupees (INR). Production rules and first-order
+        logic drive every decision; a lightweight ML classifier is built only as a comparison baseline.
+        All policy thresholds, rate bands, and fee schedules are <strong>illustrative values</strong>
+        stored in <code>params/params.toml</code> and are not derived from any real lender's credit policy.
+        Every dataset used is either synthetic or publicly available.
+        <strong>This is not a real lending decision.</strong>
+      </p>
+    </section>
 
-  <section>
-    <h2>Data</h2>
-    <p>
-      The ML baseline is trained on a mapped version of the Home Credit Default Risk dataset (D2)
-      and a synthetic dataset (D3). No real personal data is used or stored.
-      Raw data files are never committed to the repository.
-    </p>
-  </section>
+    <!-- Section: Three possible decisions -->
+    <section class="about-section" aria-labelledby="sec-decisions">
+      <h2 id="sec-decisions">Three possible decisions</h2>
+      <div class="decision-cards">
 
-  <section>
-    <h2>Documents</h2>
-    <ul>
-      <li><code>docs/01-srs.md</code> — System requirements</li>
-      <li><code>docs/02-policy-and-rules.md</code> — Policy rules and thresholds</li>
-      <li><code>docs/model-card.md</code> — ML model card</li>
-      <li><code>docs/final-report.md</code> — Final project report</li>
-      <li><code>docs/fairness-audit-plan.md</code> — Fairness audit plan</li>
-    </ul>
-  </section>
+        <div class="card decision-card">
+          <span class="badge badge--eligible">ELIGIBLE</span>
+          <h3 class="card__title">Eligible</h3>
+          <p>
+            The application passes all knockout checks and satisfies the policy thresholds for income,
+            credit score, debt-service ratio, and other criteria. A recommended loan amount and
+            indicative interest band are returned along with the full decision trace.
+          </p>
+        </div>
 
-  <section>
-    <h2>Limits</h2>
-    <ul>
-      <li>Policy values are illustrative only.</li>
-      <li>Datasets are mapped or synthetic; this is a worked example, not a production credit policy.</li>
-      <li>D2 results reflect Home Credit mapping effects and 1.68% approval rate.</li>
-      <li>D3 uses synthetic protected attributes drawn independently of other fields.</li>
-      <li>No authentication, no real storage, no real grievance mechanism.</li>
-    </ul>
-  </section>
-</main>
+        <div class="card decision-card">
+          <span class="badge badge--ineligible">INELIGIBLE</span>
+          <h3 class="card__title">Ineligible</h3>
+          <p>
+            One or more knockout rules fired — for example, an account written off, severe recent
+            delinquency, or a credit score below the minimum floor. The trace lists every reason code
+            that contributed to the rejection.
+          </p>
+        </div>
+
+        <div class="card decision-card">
+          <span class="badge badge--refer">REFER</span>
+          <h3 class="card__title">Refer</h3>
+          <p>
+            The application falls into a grey zone where the rules cannot give a definitive answer —
+            for example, an unknown credit score or borderline debt-service ratio. The case is flagged
+            for manual underwriter review with an explanation of the ambiguity.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Section: Policy values -->
+    <section class="about-section" aria-labelledby="sec-policy">
+      <h2 id="sec-policy">Policy values</h2>
+      <p>
+        All numeric thresholds, interest rate bands, and fee values used by the rule engine are
+        illustrative and are stored in a single parameter file: <code>params/params.toml</code>.
+        No policy number appears directly in source code or rule text — every threshold is referenced
+        by name. This design means that changing a parameter automatically propagates to every rule
+        and calculation without requiring code edits.
+      </p>
+    </section>
+
+    <!-- Section: Documents -->
+    <section class="about-section" aria-labelledby="sec-docs">
+      <h2 id="sec-docs">Documents</h2>
+      <ul class="doc-list">
+        <li><a href="/docs/01-srs.md"><code>docs/01-srs.md</code></a> — Software Requirements Specification</li>
+        <li><a href="/docs/02-policy-and-rules.md"><code>docs/02-policy-and-rules.md</code></a> — Policy thresholds, rules, and reason codes</li>
+        <li><a href="/docs/model-card.md"><code>docs/model-card.md</code></a> — ML baseline model card</li>
+        <li><a href="/docs/final-report.md"><code>docs/final-report.md</code></a> — Final project report</li>
+      </ul>
+    </section>
+
+    <!-- Section: Limits -->
+    <section class="about-section" aria-labelledby="sec-limits">
+      <h2 id="sec-limits">Limits</h2>
+      <ul class="limits-list">
+        <li>
+          <strong>Mapping effects:</strong> Input fields are mapped to internal predicates; small
+          differences in how an applicant describes their situation can shift the outcome.
+        </li>
+        <li>
+          <strong>Synthetic data:</strong> All training and evaluation datasets are synthetic or
+          publicly available. Distributions may not reflect real loan applicant populations.
+        </li>
+        <li>
+          <strong>No authentication:</strong> This prototype has no login, session management, or
+          access control. It must not be used with real personal data.
+        </li>
+        <li>
+          <strong>Illustrative policy:</strong> Thresholds and rate bands are chosen to demonstrate
+          the system, not to reflect any lender's actual credit policy.
+        </li>
+        <li>
+          <strong>No real lending decision:</strong> Output from this system has no legal or financial
+          standing and should never be used to make or inform a real credit decision.
+        </li>
+        <li>
+          <strong>Prototype stability:</strong> The rule set, parameter values, and ML model may change
+          between versions. Audit replay is supported but results are not guaranteed to be stable
+          across major version updates.
+        </li>
+      </ul>
+    </section>
+
+  </main>
+
 </body>
 </html>
-

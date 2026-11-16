@@ -1520,6 +1520,53 @@ def run_fairness_evaluation(repo_root: Path | str = REPO_ROOT) -> None:
     ctrl_prot_path = REPO_ROOT / "data" / "protected" / "d3_protected.csv"
     ctrl_dec_path = REPO_ROOT / "data" / "decisions" / "d3_decisions.csv"
 
+    # Auto-generate standard bias dataset if missing (e.g. during clean checkout)
+    if not (bias_prot_path.exists() and bias_dec_path.exists()):
+        try:
+            from data.synthetic.d3_generator import generate_datasets as generate_d3
+            from src.engine.engine import decide as engine_decide
+            from src.engine.rule_loader import load_rules
+
+            bias_pop_path = REPO_ROOT / "data" / "synthetic" / "d3_bias_population.csv"
+            bias_pop_path.parent.mkdir(parents=True, exist_ok=True)
+            bias_prot_path.parent.mkdir(parents=True, exist_ok=True)
+            bias_dec_path.parent.mkdir(parents=True, exist_ok=True)
+            generate_d3(
+                size=20000,
+                out_population=bias_pop_path,
+                out_protected=bias_prot_path,
+                apply_bias=True,
+            )
+            bias_pop = pd.read_csv(bias_pop_path)
+            rules = load_rules(REPO_ROOT / "rules", REPO_ROOT / "params" / "params.toml")
+            decisions = []
+            for _, row in bias_pop.iterrows():
+                inp = {
+                    "applicant_id": str(row["applicant_id"]),
+                    "age": int(row["age"]),
+                    "employment_type": str(row["employment_type"]),
+                    "employment_months": int(row["employment_months"]),
+                    "monthly_net_income": int(row["monthly_net_income"]),
+                    "monthly_obligations": int(row["monthly_obligations"]),
+                    "credit_score": float(row["credit_score"])
+                    if pd.notna(row.get("credit_score"))
+                    else None,
+                    "enquiries_6m": int(row["enquiries_6m"]),
+                    "severe_delinquency_36m": bool(row.get("severe_delinquency_36m", False)),
+                    "written_off": bool(row.get("written_off", False)),
+                    "kyc_verified": bool(row.get("kyc_verified", True)),
+                    "consent_given": bool(row.get("consent_given", True)),
+                    "requested_amount": int(row["requested_amount"]),
+                    "requested_tenure_months": int(row["requested_tenure_months"]),
+                }
+                res = engine_decide(inp, rules)
+                decisions.append(res.get("decision", "error"))
+            pd.DataFrame({"applicant_id": bias_pop["applicant_id"], "decision": decisions}).to_csv(
+                bias_dec_path, index=False
+            )
+        except Exception as e:
+            print(f"Notice: could not auto-generate standard bias decisions: {e}")
+
     if bias_prot_path.exists() and bias_dec_path.exists():
         prot_b = pd.read_csv(bias_prot_path)
         dec_b = pd.read_csv(bias_dec_path)

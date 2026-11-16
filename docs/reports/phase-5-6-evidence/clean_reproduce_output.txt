@@ -1,0 +1,153 @@
+=== Clean Checkout Reproduce Run ===
+Directory: C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system-clean2
+Start Time: 2026-11-16T10:54:09.858088
+End Time: 2026-11-16T11:02:16.917485
+Command: make reproduce
+Exit Code: 0
+
+--- STDOUT ---
+python -m src.data.d2_map
+SHA-256 data\mapped\d2_mapped.csv: 44de1b821cd3c4831b485b39435998e53c3f10754c7a069046bbca0f0ca6eae4
+SHA-256 data\protected\d2_protected.csv: d539e950a8a340470788b827a16678efd8c3ecb8f70dcf1f50980f2a1189017f
+Wrote mapping table: docs\datasheets\d2-mapping-table.md
+python data/synthetic/d3_generator.py
+SHA-256 data\synthetic\d3_population.csv: 2311690bfaf45d7e944f5e572bdd50d0f5a768494480d54d78a88b1b8ed619ef
+SHA-256 data\protected\d3_protected.csv: f2bbd239ee35022ab99c69f32343962c2e33f84173a471a7d07b1499cd673c44
+python -m src.data.batch_decide --dataset d3
+SHA-256 data\decisions\d3_decisions.csv: 2a06548166d2d46f3dbf255c3b65a96ab32fc4c43e80831d661734883b72c2f7
+python -m src.data.split
+Created split d2: data\splits\d2_split.csv (SHA-256: b4d17251eb41042137be01ea4e2363fae78b206ccedc2d87bcc6b89a95e19f47)
+Counts: {'train': np.int64(215257), 'validation': np.int64(46127), 'test': np.int64(46127)}
+Created split d3: data\splits\d3_split.csv (SHA-256: 6f3b92f0ff0fa837e335eb779eadcb47253c108954d007bab8ae2446d0c08c6e)
+Counts: {'train': np.int64(14000), 'validation': np.int64(3000), 'test': np.int64(3000)}
+python -m src.data.batch_decide --dataset d2
+SHA-256 data\decisions\d2_decisions.csv: 7376c2208aec1d4fcc206ab05eba0f218d89d1a59f1d16f411bf226128dd8eb8
+python -m src.ml.baseline
+Wrote reports\ml\feature_list.json
+Saved reports\ml\metrics_d2_lr.json
+Saved reports\ml\metrics_d2_gb.json
+Saved reports\ml\metrics_d3_lr.json
+Saved reports\ml\metrics_d3_gb.json
+Saved reports\ml\metrics_d3_sim_lr.json
+python -m src.ml.baseline_filtered
+python tools/check_floats.py src/calc src/facts src/explain src/data/d2_map.py
+FLOAT_BAN OK: no floats in src\calc, src\facts, src\explain, src\data\d2_map.py (9 file(s) checked).
+python -m src.engine.param_loader params/params.toml
+OK: params/params.toml loaded with 0 warning(s) and no errors.
+    18 scalar parameters, 3 band(s).
+python -m src.engine.field_loader rules/fields.toml
+OK: rules\fields.toml loaded with 0 warning(s) and no errors.
+    27 fields (15 input, 12 derived).
+python -m src.engine.rule_loader rules params/params.toml
+OK: rules loaded successfully (22 rules across 7 layers, 21 reason codes).
+python -m src.engine.hygiene
+
+Rule Firing Matrix (D1 Dataset)
+----------------------------------------
+Rule ID    | Fired Count  | Notes                         
+----------------------------------------
+A01        | 47           | OK                            
+A02        | 47           | OK                            
+A03        | 5            | OK                            
+A04        | 12           | OK                            
+E01        | 1            | OK                            
+E02        | 47           | OK                            
+K01        | 1            | OK                            
+K02        | 1            | OK                            
+K03        | 3            | OK                            
+K04        | 3            | OK                            
+K05        | 3            | OK                            
+K06        | 2            | OK                            
+P01        | 42           | OK                            
+R01        | 2            | OK                            
+R02        | 3            | OK                            
+R03        | 2            | OK                            
+V01        | 16           | OK                            
+V02        | 2            | OK                            
+V03        | 2            | OK                            
+V04        | 2            | OK                            
+AMOUNT_LIMITED_BY_PRODUCT_MAXIMUM | 0            | Unreachable by design (DT-3)  
+----------------------------------------
+
+OK: all hygiene checks passed with zero findings.
+python tools/oracle_diff.py
+Diff report written to C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system-clean2\data\d1\oracle_diff.md (0 differences).
+python -m src.data.manifest
+Manifest written to data\manifest.json
+python -m src.data.group_sizes
+Group sizes for d2 written to data\group_sizes\d2_group_sizes.csv:
+  Total groups evaluated: 30, Groups < 100 on test: 4
+Group sizes for d3 written to data\group_sizes\d3_group_sizes.csv:
+  Total groups evaluated: 17, Groups < 100 on test: 1
+"=== Phase 4 complete ==="
+python -m src.eval.edge_cases
+Wrote 64 edge case results to C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system-clean2\reports\edge_cases\results.csv
+Wrote edge cases summary to C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system-clean2\reports\edge_cases\summary.md
+python -m src.eval.compare
+Wrote comparison scorecard JSON to C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system-clean2\reports\comparison\scorecard.json
+Wrote comparison scorecard Markdown to C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system-clean2\reports\comparison\scorecard.md
+python -m src.eval.fairness
+Loading D2 data...
+Evaluating D2 rule system...
+  Written: C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system-clean2\reports\fairness\d2_rule_system.json
+Evaluating D2 ML models...
+  Written: C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system-clean2\reports\fairness\d2_lr.json
+  Written: C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system-clean2\reports\fairness\d2_gb.json
+Loading D3 data...
+Evaluating D3 rule system...
+  Written: C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system-clean2\reports\fairness\d3_rule_system.json
+Evaluating D3 ML models...
+  Written: C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system-clean2\reports\fairness\d3_lr.json
+  Written: C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system-clean2\reports\fairness\d3_gb.json
+Running counterfactual swap across rule engine, LR, and GB...
+Evaluating D3 gender×age_band intersection...
+Computing gender-from-features AUC...
+Summary written to C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system-clean2\reports\fairness\summary.json
+  Written: C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system-clean2\reports\fairness\d2_tables.md
+  Written: C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system-clean2\reports\fairness\d3_tables.md
+Fairness evaluation complete.
+python tools/phase5_manifest.py
+Phase 5 manifest written to C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system-clean2\reports\phase5_manifest.json
+  Rule-set hash: sha256:eb7073a388817e0a455997c0c2ea86ccb25524cdff07faf8bf5ca98bb267be5a
+  Params hash: sha256:4c2698607ae7ea824fc62f39a84ac52fa69db1b59c0657ffeb152b0960885373
+  Report files hashed: 27
+"=== Phase 5 complete ==="
+python tools/reproduce_comparison.py
+Reproduce comparison written to C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system-clean2\reports\reproduce_comparison.md and C:\Users\asus\Documents\Learning\AI_Class_Project\loan-expert-system-clean2\docs\reports\phase-5-6-evidence\reproduce_comparison.md
+WARNING: Some files missing or diffs found; see report.
+"=== Reproduce complete ==="
+
+
+--- STDERR ---
+Aggregating bureau_balance.csv ...
+Aggregating bureau.csv ...
+Reading application_train.csv ...
+Mapping rows ...
+Validating with schema validator ...
+Validation passed: 0/307511 rows failed (0 failures).
+Reading input dataset: data\synthetic\d3_population.csv ...
+Evaluated 20000 rows for d3 in 15.27s (1309.5 rows/s)
+Reading input dataset: data\mapped\d2_mapped.csv ...
+Filtered to 92254 applicants in splits: ['validation', 'test']
+Evaluated 92254 rows for d2 in 31.07s (2969.5 rows/s)
+Fitting D2 lr on 215257 training rows...
+Fitting D2 gb on 215257 training rows...
+Fitting D3 (d3) lr on 14000 rows...
+Fitting D3 (d3) gb on 14000 rows...
+Fitting D3 (d3_sim) lr on 14000 rows...
+All ML baseline models and metrics successfully computed!
+
+--- Subset: MAIN ---
+  val rows: 46127, test rows: 46127
+  Wrote reports\ml\comparison_main.json
+
+--- Subset: F1 ---
+  val rows: 15858, test rows: 15798
+  Wrote reports\ml\comparison_f1.json
+
+--- Subset: F2 ---
+  val rows: 5990, test rows: 5995
+  Wrote reports\ml\comparison_f2.json
+
+All filtered comparison files written.
+

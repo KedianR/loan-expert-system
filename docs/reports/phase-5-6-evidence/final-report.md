@@ -2,7 +2,7 @@
 
 **Project:** Unsecured Personal Loan Eligibility Expert System in INR  
 **Author:** Antigravity / Engineering Team  
-**Date:** 14 November 2026  
+**Date:** 16 November 2026  
 **Version:** 1.0.0 (`rules-1.0.0+params-0.1.0`)  
 **Repository Pin:** `tests/golden/rule_set_pin.json` (`sha256:eb7073a388817e0a455997c0c2ea86ccb25524cdff07faf8bf5ca98bb267be5a`)
 
@@ -28,7 +28,7 @@ The expert system was architected against three primary regulatory benchmarks (d
    - Enforces explicit applicant consent (`consent_given`), purpose-bound data collection, and access to grievance escalation (`docs/regulatory-mapping.md` §1).
 2. **US Equal Credit Opportunity Act (ECOA) / Regulation B (12 CFR Part 1002)**:
    - Mandates specific, factual reason codes on adverse action notices reflecting the actual factors considered.
-   - Note: Recent CFPB revisions (effective 21 July 2026, confirm) remove disparate-impact liability under federal Regulation B; however, adverse-action notice duties remain unchanged.
+   - Note: Recent CFPB revisions (effective 21 July 2026, confirm) remove disparate-impact liability under federal Regulation B; however, adverse-action notice duties remain unchanged (confirm).
 3. **EU Artificial Intelligence Act (Regulation EU 2024/1689 & Digital Omnibus EU 2026/1744)**:
    - Classifies creditworthiness evaluation systems for natural persons as high-risk AI (Annex III, point 5b). Stand-alone high-risk obligations apply from 2 December 2027 (confirm). Requires human oversight, robust logging, transparency, and bias testing.
 
@@ -52,7 +52,7 @@ The implementation follows strict separation of concerns (`docs/05-architecture.
 1. **No Magic Numbers**: Zero numeric policy thresholds appear in Python or rule condition text; all values are injected dynamically from `params/params.toml` (`NFR-04`).
 2. **Strict Arithmetic Typing**: Exact decimal arithmetic (`Decimal` and whole rupee integer math) is enforced across `src/calc/`, `src/facts/`, `src/explain/`, and data mapping. Floating-point numbers are completely banned and enforced via AST static scan `tools/check_floats.py` (`NFR-03`).
 3. **Trace Derivation Only from Fired Rules**: Adverse action reason codes and customer-facing notices are built strictly from rules that fired during inference (`FR-07`, `FR-08`).
-4. **Append-Only Immutable Audit Log**: Every audited decision writes canonical inputs and hashes to an append-only SQLite store protected by database triggers that abort `UPDATE` and `DELETE` operations (`FR-10`, `NFR-06`).
+4. **Append-Only Immutable Audit Log**: Every audited decision writes canonical inputs and hashes to an append-only SQLite store protected by database triggers that abort `UPDATE` and `DELETE` operations (`FR-10`, `NFR-08`).
 5. **Deterministic Replay**: Past decisions can be replayed from the stored input hash and rule-set version hash, verifying byte-identical reproducibility (`FR-11`, `NFR-01`, `NFR-07`).
 
 ---
@@ -106,7 +106,7 @@ Following `docs/comparison-methodology.md`, the expert system and ML baselines (
 
 ### Context Table: Predictive Accuracy and Default Control (Unscored)
 
-> **Context note**: D2 rests on 776 approvals with overlapping intervals and D3 agreement is partly circular.
+> **Context note**: D2 rests on 776 approvals. At matched approval rates (~1.6%–1.7%), both ML models show a lower observed default rate among approved on D2 (LR: 1.39%, 95% CI [0.56%, 2.42%]; GB: 1.27%, 95% CI [0.58%, 2.12%]) than the rule system (Treatment A: 3.35%, 95% CI [2.14%, 4.70%]; Treatment B: 3.35%, 95% CI [2.12%, 4.67%]). While LR's confidence interval overlaps Treatment A's, GB's upper bound (2.12%) is strictly below Treatment A's lower bound (2.14%). However, these D2 findings rest on historical lender selection bias, overlapping confidence intervals across subsets, and small approval samples; D3 agreement is partly circular.
 
 | Metric / Attribute | Rule System (Treatment A) | Rule System (Treatment B) | Logistic Regression | HistGradientBoosting |
 |---|---|---|---|---|
@@ -128,21 +128,21 @@ Evaluation under the pre-registered pipeline (`selection_rate_difference`, refer
 - **Standard-Size Planted Bias Test (Pre-registered, P5-11)**: Evaluated on the standard synthetic D3 population with 15% income penalty planted on female applicants ($N = 20,000$, all rows, rules only). The pipeline detected the shift at standard size (marginally: upper bound -0.0013, close to zero; point estimate **$-0.0151$**, 95% bootstrap CI **$[-0.0286, -0.0013]$**, strictly excludes 0, $F < M$; **Flag = True**).
 - **Standard-Size Control Test (Pre-registered, P5-11)**: On the unperturbed standard synthetic D3 population ($N = 20,000$, all rows), gender selection-rate difference was **$+0.0031$**, 95% bootstrap CI **$[-0.0100, +0.0168]$** (straddles 0; **Flag = False**).
 - **Supplementary 100,000-Row Power Check (Amendment A-02)**: Evaluated on $N = 100,000$ to confirm asymptotic confidence interval narrowing. Planted run: clearly detected at 100,000 (difference **$-0.0186$**, 95% CI **$[-0.0247, -0.0127]$**; **Flag = True**). Control run: difference **$+0.0012$**, 95% CI **$[-0.0049, +0.0071]$**; **Flag = False**).
-- **Mechanism of Effect**: A 15% income reduction for female applicants shifts the selection rate by roughly 1.5 to 1.9 percentage points (point estimates -0.0151 and -0.0186). This occurs because income operates through affordability rules (FOIR, disposable income, income floors) that affect only marginal applicants near threshold boundaries, rather than the entire population.
+- **Mechanism of Effect**: A 15% income reduction for female applicants shifts the selection rate by roughly 1.5 to 1.9 percentage points (point estimates -0.0151 and -0.0186). This is consistent with income operating through affordability rules (FOIR, disposable income, income floors) that affect only marginal applicants near threshold boundaries, rather than the entire population.
 - **12-Row Hand Check**: Exact numerical point estimates matched manual mathematical derivations across Treatment A and Treatment B selection rates and EOD (`tests/unit/test_fairness.py`).
 
 ### 7.2 Findings on D2 Benchmark ($N = 46,127$)
 Cited from `reports/fairness/d2_tables.md` and `reports/fairness/d2_rule_system.json`:
 - **Low Baseline Approval Rate**: Because of conservative policy thresholds (income floor K05, minimum employment E01, and fallback obligations ASM-D4), the rule system approves only 1.68% of D2 test applicants (776 total).
 - **Equal Opportunity Difference (EOD)** across Primary Attributes:
-  - *Gender*: Male approval rate among repayers ($TARGET = 0$) was 2.22% vs. 1.54% for females (difference $+0.0067$, 95% CI $[+0.0036, +0.0101]$, flagged). This statistically significant gap arises because female applicants in the Home Credit sample have systematically lower recorded formal monthly income, failing the minimum monthly income floor of ₹15,000 (E01/K05) at higher rates.
+  - *Gender*: Male approval rate among repayers ($TARGET = 0$) was 2.22% vs. 1.54% for females (difference $+0.0067$, 95% CI $[+0.0036, +0.0101]$, flagged). This statistically significant gap arises because female applicants in the Home Credit test sample fail the minimum monthly income floor of ₹15,000 (rule K05) at a substantially higher rate (68.29%, 20,726 / 30,352) than male applicants (49.42%, 7,796 / 15,774).
   - *Age Band* (ref: 30-39): Cohort 21-29 has lower approval among repayers (difference $-0.0102$, 95% CI $[-0.0144, -0.0060]$, flagged) and cohort 60+ has lower approval (difference $-0.0141$, 95% CI $[-0.0180, -0.0102]$, flagged), while cohort 40-49 has higher approval (difference $+0.0095$, 95% CI $[+0.0045, +0.0146]$, flagged). Cohort 50-59 straddles zero (difference $-0.0012$, 95% CI $[-0.0058, +0.0033]$, not flagged).
   - *Employment Type* (ref: salaried): Self-employed applicants show a slight positive difference among repayers (difference $+0.0042$, 95% CI $[+0.0004, +0.0080]$, flagged). Applicants with employment type `other` are **never approved under the rules** (0 approvals, failing E01 which requires salaried $\ge 6$ months or self-employed $\ge 24$ months); having fewer than 20 approvals, this slice is marked `unstable` per P5-5 with no flag.
   - *Income Band* (ref: Q1): Reference quartile Q1 has 0 approvals (failing the ₹15,000 income floor); with $<20$ approvals in the reference group, all comparisons are marked `unstable` per P5-5 with no flag.
-- **Small Cell and Instability Limits**: Intersectional slices and rare groups (e.g., academic degrees, older cohorts) contain fewer than 20 approvals, correctly reported as `unstable` or `too_small` per protocol P5-5.
+- **Small Cell and Instability Limits**: Intersectional slices and rare groups (e.g., academic degrees, specific gender × age cells) contain fewer than 20 approvals or approved repayers, correctly reported as `unstable` or `too_small` per protocol P5-5. (Note: on the primary `age_band` attribute, all cohorts contain $\ge 20$ approvals and approved repayers; cohort 60+ has 23 approvals and 23 approved repayers, correctly scored and flagged).
 
 ### 7.3 Counterfactual Swap and Proxy Analysis
-- **Counterfactual Swap (`reports/fairness/summary.json`)**: 1,000 D3 rows re-evaluated after shuffling the protected attribute store resulted in **0 decision changes across all three systems**: rule engine (FR-20), Logistic Regression (DR-02), and HistGradientBoosting (DR-02), each on 1,000 rows (`pass: true`).
+- **Counterfactual Swap (`reports/fairness/summary.json`)**: 1,000 D3 rows re-evaluated after shuffling the protected attribute store resulted in **0 decision changes across all three systems**: rule engine (FR-20), Logistic Regression (DR-02), and HistGradientBoosting (DR-02), each on 1,000 rows (`pass: true`). The counterfactual swap shows that protected attributes are not used in decision computation (neither in the rule engine nor in the ML feature pipeline); it demonstrates procedural blindness, not that demographic outcomes are fair.
 - **Proxy Signal**: A logistic regression predicting applicant gender (`CODE_GENDER`) from the model feature set on D2 achieved an AUC of **0.6745** (P5-9: report only; no action), indicating moderate correlation between employment/income features and gender in the raw benchmark.
 
 ---
@@ -162,7 +162,7 @@ The following limits govern this coursework release and must be stated without o
    - `make decide-d3` (engine-direct path) evaluated 20,000 rows in 19.89 seconds (1,005.6 rows per second).
    - *Scope limit*: The NFR-06 requirement of evaluating a batch of 10,000 decisions under 5 minutes holds for the **engine-direct path only**. Batch processing through the full API and audit persistence layer requires database connection pooling or batched inserts for production scale.
 6. **Lean-Mode Scope Cuts**: In accordance with `docs/06-test-plan.md` ("Lean mode"), the following tests were not conducted: Fairlearn library cross-check, formal SHAP faithfulness tests, comprehensive rule coverage percentages, sensitivity sweeps, and loader edge-case stress tests.
-7. **Operational Review Process Scope**: Demonstration UI surfaces scoring and decision outputs independently without persistent database mutation; production-scale deployment requires managed review queue infrastructure and human override tracking.
+7. **Operational Review Process Scope**: The demonstration UI (`src/ui/`) routes application decisions through the standard service layer (`POST /ui/decide` -> `DecisionService.decide`), which appends immutable audit records directly to the primary SQLite audit store (`data/audit.db`) identically to the REST API path (FR-10, FR-15). The UI operates without direct database connections or policy state mutation; production-scale deployment requires managed reviewer queue infrastructure and authenticated dual-authorization workflows.
 8. **Unanalysed Protected Attributes**: Demographic attributes such as religion, caste, sexual orientation, and disability were not captured in public benchmark D2 or synthetic dataset D3, and were therefore not evaluated in algorithmic fairness audits.
 9. **ML Edge Cases Handling**: Continuous ML models lack schema rejection gates; missing mandatory income is median-imputed with an indicator flag rather than rejected, resulting in approvals on incomplete inputs (e.g. EC-MD-01).
 10. **Few-Default Screening Metrics on D2**: On D2 test data, only 26 defaults exist among the 776 approved applicants (96.65% non-default rate), producing wide bootstrap confidence intervals on default metrics.
@@ -193,8 +193,8 @@ All gate commands have passed cleanly:
 - `make oracle-diff`: PASS (0 differences on D1 reference suite)
 - `make test`: PASS (198 total unit, property, golden, and integration tests across all test suites)
 - `make phase5`: PASS (edge-case catalog, comparison scorecard, fairness audit, and manifest)
-- `make reproduce`: PASS (Phase 4 and Phase 5 reproducibility verified against git HEAD)
-- `make traceability`: PASS (47 of 47 requirement IDs mapped to tests; 100% coverage)
+- `make reproduce`: PASS (Phase 4 and Phase 5 full-pipeline reproduction verified on clean clone against committed expected values with zero tolerance divergence)
+- `make traceability`: PASS (46 of 47 requirement IDs verified by unit/integration tests + 1 measured by timing benchmark; 100% verified)
 - `make check-docs`: PASS (0 missing rule IDs, 0 missing reason codes, secrets scan clean, scorecard consistency verified)
 
 

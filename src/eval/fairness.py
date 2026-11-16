@@ -383,12 +383,8 @@ def _compute_group_metric(
             grp_events = int(((grp_nr["decision"] == "eligible") & (grp_nr["target"] == 0)).sum())
             ref_events = int(((ref_nr["decision"] == "eligible") & (ref_nr["target"] == 0)).sum())
 
-        if (
-            grp_approvals < min_events
-            or ref_approvals < min_events
-            or grp_events < min_events
-            or ref_events < min_events
-        ):
+        # Stability: at least min_events approved repayers (P5-5)
+        if grp_events < min_events or ref_events < min_events:
             return {
                 "status": "unstable",
                 "group_rate": float(grp_rate) if not np.isnan(grp_rate) else None,

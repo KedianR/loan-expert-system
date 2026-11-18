@@ -1,0 +1,49 @@
+# Sensitive and raw data
+data/raw/
+data/d2/
+data/mapped/
+data/protected/
+data/splits/
+data/decisions/
+data/group_sizes/
+data/synthetic/
+data/*.db
+data/*.sqlite
+data/audit/
+*.db
+*.sqlite
+
+# Home Credit models (D2 derived) and experimental models
+models/d2_*
+models/d3_sim_lr.joblib
+
+# Developer tests and harnesses (preserve tests/golden/*.json for runtime pin/presets)
+tests/unit/
+tests/property/
+tests/integration/
+tests/golden/*.py
+
+# Documentation, reports, screenshots
+docs/
+notebooks/
+spikes/
+eval/
+tools/
+
+# Environment and caches
+.venv/
+venv/
+ENV/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.hypothesis/
+.coverage
+htmlcov/
+.ruff_cache/
+.git/
+.github/
+.idea/
+.vscode/

@@ -17,6 +17,7 @@ Hard rules:
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -25,7 +26,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from fastapi import FastAPI, HTTPException, Request  # noqa: E402
-from fastapi.responses import HTMLResponse, JSONResponse  # noqa: E402
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse  # noqa: E402
 from fastapi.staticfiles import StaticFiles  # noqa: E402
 
 # Import the service function (FR-25; docs/ui-spec.md §4)
@@ -130,7 +131,10 @@ def _get_ml_scorer():
 async def index_page():
     """Serve the main application form page."""
     html_path = STATIC_DIR / "index.html"
-    return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
+    content = html_path.read_text(encoding="utf-8")
+    if os.environ.get("VERCEL"):
+        content = content.replace('id="demo-notice" hidden', 'id="demo-notice"')
+    return HTMLResponse(content=content)
 
 
 @app.get("/results", response_class=HTMLResponse)
@@ -144,7 +148,23 @@ async def results_page():
 async def about_page():
     """Serve the about page."""
     html_path = STATIC_DIR / "about.html"
-    return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
+    content = html_path.read_text(encoding="utf-8")
+    if os.environ.get("VERCEL"):
+        content = content.replace('id="about-demo-notice" hidden', 'id="about-demo-notice"')
+    return HTMLResponse(content=content)
+
+
+@app.get("/ui/config")
+async def ui_config():
+    """Return runtime UI configuration (e.g. demo mode flags)."""
+    is_vercel = bool(os.environ.get("VERCEL"))
+    return JSONResponse(content={"vercel": is_vercel, "demo": is_vercel, "demo_mode": is_vercel})
+
+
+@app.get("/robots.txt", response_class=PlainTextResponse)
+async def robots_txt():
+    """Disallow all web crawlers per Requirement 7."""
+    return PlainTextResponse("User-agent: *\nDisallow: /\n")
 
 
 # ---------------------------------------------------------------------------
@@ -180,6 +200,11 @@ async def ui_decide(request: Request):
                 rid = step.get("rule_id")
                 if rid and rid in svc.rule_set.rules:
                     step["description"] = svc.rule_set.rules[rid].description
+
+        # Writable paths / Demo mode handling (Requirement 4)
+        if os.environ.get("VERCEL"):
+            result["audit_stored"] = "Yes (demo, temporary)"
+            result["demo_mode"] = True
         return JSONResponse(content=result)
     except Exception as exc:
         # Return structured error so the UI can show it

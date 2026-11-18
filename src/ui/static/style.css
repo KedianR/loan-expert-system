@@ -1841,6 +1841,18 @@ li {
   line-height: 1.4;
 }
 
+.demo-notice {
+  font-size: var(--fs-xs);
+  color: var(--c-text-muted);
+  line-height: 1.4;
+  margin-top: var(--sp-2);
+  margin-bottom: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  background-color: var(--c-surface-raised);
+  border-radius: var(--r-sm);
+  border-left: 3px solid var(--c-refer);
+}
+
 /* Touch targets: all interactive elements >=44px */
 button,
 [role="button"],

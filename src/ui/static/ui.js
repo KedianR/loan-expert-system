@@ -1069,7 +1069,7 @@ function buildRecord(el, data) {
     ['Decision ID', data.decision_id || data.id || '—'],
     ['Rule-set tag / version', data.rule_set_tag || data.rule_set_version || '—'],
     ['Rule-set hash', hashVal],
-    ['Audit stored', data.audit_stored === true ? 'Yes' : (data.audit_stored === false ? 'No' : (data.decision_id ? 'Yes' : 'Unknown'))],
+    ['Audit stored', typeof data.audit_stored === 'string' ? data.audit_stored : (data.demo_mode ? 'Yes (demo, temporary)' : (data.audit_stored === true ? 'Yes' : (data.audit_stored === false ? 'No' : (data.decision_id ? 'Yes' : 'Unknown'))))],
   ];
 
   const tbl = document.createElement('table');
@@ -1248,4 +1248,17 @@ document.addEventListener('DOMContentLoaded', () => {
       presetPanel.removeAttribute('open');
     }
   }
+
+  // Check demo mode configuration (Requirement 8)
+  fetch('/ui/config')
+    .then(r => r.json())
+    .then(cfg => {
+      if (cfg && cfg.vercel) {
+        const demoEl = document.getElementById('demo-notice');
+        if (demoEl) demoEl.removeAttribute('hidden');
+        const aboutDemoEl = document.getElementById('about-demo-notice');
+        if (aboutDemoEl) aboutDemoEl.removeAttribute('hidden');
+      }
+    })
+    .catch(() => {});
 });

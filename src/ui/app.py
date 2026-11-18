@@ -88,21 +88,35 @@ def _get_ml_scorer():
         import joblib
 
         from src.ml.baseline import explain_logistic_regression
-        from src.ml.features import load_ml_config
+        from src.ml.features import get_feature_groups, load_ml_config
 
-        model_path = REPO_ROOT / "models" / "d3_lr.joblib"
-        if not model_path.exists():
-            _ml_scorer_error = "Not available; run `make baseline`"
+        lr_model_path = REPO_ROOT / "models" / "d3_lr.joblib"
+        gb_model_path = REPO_ROOT / "models" / "d3_gb.joblib"
+        if not lr_model_path.exists():
+            _ml_scorer_error = "ML score unavailable"
             return None
-        model_data = joblib.load(model_path)
+        lr_data = joblib.load(lr_model_path)
+        lr_pipeline = lr_data.get("pipeline") if isinstance(lr_data, dict) else lr_data
+        train_mean = lr_data.get("train_mean") if isinstance(lr_data, dict) else None
+
+        gb_pipeline = None
+        if gb_model_path.exists():
+            gb_data = joblib.load(gb_model_path)
+            gb_pipeline = gb_data.get("pipeline") if isinstance(gb_data, dict) else gb_data
+
         ml_cfg = load_ml_config(REPO_ROOT / "config" / "ml.toml")
+        feature_groups = get_feature_groups(ml_cfg)
+
         _ml_scorer = {
-            "model_data": model_data,
+            "lr_pipeline": lr_pipeline,
+            "train_mean": train_mean,
+            "gb_pipeline": gb_pipeline,
             "ml_cfg": ml_cfg,
+            "feature_groups": feature_groups,
             "explain_fn": explain_logistic_regression,
         }
-    except Exception as exc:
-        _ml_scorer_error = f"Not available ({exc})"
+    except Exception:
+        _ml_scorer_error = "ML score unavailable"
     return _ml_scorer
 
 
@@ -148,6 +162,16 @@ async def ui_decide(request: Request):
     svc = _get_service()
     try:
         result = svc.decide(body)
+        if result.get("offer"):
+            offer = result["offer"]
+            if "emi" in offer and "tenure_months" in offer:
+                from decimal import Decimal
+                try:
+                    emi = Decimal(str(offer["emi"]))
+                    tenure = Decimal(str(offer["tenure_months"]))
+                    offer["total_repayment"] = str((emi * tenure).quantize(Decimal("0.01")))
+                except Exception:
+                    pass
         return JSONResponse(content=result)
     except Exception as exc:
         # Return structured error so the UI can show it
@@ -164,9 +188,9 @@ async def ui_decide(request: Request):
 
 @app.post("/ui/ml-score")
 async def ui_ml_score(request: Request):
-    """Score the application with the D3 LR model; return score and top-3 contributions.
+    """Score the application with the D3 LR and GB models; return scores and contributions.
 
-    If the model is not available, returns {"available": false, "message": "..."}.
+    If the model is not available, returns {"available": false, "message": "ML score unavailable"}.
     ML score never feeds the decision.
     """
     scorer = _get_ml_scorer()
@@ -174,7 +198,7 @@ async def ui_ml_score(request: Request):
         return JSONResponse(
             content={
                 "available": False,
-                "message": _ml_scorer_error or "Not available; run `make baseline`",
+                "message": _ml_scorer_error or "ML score unavailable",
                 "caveat": "This score does not feed the decision. It is a ranking score, not a probability.",
             }
         )
@@ -185,34 +209,49 @@ async def ui_ml_score(request: Request):
 
         from src.ml.features import prepare_dataframe
 
-        df = pd.DataFrame([body])
+        row_dict = body.copy()
+        for k, v in row_dict.items():
+            if v == "invalid_string":
+                row_dict[k] = None
+
+        if "obligations_source" not in row_dict:
+            row_dict["obligations_source"] = "synthetic"
+
+        df = pd.DataFrame([row_dict])
         ml_cfg = scorer["ml_cfg"]
         df_feat = prepare_dataframe(df, ml_cfg)
         exclude = {"applicant_id", "TARGET", "sim_default", "split", "income_band"}
         feat_cols = [c for c in df_feat.columns if c not in exclude]
-        pipeline = scorer["model_data"]["pipeline"]
-        proba = float(pipeline.predict_proba(df_feat[feat_cols])[0, 1])
 
-        # Top-3 feature contributions via explain function
-        try:
-            explain_fn = scorer["explain_fn"]
-            contributions = explain_fn(pipeline, df_feat[feat_cols], top_n=3)
-        except Exception:
-            contributions = []
+        lr_pipeline = scorer["lr_pipeline"]
+        train_mean = scorer["train_mean"]
+        feature_groups = scorer["feature_groups"]
+        explain_fn = scorer["explain_fn"]
+
+        lr_prob, top3 = explain_fn(lr_pipeline, df_feat, feature_groups, train_mean)
+        lr_score = round(float(lr_prob), 4)
+
+        gb_score = None
+        if scorer.get("gb_pipeline") is not None:
+            gb_pipe = scorer["gb_pipeline"]
+            gb_prob = float(gb_pipe.predict_proba(df_feat[feat_cols])[0, 1])
+            gb_score = round(gb_prob, 4)
 
         return JSONResponse(
             content={
                 "available": True,
-                "score": round(proba, 4),
+                "score": lr_score,
+                "lr_score": lr_score,
+                "gb_score": gb_score,
                 "caveat": "This score does not feed the decision. It is a ranking score, not a probability.",
-                "contributions": contributions,
+                "contributions": top3,
             }
         )
-    except Exception as exc:
+    except Exception:
         return JSONResponse(
             content={
                 "available": False,
-                "message": f"Not available ({exc})",
+                "message": "ML score unavailable",
                 "caveat": "This score does not feed the decision. It is a ranking score, not a probability.",
             }
         )

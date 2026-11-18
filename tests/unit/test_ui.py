@@ -404,3 +404,82 @@ def test_form_inputs_have_labels(client):
         assert label_for in html or label_for2 in html, (
             f"Input id='{fid}' in index.html has no matching <label for='{fid}'>"
         )
+
+
+# ---------------------------------------------------------------------------
+# UI v2 Fix Pass Tests (A.1, A.2, A.3, A.4)
+# ---------------------------------------------------------------------------
+
+
+def test_results_reports_endpoints_return_non_empty(client):
+    """A.1: Results data endpoints return non-empty data for each tab."""
+    reports = [
+        "metrics_d2_lr",
+        "comparison_scorecard",
+        "d2_tables",
+        "edge_case_summary",
+    ]
+    for rep in reports:
+        res = client.get(f"/ui/report/{rep}")
+        assert res.status_code == 200, f"/ui/report/{rep} returned {res.status_code}"
+        data = res.json()
+        assert data.get("available") is not False, f"Report {rep} marked as unavailable: {data}"
+        if "content" in data:
+            assert len(data["content"].strip()) > 0, f"Report {rep} content is empty"
+        else:
+            assert len(data) > 0, f"Report {rep} JSON is empty"
+
+
+def test_ml_score_tv1_returns_both_models(client):
+    """A.2: POST /ui/ml-score on TV1 returns scores for both LR and GB models without errors."""
+    vectors_path = REPO_ROOT / "tests" / "golden" / "vectors.json"
+    vecs = json.loads(vectors_path.read_text(encoding="utf-8"))["vectors"]
+    tv1 = vecs[0]["input"]
+
+    res = client.post("/ui/ml-score", json=tv1)
+    assert res.status_code == 200, f"/ui/ml-score returned {res.status_code}"
+    data = res.json()
+    assert data.get("available") is True, f"ML scoring failed: {data}"
+    assert "lr_score" in data, "lr_score missing from ML response"
+    assert isinstance(data["lr_score"], (int, float)), "lr_score must be a numeric score"
+    assert 0.0 <= data["lr_score"] <= 1.0, f"lr_score out of range: {data['lr_score']}"
+
+    assert "gb_score" in data, "gb_score missing from ML response"
+    assert isinstance(data["gb_score"], (int, float)), "gb_score must be a numeric score"
+    assert 0.0 <= data["gb_score"] <= 1.0, f"gb_score out of range: {data['gb_score']}"
+
+    assert "columns are missing" not in str(data)
+    assert "error" not in data
+
+
+def test_offer_summary_total_repayment_separate_row(client):
+    """A.3: Offer summary in /ui/decide contains total_repayment (= emi * tenure) separate from total_interest."""
+    vectors_path = REPO_ROOT / "tests" / "golden" / "vectors.json"
+    vecs = json.loads(vectors_path.read_text(encoding="utf-8"))["vectors"]
+    tv1 = vecs[0]["input"]
+
+    res = client.post("/ui/decide", json=tv1)
+    assert res.status_code == 200
+    offer = res.json().get("offer") or {}
+    assert "total_interest" in offer, "total_interest missing from offer"
+    assert "total_repayment" in offer, "total_repayment missing from offer"
+    assert offer["total_interest"] == "167408.48"
+    assert offer["total_repayment"] == "867408.48"
+
+
+def test_checkboxes_style_and_preset_behavior():
+    """A.4: Checkboxes visual style and preset state handling in style.css and ui.js."""
+    css_path = REPO_ROOT / "src" / "ui" / "static" / "style.css"
+    css = css_path.read_text(encoding="utf-8")
+
+    # style.css must ensure checkboxes are not stripped by appearance: none
+    assert re.search(r'input\[type=["\']checkbox["\']\]\s*\{[^}]*appearance:\s*auto', css) or \
+           ":not([type=\"checkbox\"])" in css, "Checkboxes must have visible appearance"
+
+    # ui.js must handle checkboxes in applyPreset
+    js_path = REPO_ROOT / "src" / "ui" / "static" / "ui.js"
+    js = js_path.read_text(encoding="utf-8")
+    assert "kyc_verified" in js
+    assert "consent_given" in js
+    assert "checked" in js
+

@@ -41,20 +41,29 @@ def main():
     with sync_playwright() as p:
         browser = p.chromium.launch()
 
+        def check_no_overflow(page, label):
+            scroll_w, inner_w = page.evaluate("() => [document.documentElement.scrollWidth, window.innerWidth]")
+            assert scroll_w <= inner_w, f"Horizontal overflow on {label}: scrollWidth={scroll_w} > innerWidth={inner_w}"
+
         for vp_name, vp_dims in VIEWPORTS:
             for scheme in SCHEMES:
                 # 1. Apply (empty)
                 ctx = browser.new_context(viewport=vp_dims, color_scheme=scheme)
                 page = ctx.new_page()
                 page.goto(f"{base_url}/")
-                page.wait_for_selector(".preset-btn")
+                page.wait_for_selector(".preset-btn", state="attached")
+                time.sleep(0.3)
+                check_no_overflow(page, f"apply_empty_{vp_name}_{scheme}")
                 path = OUT_DIR / f"apply_empty_{vp_name}_{scheme}.png"
                 page.screenshot(path=str(path), full_page=True)
                 captured.append(str(path))
 
                 # 2. Apply (TV1 filled)
+                page.eval_on_selector("#preset-panel", "el => { if (el) el.open = true; }")
+                time.sleep(0.2)
                 page.query_selector_all(".preset-btn")[0].click()  # TV1
-                time.sleep(0.3)
+                time.sleep(0.4)
+                check_no_overflow(page, f"apply_tv1_filled_{vp_name}_{scheme}")
                 path = OUT_DIR / f"apply_tv1_filled_{vp_name}_{scheme}.png"
                 page.screenshot(path=str(path), full_page=True)
                 captured.append(str(path))
@@ -62,7 +71,8 @@ def main():
                 # 3. Report for ELIGIBLE
                 page.click("#submit-btn")
                 page.wait_for_selector(".ml-disclaimer", timeout=10000)
-                time.sleep(0.5)
+                time.sleep(0.6)
+                check_no_overflow(page, f"report_eligible_{vp_name}_{scheme}")
                 path = OUT_DIR / f"report_eligible_{vp_name}_{scheme}.png"
                 page.screenshot(path=str(path), full_page=True)
                 captured.append(str(path))
@@ -72,13 +82,16 @@ def main():
                 ctx = browser.new_context(viewport=vp_dims, color_scheme=scheme)
                 page = ctx.new_page()
                 page.goto(f"{base_url}/")
-                page.wait_for_selector(".preset-btn")
+                page.wait_for_selector(".preset-btn", state="attached")
+                page.eval_on_selector("#preset-panel", "el => { if (el) el.open = true; }")
+                time.sleep(0.2)
                 # TV6 is 6th preset (index 5)
                 page.query_selector_all(".preset-btn")[5].click()
-                time.sleep(0.3)
+                time.sleep(0.4)
                 page.click("#submit-btn")
                 page.wait_for_selector(".ml-disclaimer", timeout=10000)
-                time.sleep(0.5)
+                time.sleep(0.6)
+                check_no_overflow(page, f"report_ineligible_{vp_name}_{scheme}")
                 path = OUT_DIR / f"report_ineligible_{vp_name}_{scheme}.png"
                 page.screenshot(path=str(path), full_page=True)
                 captured.append(str(path))
@@ -88,27 +101,62 @@ def main():
                 ctx = browser.new_context(viewport=vp_dims, color_scheme=scheme)
                 page = ctx.new_page()
                 page.goto(f"{base_url}/")
-                page.wait_for_selector(".preset-btn")
+                page.wait_for_selector(".preset-btn", state="attached")
+                page.eval_on_selector("#preset-panel", "el => { if (el) el.open = true; }")
+                time.sleep(0.2)
                 page.query_selector_all(".preset-btn")[0].click()  # TV1
-                time.sleep(0.3)
+                time.sleep(0.4)
                 page.fill("#credit_score", "")  # Clear credit score -> triggers R01 referral
                 page.click("#submit-btn")
                 page.wait_for_selector(".ml-disclaimer", timeout=10000)
-                time.sleep(0.5)
+                time.sleep(0.6)
+                check_no_overflow(page, f"report_refer_{vp_name}_{scheme}")
                 path = OUT_DIR / f"report_refer_{vp_name}_{scheme}.png"
                 page.screenshot(path=str(path), full_page=True)
                 captured.append(str(path))
                 ctx.close()
 
-                # 6. Results
+                # 6. Results — ALL FOUR TABS
                 ctx = browser.new_context(viewport=vp_dims, color_scheme=scheme)
                 page = ctx.new_page()
                 page.goto(f"{base_url}/results")
                 page.wait_for_selector(".tab-btn")
-                time.sleep(1.0)
-                path = OUT_DIR / f"results_{vp_name}_{scheme}.png"
-                page.screenshot(path=str(path), full_page=True)
-                captured.append(str(path))
+                time.sleep(0.8)
+
+                # Tab 1: ML Metrics (default)
+                check_no_overflow(page, f"results_ml_{vp_name}_{scheme}")
+                path_ml = OUT_DIR / f"results_ml_{vp_name}_{scheme}.png"
+                page.screenshot(path=str(path_ml), full_page=True)
+                captured.append(str(path_ml))
+                # Also save as results_{vp_name}_{scheme}.png for backward compatibility
+                path_default = OUT_DIR / f"results_{vp_name}_{scheme}.png"
+                page.screenshot(path=str(path_default), full_page=True)
+                captured.append(str(path_default))
+
+                # Tab 2: Scorecard
+                page.click("#tabctl-scorecard")
+                time.sleep(0.5)
+                check_no_overflow(page, f"results_scorecard_{vp_name}_{scheme}")
+                path_sc = OUT_DIR / f"results_scorecard_{vp_name}_{scheme}.png"
+                page.screenshot(path=str(path_sc), full_page=True)
+                captured.append(str(path_sc))
+
+                # Tab 3: Fairness
+                page.click("#tabctl-fairness")
+                time.sleep(0.5)
+                check_no_overflow(page, f"results_fairness_{vp_name}_{scheme}")
+                path_fn = OUT_DIR / f"results_fairness_{vp_name}_{scheme}.png"
+                page.screenshot(path=str(path_fn), full_page=True)
+                captured.append(str(path_fn))
+
+                # Tab 4: Edge Cases
+                page.click("#tabctl-edge")
+                time.sleep(0.5)
+                check_no_overflow(page, f"results_edge_{vp_name}_{scheme}")
+                path_ed = OUT_DIR / f"results_edge_{vp_name}_{scheme}.png"
+                page.screenshot(path=str(path_ed), full_page=True)
+                captured.append(str(path_ed))
+
                 ctx.close()
 
                 # 7. About
@@ -116,7 +164,8 @@ def main():
                 page = ctx.new_page()
                 page.goto(f"{base_url}/about")
                 page.wait_for_selector(".app-bar")
-                time.sleep(0.3)
+                time.sleep(0.4)
+                check_no_overflow(page, f"about_{vp_name}_{scheme}")
                 path = OUT_DIR / f"about_{vp_name}_{scheme}.png"
                 page.screenshot(path=str(path), full_page=True)
                 captured.append(str(path))

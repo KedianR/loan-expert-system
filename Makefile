@@ -33,6 +33,7 @@ FIELDS = rules/fields.toml
 # ---------------------------------------------------------------------------
 setup:
 	$(PIP) install -r requirements.txt
+	-$(PIP) install -r requirements-dev.txt
 
 # ---------------------------------------------------------------------------
 # WP-02: test — run all tests including golden vectors

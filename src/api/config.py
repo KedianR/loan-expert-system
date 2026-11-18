@@ -29,9 +29,20 @@ def load_config(config_path: Path | str | None = None) -> AppConfig:
     if p.exists():
         data = tomllib.loads(p.read_text(encoding="utf-8"))
 
-    audit_db = os.environ.get(
-        "APP_AUDIT_DB_PATH", data.get("audit_db_path", "data/audit/audit.sqlite")
-    )
+    # Writable paths: AUDIT_DB_PATH or APP_AUDIT_DB_PATH env var; if VERCEL is set, default to /tmp/audit.db
+    env_audit_db = os.environ.get("AUDIT_DB_PATH") or os.environ.get("APP_AUDIT_DB_PATH")
+    if env_audit_db:
+        audit_db = env_audit_db
+    elif os.environ.get("VERCEL"):
+        audit_db = "/tmp/audit.db"
+    else:
+        audit_db = data.get("audit_db_path", "data/audit.db")
+
+    audit_path = Path(audit_db)
+    try:
+        audit_path.parent.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        pass
     snapshot_str = os.environ.get("APP_STORE_INPUT_SNAPSHOT")
     if snapshot_str is not None:
         store_snapshot = snapshot_str.lower() in ("true", "1", "yes")

@@ -504,6 +504,8 @@ body {
   line-height: 1;
   letter-spacing: 0.03em;
   text-transform: uppercase;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
 }
 
 .badge--eligible {
@@ -834,7 +836,8 @@ body {
 .trace-facts {
   overflow-wrap: anywhere;
   word-break: break-word;
-  max-width: 320px;
+  min-width: 220px;
+  max-width: 380px;
   font-size: var(--fs-xs);
   font-family: var(--font-mono, monospace);
 }
@@ -1202,7 +1205,8 @@ details.section-header .section-header__body {
   font-weight: var(--fw-medium);
   line-height: 1.6;
   border: 1px solid;
-  white-space: nowrap;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
 }
 
 .chip--too-small {
@@ -1233,10 +1237,46 @@ details.section-header .section-header__body {
   list-style: none;
   padding: 0;
   user-select: none;
+  gap: var(--sp-2);
 }
 
 .preset-summary::-webkit-details-marker {
   display: none;
+}
+
+.preset-summary__left {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.preset-summary__titles {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  min-width: 0;
+}
+
+.preset-summary__hint {
+  font-size: var(--fs-xs);
+  color: var(--c-text-muted);
+  font-weight: var(--fw-regular);
+  display: block;
+  line-height: 1.3;
+}
+
+.preset-summary__chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-text-muted);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+details[open] .preset-summary__chevron {
+  transform: rotate(180deg);
 }
 
 .preset-summary__badge {
@@ -1245,6 +1285,8 @@ details.section-header .section-header__body {
   padding: 2px 6px;
   border-radius: var(--r-sm);
   color: var(--c-text-muted);
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
 }
 
 .preset-panel__content {
@@ -1288,6 +1330,13 @@ details.section-header .section-header__body {
   border-color: var(--c-accent);
 }
 
+.preset-btn.selected,
+.preset-btn--selected {
+  border-color: var(--c-accent) !important;
+  background-color: var(--c-accent-subtle) !important;
+  box-shadow: 0 0 0 1px var(--c-accent);
+}
+
 .preset-btn:focus-visible {
   outline: 2px solid var(--c-accent);
   outline-offset: 2px;
@@ -1306,6 +1355,10 @@ details.section-header .section-header__body {
   font-size: var(--fs-sm);
   color: var(--c-text);
   line-height: 1.3;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  flex: 1 1 auto;
 }
 
 .preset-btn__desc {
@@ -1316,16 +1369,44 @@ details.section-header .section-header__body {
 }
 
 /* ── Tab bar ───────────────────────────────────────────────────────────────── */
+.tab-bar-wrap {
+  position: relative;
+  width: 100%;
+  margin-bottom: var(--sp-6);
+}
+
 .tab-bar {
   display: flex;
   border-bottom: 1px solid var(--c-border);
-  margin-bottom: var(--sp-6);
+  margin-bottom: 0;
   gap: var(--sp-1);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   white-space: nowrap;
   flex-wrap: nowrap;
   padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.tab-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-bar-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 2px;
+  width: 32px;
+  pointer-events: none;
+  background: linear-gradient(to right, transparent, var(--c-bg));
+}
+
+@media (min-width: 768px) {
+  .tab-bar-wrap::after {
+    display: none;
+  }
 }
 
 .tab-btn {
@@ -1607,13 +1688,18 @@ li {
   }
 
   .tab-bar {
-    gap: 0;
+    gap: var(--sp-1);
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
 
   .tab-btn {
-    flex: 1;
-    padding: 0 var(--sp-2);
+    flex: 0 0 auto;
+    padding: 0 var(--sp-3);
     font-size: var(--fs-xs);
+    white-space: nowrap;
   }
 
   h1 {
@@ -1623,6 +1709,148 @@ li {
   .status-card__word {
     font-size: var(--fs-2xl);
   }
+}
+
+/* ── Scorecard responsive ─────────────────────────────────────────────────── */
+.scorecard-stacked-cards {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .scorecard-table-wrap {
+    display: none !important;
+  }
+  .scorecard-stacked-cards {
+    display: flex !important;
+    flex-direction: column;
+    gap: var(--sp-4);
+  }
+}
+
+.scorecard-card {
+  background-color: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.scorecard-card__title {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  color: var(--c-text);
+  margin-bottom: var(--sp-1);
+}
+
+.scorecard-card__question {
+  font-size: var(--fs-xs);
+  color: var(--c-text-muted);
+  line-height: 1.4;
+}
+
+.scorecard-system-block {
+  padding: var(--sp-3);
+  border-radius: var(--r-sm);
+  background-color: var(--c-surface-raised);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.scorecard-system-block__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.scorecard-system-block__name {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--c-text);
+}
+
+.scorecard-system-block__justification {
+  font-size: var(--fs-xs);
+  color: var(--c-text-muted);
+  line-height: 1.4;
+}
+
+/* ── Edge cases & callouts ─────────────────────────────────────────────────── */
+.callout {
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-md);
+  margin-bottom: var(--sp-4);
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+}
+
+.callout--info {
+  background-color: var(--c-surface-raised);
+  border-left: 4px solid var(--c-accent);
+  color: var(--c-text);
+}
+
+.table-filter-bar {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: center;
+  margin-bottom: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.table-filter-bar label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--c-text-muted);
+}
+
+.table-filter-bar select {
+  font-size: var(--fs-xs);
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--c-border);
+  background-color: var(--c-surface);
+  color: var(--c-text);
+  min-height: 36px;
+}
+
+/* Sticky first column in wide data tables */
+.table-scroll-wrap table th:first-child,
+.table-scroll-wrap table td:first-child {
+  position: sticky;
+  left: 0;
+  background-color: var(--c-surface);
+  z-index: 1;
+}
+
+/* Safe markdown rendered tables and blockquotes */
+.markdown-rendered-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.markdown-rendered-block blockquote {
+  border-left: 3px solid var(--c-border);
+  padding-left: var(--sp-3);
+  color: var(--c-text-muted);
+  font-size: var(--fs-xs);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.demo-notice {
+  font-size: var(--fs-xs);
+  color: var(--c-text-muted);
+  line-height: 1.4;
+  margin-top: var(--sp-2);
+  margin-bottom: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  background-color: var(--c-surface-raised);
+  border-radius: var(--r-sm);
+  border-left: 3px solid var(--c-refer);
 }
 
 /* Touch targets: all interactive elements >=44px */

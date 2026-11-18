@@ -37,7 +37,9 @@ data/decisions/
 data/group_sizes/
 data/synthetic/d3_*
 !data/synthetic/*.py
-models/
+models/*
+!models/d3_lr.joblib
+!models/d3_gb.joblib
 
 # Keep reports/ml/ and data/manifest.json tracked
 !reports/ml/

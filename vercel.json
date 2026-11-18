@@ -1,0 +1,27 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/app.py"
+    }
+  ],
+  "functions": {
+    "app.py": {
+      "maxDuration": 30,
+      "excludeFiles": "{data/raw/**,data/d2/**,models/d2_*/**,tests/unit/**,tests/property/**,tests/integration/**,tests/golden/*.py,notebooks/**,docs/**,tools/**,spikes/**,eval/**,.venv/**,*.db,*.sqlite}"
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    }
+  ]
+}

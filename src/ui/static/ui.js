@@ -103,7 +103,7 @@ function iconClock() {
 
 const PRESET_METADATA = {
   TV1: {
-    title: 'TV1 — Prime applicant (Band B)',
+    title: 'TV1 — Typical applicant (Band B/C)',
     chip: 'ELIGIBLE',
     chipClass: 'badge--eligible',
     desc: 'Requested amount is the binding limit.',
@@ -154,7 +154,7 @@ const PRESET_METADATA = {
     notes: 'Band C with almost no spare EMI: recommended amount is below the 50,000 minimum, so A03 fires.',
   },
   TV9: {
-    title: 'TV9 — Prime applicant (Band C)',
+    title: 'TV9 — Typical applicant (Band C)',
     chip: 'ELIGIBLE',
     chipClass: 'badge--eligible',
     desc: 'Requested amount is the binding limit.',
@@ -210,6 +210,12 @@ export async function loadPresets() {
       btn.appendChild(descDiv);
 
       btn.addEventListener('click', () => {
+        // Highlight active preset (UI v2 pass 2 #8)
+        container.querySelectorAll('.preset-btn').forEach(b => {
+          b.classList.remove('selected', 'preset-btn--selected');
+        });
+        btn.classList.add('selected', 'preset-btn--selected');
+
         applyPreset(preset.input);
         const form = document.getElementById('app-form');
         if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -348,8 +354,34 @@ export function setButtonLoading(btn, isLoading) {
 }
 
 // ---------------------------------------------------------------------------
-// ML result display
+// ML result display & helpers (UI v2 pass 2 #7)
 // ---------------------------------------------------------------------------
+
+export function formatModelScore(val) {
+  if (val == null || val === '' || val === '—') return '—';
+  const s = String(val).trim();
+  const n = Number(s);
+  if (isNaN(n)) return s;
+  if (n > 0 && n < 0.0001) return '<0.0001';
+  if (n === 0) return '0.0000';
+  return n.toFixed(4);
+}
+
+const FEATURE_LABELS = {
+  existing_foir: 'Existing obligations ratio',
+  credit_score: 'Credit score',
+  employment_type: 'Employment type',
+  severe_delinquency_36m: 'Severe delinquency (36 months)',
+  monthly_net_income: 'Monthly net income',
+  requested_amount: 'Requested amount',
+  requested_tenure_months: 'Requested tenure',
+  age: 'Age',
+  bankruptcies: 'Bankruptcies',
+  credit_enquiries_6m: 'Credit enquiries (6 months)',
+  employment_months: 'Employment duration (months)',
+  residential_status: 'Residential status',
+  region_tier: 'Region tier',
+};
 
 /**
  * Fill the ML card inside the report container.
@@ -373,7 +405,7 @@ export function displayMLResult(mlData, container) {
     return;
   }
 
-  // Scores grid: show LR and GB scores (A.2)
+  // Scores grid: show LR and GB scores (A.2, Pass 2 #7)
   const scoresGrid = document.createElement('div');
   scoresGrid.className = 'ml-scores-grid';
 
@@ -384,7 +416,7 @@ export function displayMLResult(mlData, container) {
   setText(lrLabel, 'Logistic Regression score');
   const lrVal = document.createElement('span');
   lrVal.className = 'ml-score-value';
-  setText(lrVal, String(mlData.lr_score ?? mlData.score ?? '—'));
+  setText(lrVal, formatModelScore(mlData.lr_score ?? mlData.score));
   lrCard.appendChild(lrLabel);
   lrCard.appendChild(lrVal);
   scoresGrid.appendChild(lrCard);
@@ -397,13 +429,20 @@ export function displayMLResult(mlData, container) {
     setText(gbLabel, 'Gradient Boosting score');
     const gbVal = document.createElement('span');
     gbVal.className = 'ml-score-value';
-    setText(gbVal, String(mlData.gb_score));
+    setText(gbVal, formatModelScore(mlData.gb_score));
     gbCard.appendChild(gbLabel);
     gbCard.appendChild(gbVal);
     scoresGrid.appendChild(gbCard);
   }
 
   container.appendChild(scoresGrid);
+
+  // Caption (UI v2 pass 2 #7)
+  const caption = document.createElement('p');
+  caption.className = 'card__hint';
+  caption.style.marginTop = 'var(--sp-2)';
+  setText(caption, 'Higher = more likely to be eligible. Not a probability. Does not affect the decision.');
+  container.appendChild(caption);
 
   // Top-3 feature contributions table
   const contribs = (mlData.contributions || []).slice(0, 3);
@@ -432,11 +471,13 @@ export function displayMLResult(mlData, container) {
       const featureTd = document.createElement('td');
       const contribTd = document.createElement('td');
       if (typeof c === 'object' && c !== null) {
-        setText(featureTd, String(c.feature ?? ''));
+        const featKey = String(c.feature ?? '');
+        setText(featureTd, FEATURE_LABELS[featKey] || featKey.replace(/_/g, ' '));
         const sign = (typeof c.contribution === 'number' && c.contribution > 0) ? '+' : '';
         setText(contribTd, sign + String(c.contribution ?? ''));
       } else {
-        setText(featureTd, String(c));
+        const featKey = String(c);
+        setText(featureTd, FEATURE_LABELS[featKey] || featKey.replace(/_/g, ' '));
         setText(contribTd, '');
       }
       tr.appendChild(featureTd);
@@ -651,10 +692,13 @@ export function buildReport(data) {
     buildWhySection(el, data);
   }));
 
-  // 3. Offer summary
-  const offerTitle = decision === 'eligible'
-    ? '3 Offer summary'
-    : '3 Offer summary: no offer made';
+  // 3. Offer summary (UI v2 pass 2 #9)
+  let offerTitle = '3 Offer summary';
+  if (decision === 'refer') {
+    offerTitle = '3 Offer summary: pending review';
+  } else if (decision !== 'eligible') {
+    offerTitle = '3 Offer summary: no offer made';
+  }
   section.appendChild(makeAccordion(offerTitle, el => {
     buildOfferSummary(el, data);
   }));
@@ -822,6 +866,12 @@ function buildWhySection(el, data) {
 
 function buildOfferSummary(el, data) {
   const decision = (data.decision || '').toLowerCase();
+  if (decision === 'refer') {
+    const p = document.createElement('p');
+    setText(p, 'No offer yet: pending manual review.');
+    el.appendChild(p);
+    return;
+  }
   if (decision !== 'eligible') {
     const p = document.createElement('p');
     setText(p, 'No loan offer is generated because the application was not approved.');
@@ -886,6 +936,11 @@ function buildRuleTrace(el, data) {
     return;
   }
 
+  const hasDescriptions = trace.some(entry => {
+    const desc = entry.description || entry.rule_description;
+    return desc && desc !== '—' && desc.trim() !== '';
+  });
+
   const scrollWrap = document.createElement('div');
   scrollWrap.className = 'table-scroll-wrap';
 
@@ -894,7 +949,11 @@ function buildRuleTrace(el, data) {
 
   const thead = document.createElement('thead');
   const hrow = document.createElement('tr');
-  ['Rule ID', 'Description', 'Rule version', 'Facts used', 'Result'].forEach(col => {
+  const cols = hasDescriptions
+    ? ['Rule ID', 'Description', 'Rule version', 'Facts used', 'Result']
+    : ['Rule ID', 'Rule version', 'Facts used', 'Result'];
+
+  cols.forEach(col => {
     const th = document.createElement('th');
     th.style.position = 'sticky';
     th.style.top = '0';
@@ -960,10 +1019,12 @@ function buildRuleTrace(el, data) {
     setText(ruleTd, String(entry.rule_id || '—'));
     tr.appendChild(ruleTd);
 
-    // Description cell
-    const descTd = document.createElement('td');
-    setText(descTd, String(entry.description || entry.rule_description || '—'));
-    tr.appendChild(descTd);
+    // Description cell (only if descriptions are present)
+    if (hasDescriptions) {
+      const descTd = document.createElement('td');
+      setText(descTd, String(entry.description || entry.rule_description || '—'));
+      tr.appendChild(descTd);
+    }
 
     // Version cell
     const verTd = document.createElement('td');
@@ -1008,7 +1069,7 @@ function buildRecord(el, data) {
     ['Decision ID', data.decision_id || data.id || '—'],
     ['Rule-set tag / version', data.rule_set_tag || data.rule_set_version || '—'],
     ['Rule-set hash', hashVal],
-    ['Audit stored', data.audit_stored === true ? 'Yes' : (data.audit_stored === false ? 'No' : (data.decision_id ? 'Yes' : 'Unknown'))],
+    ['Audit stored', typeof data.audit_stored === 'string' ? data.audit_stored : (data.demo_mode ? 'Yes (demo, temporary)' : (data.audit_stored === true ? 'Yes' : (data.audit_stored === false ? 'No' : (data.decision_id ? 'Yes' : 'Unknown'))))],
   ];
 
   const tbl = document.createElement('table');
@@ -1149,6 +1210,12 @@ export function clearForm() {
   const form = document.getElementById('app-form');
   if (form) form.reset();
   clearErrors();
+  const presetContainer = document.getElementById('preset-buttons');
+  if (presetContainer) {
+    presetContainer.querySelectorAll('.preset-btn').forEach(b => {
+      b.classList.remove('selected', 'preset-btn--selected');
+    });
+  }
   const reportSection = document.getElementById('report-section');
   if (reportSection) {
     reportSection.setAttribute('hidden', '');
@@ -1181,4 +1248,17 @@ document.addEventListener('DOMContentLoaded', () => {
       presetPanel.removeAttribute('open');
     }
   }
+
+  // Check demo mode configuration (Requirement 8)
+  fetch('/ui/config')
+    .then(r => r.json())
+    .then(cfg => {
+      if (cfg && cfg.vercel) {
+        const demoEl = document.getElementById('demo-notice');
+        if (demoEl) demoEl.removeAttribute('hidden');
+        const aboutDemoEl = document.getElementById('about-demo-notice');
+        if (aboutDemoEl) aboutDemoEl.removeAttribute('hidden');
+      }
+    })
+    .catch(() => {});
 });

@@ -1,3 +1,22 @@
+[project]
+name = "loan-expert-system"
+version = "1.0.0"
+description = "Rule-based loan eligibility expert system in INR"
+readme = "README.md"
+requires-python = ">=3.14"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "hypothesis>=6.0",
+    "ruff>=0.9",
+    "playwright>=1.40",
+]
+
+[tool.vercel]
+entrypoint = "app:app"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]

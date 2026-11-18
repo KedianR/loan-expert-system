@@ -259,11 +259,18 @@
       <div id="preset-col">
         <details class="card preset-panel" id="preset-panel">
           <summary class="preset-summary">
-            <span class="card__title">Try an example</span>
-            <span class="preset-summary__badge">TV1–TV9</span>
+            <div class="preset-summary__left">
+              <span class="preset-summary__chevron" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </span>
+              <div class="preset-summary__titles">
+                <span class="card__title">Try an example</span>
+                <span class="preset-summary__hint">Tap to load a sample applicant</span>
+              </div>
+            </div>
+            <span class="preset-summary__badge">9 samples</span>
           </summary>
           <div class="preset-panel__content">
-            <p class="card__hint">Load a test vector to see a sample decision.</p>
             <div id="preset-buttons" class="preset-list">
               <!-- JS fills this -->
             </div>

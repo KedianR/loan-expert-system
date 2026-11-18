@@ -50,6 +50,7 @@ app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 _ALLOWED_REPORTS = {
     "comparison_scorecard": REPO_ROOT / "reports" / "comparison" / "scorecard.json",
     "edge_case_summary": REPO_ROOT / "reports" / "edge_cases" / "summary.md",
+    "edge_cases_results": REPO_ROOT / "reports" / "edge_cases" / "results.csv",
     "d2_tables": REPO_ROOT / "reports" / "fairness" / "d2_tables.md",
     "d3_tables": REPO_ROOT / "reports" / "fairness" / "d3_tables.md",
     "d2_rule_system": REPO_ROOT / "reports" / "fairness" / "d2_rule_system.json",
@@ -172,6 +173,13 @@ async def ui_decide(request: Request):
                     offer["total_repayment"] = str((emi * tenure).quantize(Decimal("0.01")))
                 except Exception:
                     pass
+        # Enrich rule trace steps with descriptions from loaded rule set (UI v2 pass 2 #6)
+        trace = result.get("trace")
+        if isinstance(trace, dict) and "steps" in trace:
+            for step in trace["steps"]:
+                rid = step.get("rule_id")
+                if rid and rid in svc.rule_set.rules:
+                    step["description"] = svc.rule_set.rules[rid].description
         return JSONResponse(content=result)
     except Exception as exc:
         # Return structured error so the UI can show it
@@ -293,5 +301,9 @@ async def ui_report(name: str):
         )
     if path.suffix == ".json":
         return JSONResponse(content=json.loads(path.read_text(encoding="utf-8")))
+    elif path.suffix == ".csv":
+        import csv
+        reader = csv.DictReader(path.read_text(encoding="utf-8").splitlines())
+        return JSONResponse(content={"available": True, "rows": list(reader)})
     else:
         return JSONResponse(content={"content": path.read_text(encoding="utf-8")})

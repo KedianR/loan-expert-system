@@ -163,6 +163,155 @@ export async function loadTab(name) {
 }
 
 // ---------------------------------------------------------------------------
+// Markdown Safe Parser (GFM Tables, Headings, Blockquotes) — FR-UI-06
+// ---------------------------------------------------------------------------
+
+function renderMarkdownToDom(markdownText, container) {
+  const lines = String(markdownText || '').split(/\r?\n/);
+  let i = 0;
+
+  while (i < lines.length) {
+    const rawLine = lines[i];
+    const line = rawLine.trim();
+
+    if (!line) {
+      i++;
+      continue;
+    }
+
+    if (line.startsWith('# ')) {
+      const h2 = document.createElement('h2');
+      setText(h2, line.substring(2).trim());
+      container.appendChild(h2);
+      i++;
+      continue;
+    }
+
+    if (line.startsWith('## ')) {
+      const h3 = document.createElement('h3');
+      h3.style.marginTop = 'var(--sp-4)';
+      h3.style.marginBottom = 'var(--sp-2)';
+      setText(h3, line.substring(3).trim());
+      container.appendChild(h3);
+      i++;
+      continue;
+    }
+
+    if (line.startsWith('### ')) {
+      const h4 = document.createElement('h4');
+      h4.style.marginTop = 'var(--sp-3)';
+      h4.style.marginBottom = 'var(--sp-1)';
+      setText(h4, line.substring(4).trim());
+      container.appendChild(h4);
+      i++;
+      continue;
+    }
+
+    if (line.startsWith('>')) {
+      const bq = document.createElement('blockquote');
+      let quoteText = line.substring(1).trim();
+      while (i + 1 < lines.length && lines[i + 1].trim().startsWith('>')) {
+        i++;
+        quoteText += ' ' + lines[i].trim().substring(1).trim();
+      }
+      setText(bq, quoteText);
+      container.appendChild(bq);
+      i++;
+      continue;
+    }
+
+    // GFM Table
+    if (line.startsWith('|') && line.endsWith('|')) {
+      const tableLines = [];
+      while (i < lines.length && lines[i].trim().startsWith('|') && lines[i].trim().endsWith('|')) {
+        tableLines.push(lines[i].trim());
+        i++;
+      }
+
+      if (tableLines.length >= 2) {
+        const wrap = document.createElement('div');
+        wrap.className = 'table-scroll-wrap';
+        wrap.style.marginBottom = 'var(--sp-4)';
+
+        const tbl = document.createElement('table');
+        tbl.className = 'data-table';
+
+        // Header
+        const thead = document.createElement('thead');
+        const htr = document.createElement('tr');
+        const headers = tableLines[0]
+          .split('|')
+          .slice(1, -1)
+          .map(c => c.trim());
+
+        headers.forEach(h => {
+          const th = document.createElement('th');
+          setText(th, h);
+          htr.appendChild(th);
+        });
+        thead.appendChild(htr);
+        tbl.appendChild(thead);
+
+        // Body: skip line 1 (the separator |---|---|...)
+        const tbody = document.createElement('tbody');
+        for (let r = 2; r < tableLines.length; r++) {
+          const btr = document.createElement('tr');
+          const cells = tableLines[r]
+            .split('|')
+            .slice(1, -1)
+            .map(c => c.trim());
+
+          cells.forEach((cellText, cIdx) => {
+            const td = document.createElement('td');
+            const colName = (headers[cIdx] || '').toLowerCase();
+
+            if (cellText === 'too_small') {
+              addChip(td, 'too_small');
+            } else if (cellText === 'unstable') {
+              addChip(td, 'unstable');
+            } else if (cellText.startsWith('**') && cellText.endsWith('**')) {
+              const strong = document.createElement('strong');
+              setText(strong, cellText.slice(2, -2));
+              td.appendChild(strong);
+            } else if (cellText.includes('**')) {
+              const parts = cellText.split('**');
+              for (let p = 0; p < parts.length; p++) {
+                if (!parts[p]) continue;
+                if (p % 2 === 1) {
+                  const strong = document.createElement('strong');
+                  setText(strong, parts[p]);
+                  td.appendChild(strong);
+                } else {
+                  td.appendChild(document.createTextNode(parts[p]));
+                }
+              }
+            } else {
+              if ((colName === 'size' || colName === 'count') && /^\d+$/.test(cellText)) {
+                setText(td, cellText.replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+              } else {
+                setText(td, cellText);
+              }
+            }
+            btr.appendChild(td);
+          });
+          tbody.appendChild(btr);
+        }
+        tbl.appendChild(tbody);
+        wrap.appendChild(tbl);
+        container.appendChild(wrap);
+        continue;
+      }
+    }
+
+    // Normal paragraph
+    const p = document.createElement('p');
+    setText(p, line);
+    container.appendChild(p);
+    i++;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // ML tab: metrics_d2_lr and metrics_d2_gb
 // ---------------------------------------------------------------------------
 
@@ -172,8 +321,8 @@ async function loadMlTab() {
   container.textContent = '';
 
   const reports = [
-    { key: 'metrics_d2_lr', label: 'Logistic Regression Baseline (D2 Held-out Split)' },
-    { key: 'metrics_d2_gb', label: 'Gradient Boosting Baseline (D2 Held-out Split)' },
+    { key: 'metrics_d2_lr', label: 'Logistic regression baseline (D2 held-out split)' },
+    { key: 'metrics_d2_gb', label: 'Gradient boosting baseline (D2 held-out split)' },
   ];
   let loadedCount = 0;
 
@@ -216,8 +365,12 @@ function renderModelMetricsCard(container, label, data) {
   const testM = data.test_metrics || {};
   const valM = data.validation_metrics || {};
 
+  let modelName = data.model || '—';
+  if (modelName.toLowerCase() === 'lr') modelName = 'Logistic regression';
+  else if (modelName.toLowerCase() === 'gb') modelName = 'Gradient boosting';
+
   const metrics = [
-    { label: 'Model', value: data.model || '—' },
+    { label: 'Model', value: modelName },
     { label: 'Validation AUC', value: valM.auc != null ? String(valM.auc) : '—' },
     { label: 'Test AUC', value: testM.auc != null ? String(testM.auc) : '—' },
     { label: 'Brier Score', value: testM.brier_score != null ? String(testM.brier_score) : '—' },
@@ -238,7 +391,7 @@ function renderModelMetricsCard(container, label, data) {
   });
   card.appendChild(tilesRow);
 
-  // Reliability calibration table if present
+  // Reliability calibration table if present (with sticky first column & thousands separator)
   if (Array.isArray(testM.reliability_table) && testM.reliability_table.length > 0) {
     const h4 = document.createElement('h4');
     h4.style.marginTop = 'var(--sp-4)';
@@ -264,10 +417,13 @@ function renderModelMetricsCard(container, label, data) {
     const tbody = document.createElement('tbody');
     testM.reliability_table.forEach(row => {
       const tr = document.createElement('tr');
+      const countVal = row.count != null
+        ? String(row.count).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+        : '—';
       const cells = [
         String(row.bin ?? '—'),
         Array.isArray(row.range) ? `${row.range[0]}–${row.range[1]}` : String(row.range ?? '—'),
-        String(row.count ?? '—'),
+        countVal,
         row.mean_pred != null ? String(row.mean_pred) : '—',
         row.mean_true != null ? String(row.mean_true) : '—',
       ];
@@ -323,8 +479,9 @@ function renderScorecardComparison(container, data) {
   setText(h3, 'Four-Criterion System Evaluation Scorecard');
   card.appendChild(h3);
 
+  // 1. Desktop Wide Table Wrap (>= 768px)
   const tblWrap = document.createElement('div');
-  tblWrap.className = 'table-scroll-wrap';
+  tblWrap.className = 'table-scroll-wrap scorecard-table-wrap';
 
   const tbl = document.createElement('table');
   tbl.className = 'data-table';
@@ -397,11 +554,80 @@ function renderScorecardComparison(container, data) {
   tbl.appendChild(tbody);
   tblWrap.appendChild(tbl);
   card.appendChild(tblWrap);
+
+  // 2. Mobile Stacked Cards (< 768px, UI v2 pass 2 #3)
+  const stackedWrap = document.createElement('div');
+  stackedWrap.className = 'scorecard-stacked-cards';
+
+  const systemNames = {
+    rule_system: 'Rule System',
+    logistic_regression: 'Logistic Regression',
+    gradient_boosting: 'Gradient Boosting',
+  };
+
+  critKeys.forEach(critKey => {
+    const critInfo = criteria[critKey] || {};
+    const critCard = document.createElement('div');
+    critCard.className = 'scorecard-card';
+
+    const headerWrap = document.createElement('div');
+    const cTitle = document.createElement('div');
+    cTitle.className = 'scorecard-card__title';
+    setText(cTitle, critInfo.name || critKey);
+    headerWrap.appendChild(cTitle);
+
+    if (critInfo.question) {
+      const cQ = document.createElement('div');
+      cQ.className = 'scorecard-card__question';
+      setText(cQ, critInfo.question);
+      headerWrap.appendChild(cQ);
+    }
+    critCard.appendChild(headerWrap);
+
+    ['rule_system', 'logistic_regression', 'gradient_boosting'].forEach(sysKey => {
+      const block = document.createElement('div');
+      block.className = 'scorecard-system-block';
+
+      const sysHeader = document.createElement('div');
+      sysHeader.className = 'scorecard-system-block__header';
+
+      const sName = document.createElement('span');
+      sName.className = 'scorecard-system-block__name';
+      setText(sName, systemNames[sysKey] || sysKey);
+      sysHeader.appendChild(sName);
+
+      const sysScore = (scores[sysKey] && scores[sysKey][critKey]) || {};
+      const scoreNum = sysScore.score != null ? `${sysScore.score}/3` : '—';
+      const badge = document.createElement('span');
+      let badgeClass = 'badge--small ';
+      if (sysScore.score === 3) badgeClass += 'badge--eligible';
+      else if (sysScore.score === 2) badgeClass += 'badge--refer';
+      else badgeClass += 'badge--ineligible';
+      badge.className = 'badge ' + badgeClass;
+      setText(badge, scoreNum);
+      sysHeader.appendChild(badge);
+
+      block.appendChild(sysHeader);
+
+      if (sysScore.justification) {
+        const just = document.createElement('div');
+        just.className = 'scorecard-system-block__justification';
+        setText(just, sysScore.justification);
+        block.appendChild(just);
+      }
+
+      critCard.appendChild(block);
+    });
+
+    stackedWrap.appendChild(critCard);
+  });
+
+  card.appendChild(stackedWrap);
   container.appendChild(card);
 }
 
 // ---------------------------------------------------------------------------
-// Fairness tab: d2_tables + d3_tables
+// Fairness tab: d2_tables + d3_tables (Clean HTML tables, UI v2 pass 2 #1)
 // ---------------------------------------------------------------------------
 
 async function loadFairnessTab() {
@@ -427,7 +653,7 @@ async function loadFairnessTab() {
 
       loadedCount++;
       const card = document.createElement('div');
-      card.className = 'card';
+      card.className = 'card markdown-rendered-block';
       card.style.marginBottom = 'var(--sp-6)';
 
       const h3 = document.createElement('h3');
@@ -436,24 +662,7 @@ async function loadFairnessTab() {
       card.appendChild(h3);
 
       const content = data.content != null ? data.content : JSON.stringify(data, null, 2);
-
-      // Add chips for too_small and unstable markers found in the content
-      const chipRow = document.createElement('div');
-      chipRow.className = 'chip-row';
-      chipRow.style.display = 'flex';
-      chipRow.style.gap = 'var(--sp-2)';
-      chipRow.style.marginBottom = 'var(--sp-3)';
-      let hasChips = false;
-      if (content.includes('too_small')) { addChip(chipRow, 'too_small'); hasChips = true; }
-      if (content.includes('unstable')) { addChip(chipRow, 'unstable'); hasChips = true; }
-      if (hasChips) card.appendChild(chipRow);
-
-      const pre = document.createElement('pre');
-      pre.className = 'report-block';
-      pre.style.whiteSpace = 'pre-wrap';
-      pre.style.wordBreak = 'break-word';
-      setText(pre, content);
-      card.appendChild(pre);
+      renderMarkdownToDom(content, card);
 
       container.appendChild(card);
     } catch (_) {
@@ -467,7 +676,7 @@ async function loadFairnessTab() {
 }
 
 // ---------------------------------------------------------------------------
-// Edge-cases tab: edge_case_summary
+// Edge-cases tab: structured results.csv (UI v2 pass 2 #1)
 // ---------------------------------------------------------------------------
 
 async function loadEdgeTab() {
@@ -476,32 +685,294 @@ async function loadEdgeTab() {
   container.textContent = '';
 
   try {
-    const res = await fetch('/ui/report/edge_case_summary');
+    const res = await fetch('/ui/report/edge_cases_results');
     if (!res.ok) throw new Error('not ok');
     const data = await res.json();
 
-    if (data.available === false) {
+    if (data.available === false || !Array.isArray(data.rows)) {
       makeEmptyState(container);
       return;
     }
 
-    const card = document.createElement('div');
-    card.className = 'card';
+    const rows = data.rows;
 
-    const h3 = document.createElement('h3');
-    h3.style.marginBottom = 'var(--sp-3)';
-    setText(h3, 'Boundary and Missing-Data Edge Case Evaluation');
-    card.appendChild(h3);
+    // 1. One-line intro banner
+    const callout = document.createElement('div');
+    callout.className = 'callout callout--info';
+    const calloutText = document.createElement('strong');
+    setText(calloutText, '61 of 64 matched the catalog exactly; 3 differences are explained.');
+    callout.appendChild(calloutText);
+    container.appendChild(callout);
 
-    const content = data.content != null ? data.content : JSON.stringify(data, null, 2);
-    const pre = document.createElement('pre');
-    pre.className = 'report-block';
-    pre.style.whiteSpace = 'pre-wrap';
-    pre.style.wordBreak = 'break-word';
-    setText(pre, content);
-    card.appendChild(pre);
+    // 2. Category Summary Table
+    const summaryCard = document.createElement('div');
+    summaryCard.className = 'card';
+    summaryCard.style.marginBottom = 'var(--sp-6)';
 
-    container.appendChild(card);
+    const sumH3 = document.createElement('h3');
+    sumH3.style.marginBottom = 'var(--sp-3)';
+    setText(sumH3, 'Edge Case Summary by Category');
+    summaryCard.appendChild(sumH3);
+
+    const categories = ['TB', 'MD', 'AD', 'TF', 'RC'];
+    const catLabels = {
+      TB: 'TB — Threshold & Boundary',
+      MD: 'MD — Missing Data & Types',
+      AD: 'AD — Adverse & Knockouts',
+      TF: 'TF — Thin File & Enquiries',
+      RC: 'RC — Repayment Capacity',
+    };
+
+    const sumWrap = document.createElement('div');
+    sumWrap.className = 'table-scroll-wrap';
+
+    const sumTbl = document.createElement('table');
+    sumTbl.className = 'data-table';
+    const sumThead = document.createElement('thead');
+    const sumHRow = document.createElement('tr');
+    ['Category', 'Total', 'Matched', 'Differs explained', 'Differs unexplained'].forEach(c => {
+      const th = document.createElement('th');
+      setText(th, c);
+      sumHRow.appendChild(th);
+    });
+    sumThead.appendChild(sumHRow);
+    sumTbl.appendChild(sumThead);
+
+    const sumTbody = document.createElement('tbody');
+    let totalAll = 0;
+    let matchedAll = 0;
+    let explainedAll = 0;
+    let unexplainedAll = 0;
+
+    categories.forEach(cat => {
+      const catRows = rows.filter(r => r.category === cat);
+      const total = catRows.length;
+      const matched = catRows.filter(r => r.rule_status === 'matched').length;
+      const explained = catRows.filter(r => r.rule_status === 'differs_explained').length;
+      const unexplained = total - matched - explained;
+
+      totalAll += total;
+      matchedAll += matched;
+      explainedAll += explained;
+      unexplainedAll += unexplained;
+
+      const tr = document.createElement('tr');
+      [
+        catLabels[cat] || cat,
+        String(total),
+        String(matched),
+        String(explained),
+        String(unexplained),
+      ].forEach((val, idx) => {
+        const td = document.createElement('td');
+        if (idx === 0) {
+          const strong = document.createElement('strong');
+          setText(strong, val);
+          td.appendChild(strong);
+        } else {
+          setText(td, val);
+        }
+        tr.appendChild(td);
+      });
+      sumTbody.appendChild(tr);
+    });
+
+    // Total row
+    const totTr = document.createElement('tr');
+    totTr.style.fontWeight = 'var(--fw-bold)';
+    totTr.style.borderTop = '2px solid var(--c-border)';
+    [
+      'Total across all categories',
+      String(totalAll),
+      String(matchedAll),
+      String(explainedAll),
+      String(unexplainedAll),
+    ].forEach((val, idx) => {
+      const td = document.createElement('td');
+      const strong = document.createElement('strong');
+      setText(strong, val);
+      td.appendChild(strong);
+      totTr.appendChild(td);
+    });
+    sumTbody.appendChild(totTr);
+
+    sumTbl.appendChild(sumTbody);
+    sumWrap.appendChild(sumTbl);
+    summaryCard.appendChild(sumWrap);
+    container.appendChild(summaryCard);
+
+    // 3. Filterable Table of 64 Cases
+    const casesCard = document.createElement('div');
+    casesCard.className = 'card';
+
+    const casesH3 = document.createElement('h3');
+    casesH3.style.marginBottom = 'var(--sp-3)';
+    setText(casesH3, 'All 64 Edge Cases');
+    casesCard.appendChild(casesH3);
+
+    // Filter bar
+    const filterBar = document.createElement('div');
+    filterBar.className = 'table-filter-bar';
+
+    const catLabel = document.createElement('label');
+    catLabel.setAttribute('for', 'edge-cat-filter');
+    setText(catLabel, 'Category:');
+    filterBar.appendChild(catLabel);
+
+    const catSelect = document.createElement('select');
+    catSelect.id = 'edge-cat-filter';
+    const catOptions = [
+      { val: 'ALL', text: 'All categories (64)' },
+      { val: 'TB', text: 'TB — Threshold & Boundary (40)' },
+      { val: 'MD', text: 'MD — Missing Data & Types (9)' },
+      { val: 'AD', text: 'AD — Adverse & Knockouts (7)' },
+      { val: 'TF', text: 'TF — Thin File & Enquiries (4)' },
+      { val: 'RC', text: 'RC — Repayment Capacity (4)' },
+    ];
+    catOptions.forEach(opt => {
+      const opEl = document.createElement('option');
+      opEl.value = opt.val;
+      setText(opEl, opt.text);
+      catSelect.appendChild(opEl);
+    });
+    filterBar.appendChild(catSelect);
+
+    const statusLabel = document.createElement('label');
+    statusLabel.setAttribute('for', 'edge-status-filter');
+    statusLabel.style.marginLeft = 'var(--sp-2)';
+    setText(statusLabel, 'Match status:');
+    filterBar.appendChild(statusLabel);
+
+    const statusSelect = document.createElement('select');
+    statusSelect.id = 'edge-status-filter';
+    const statusOptions = [
+      { val: 'ALL', text: 'All statuses (64)' },
+      { val: 'matched', text: 'Matched (61)' },
+      { val: 'differs_explained', text: 'Differs explained (3)' },
+    ];
+    statusOptions.forEach(opt => {
+      const opEl = document.createElement('option');
+      opEl.value = opt.val;
+      setText(opEl, opt.text);
+      statusSelect.appendChild(opEl);
+    });
+    filterBar.appendChild(statusSelect);
+
+    casesCard.appendChild(filterBar);
+
+    // Table
+    const casesWrap = document.createElement('div');
+    casesWrap.className = 'table-scroll-wrap';
+
+    const casesTbl = document.createElement('table');
+    casesTbl.className = 'data-table';
+    const casesThead = document.createElement('thead');
+    const casesHRow = document.createElement('tr');
+    ['Case ID', 'Cat', 'Description', 'Rule Decision', 'LR Decision', 'GB Decision', 'Match Status'].forEach(c => {
+      const th = document.createElement('th');
+      setText(th, c);
+      casesHRow.appendChild(th);
+    });
+    casesThead.appendChild(casesHRow);
+    casesTbl.appendChild(casesThead);
+
+    const casesTbody = document.createElement('tbody');
+
+    function renderFilteredRows() {
+      casesTbody.textContent = '';
+      const selectedCat = catSelect.value;
+      const selectedStatus = statusSelect.value;
+
+      const filtered = rows.filter(r => {
+        if (selectedCat !== 'ALL' && r.category !== selectedCat) return false;
+        if (selectedStatus !== 'ALL' && r.rule_status !== selectedStatus) return false;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 7;
+        setText(td, 'No edge cases match the selected filter.');
+        tr.appendChild(td);
+        casesTbody.appendChild(tr);
+        return;
+      }
+
+      filtered.forEach(r => {
+        const tr = document.createElement('tr');
+        const isExplainedDiff = r.rule_status === 'differs_explained';
+
+        // 1. Case ID
+        const tdId = document.createElement('td');
+        const codeId = document.createElement('code');
+        setText(codeId, r.case_id);
+        tdId.appendChild(codeId);
+        tr.appendChild(tdId);
+
+        // 2. Category
+        const tdCat = document.createElement('td');
+        setText(tdCat, r.category);
+        tr.appendChild(tdCat);
+
+        // 3. Description
+        const tdDesc = document.createElement('td');
+        tdDesc.style.maxWidth = '300px';
+        setText(tdDesc, r.description);
+        tr.appendChild(tdDesc);
+
+        // 4. Rule Decision
+        const tdRule = document.createElement('td');
+        const rBadge = document.createElement('span');
+        const rDec = (r.rule_decision || '').toLowerCase();
+        let rClass = 'badge--small ';
+        if (rDec === 'eligible') rClass += 'badge--eligible';
+        else if (rDec === 'refer') rClass += 'badge--refer';
+        else rClass += 'badge--ineligible';
+        rBadge.className = 'badge ' + rClass;
+        setText(rBadge, (r.rule_decision || '—').toUpperCase());
+        tdRule.appendChild(rBadge);
+        tr.appendChild(tdRule);
+
+        // 5. LR Decision
+        const tdLr = document.createElement('td');
+        const lrText = r.lr_decision ? `${r.lr_decision} (${r.lr_score})` : String(r.lr_score || '—');
+        setText(tdLr, lrText);
+        tr.appendChild(tdLr);
+
+        // 6. GB Decision
+        const tdGb = document.createElement('td');
+        const gbText = r.gb_decision ? `${r.gb_decision} (${r.gb_score})` : String(r.gb_score || '—');
+        setText(tdGb, gbText);
+        tr.appendChild(tdGb);
+
+        // 7. Match Status
+        const tdStatus = document.createElement('td');
+        const sBadge = document.createElement('span');
+        if (isExplainedDiff) {
+          sBadge.className = 'badge badge--refer badge--small';
+          setText(sBadge, 'Differs (explained)');
+          if (r.ml_explanation) sBadge.title = r.ml_explanation;
+        } else {
+          sBadge.className = 'badge badge--eligible badge--small';
+          setText(sBadge, 'Matched');
+        }
+        tdStatus.appendChild(sBadge);
+        tr.appendChild(tdStatus);
+
+        casesTbody.appendChild(tr);
+      });
+    }
+
+    catSelect.addEventListener('change', renderFilteredRows);
+    statusSelect.addEventListener('change', renderFilteredRows);
+    renderFilteredRows();
+
+    casesTbl.appendChild(casesTbody);
+    casesWrap.appendChild(casesTbl);
+    casesCard.appendChild(casesWrap);
+    container.appendChild(casesCard);
+
   } catch (_) {
     makeEmptyState(container);
   }

@@ -38,8 +38,8 @@
       <h2 id="sec-what">What it is</h2>
       <p>
         LoanCheck is an academic prototype of a rule-based expert system for assessing eligibility for
-        an unsecured personal loan denominated in Indian Rupees (INR). Production rules and first-order
-        logic drive every decision; a lightweight ML classifier is built only as a comparison baseline.
+        an unsecured personal loan denominated in Indian Rupees (INR). Production (IF-THEN) rules evaluated by
+        a forward-chaining engine drive every decision; a lightweight ML classifier is built only as a comparison baseline.
         All policy thresholds, rate bands, and fee schedules are <strong>illustrative values</strong>
         stored in <code>params/params.toml</code> and are not derived from any real lender's credit policy.
         Every dataset used is either synthetic or publicly available.
@@ -56,9 +56,9 @@
           <span class="badge badge--eligible">ELIGIBLE</span>
           <h3 class="card__title">Eligible</h3>
           <p>
-            The application passes all knockout checks and satisfies the policy thresholds for income,
-            credit score, debt-service ratio, and other criteria. A recommended loan amount and
-            indicative interest band are returned along with the full decision trace.
+            The application passes all validation and knockout checks, satisfies existing obligations
+            and credit criteria, and has sufficient repayment capacity. A recommended loan amount and
+            indicative interest band are returned along with the full deterministic trace.
           </p>
         </div>
 
@@ -66,9 +66,10 @@
           <span class="badge badge--ineligible">INELIGIBLE</span>
           <h3 class="card__title">Ineligible</h3>
           <p>
-            One or more knockout rules fired — for example, an account written off, severe recent
-            delinquency, or a credit score below the minimum floor. The trace lists every reason code
-            that contributed to the rejection.
+            One or more knockout or policy rules fired — including age under 18 (K01), non-resident status (K02),
+            severe recent delinquency (K03), bankruptcy (K04), income below ₹15,000 (K05), requested tenure over 60 months (K06),
+            missing consent or invalid loan parameters (V02–V04), existing obligations ratio exceeding 50% (E01),
+            or calculated repayment capacity falling below the ₹50,000 minimum loan amount (A03).
           </p>
         </div>
 
@@ -76,9 +77,9 @@
           <span class="badge badge--refer">REFER</span>
           <h3 class="card__title">Refer</h3>
           <p>
-            The application falls into a grey zone where the rules cannot give a definitive answer —
-            for example, an unknown credit score or borderline debt-service ratio. The case is flagged
-            for manual underwriter review with an explanation of the ambiguity.
+            The application requires manual underwriter review due to policy-defined referral conditions:
+            no credit history or unscoreable thin file (R01), more than 5 credit enquiries in the last 6 months (R02),
+            employment type recorded as 'other' (R03), or a required application fact is missing (V01).
           </p>
         </div>
 
@@ -89,11 +90,15 @@
     <section class="about-section" aria-labelledby="sec-policy">
       <h2 id="sec-policy">Policy values</h2>
       <p>
-        All numeric thresholds, interest rate bands, and fee values used by the rule engine are
-        illustrative and are stored in a single parameter file: <code>params/params.toml</code>.
-        No policy number appears directly in source code or rule text — every threshold is referenced
-        by name. This design means that changing a parameter automatically propagates to every rule
-        and calculation without requiring code edits.
+        Policy thresholds are kept in <code>params/params.toml</code> and referenced by name.
+        No policy number appears directly in source code or rule text — every threshold, interest band,
+        and fee is read from the parameter file. This design ensures that changes propagate cleanly
+        to every rule and calculation.
+      </p>
+      <p class="rule-set-meta">
+        <strong>Active rule set:</strong> <code>rules-1.0.0+params-0.1.0</code>
+        <br>
+        <strong>Rule-set hash:</strong> <code>sha256:eb7073a388817e0a455997c0c2ea86ccb25524cdff07faf8bf5ca98bb267be5a</code>
       </p>
     </section>
 
@@ -101,10 +106,10 @@
     <section class="about-section" aria-labelledby="sec-docs">
       <h2 id="sec-docs">Documents</h2>
       <ul class="doc-list">
-        <li><a href="/docs/01-srs.md"><code>docs/01-srs.md</code></a> — Software Requirements Specification</li>
-        <li><a href="/docs/02-policy-and-rules.md"><code>docs/02-policy-and-rules.md</code></a> — Policy thresholds, rules, and reason codes</li>
-        <li><a href="/docs/model-card.md"><code>docs/model-card.md</code></a> — ML baseline model card</li>
-        <li><a href="/docs/final-report.md"><code>docs/final-report.md</code></a> — Final project report</li>
+        <li><code>docs/01-srs.md</code> — Software Requirements Specification</li>
+        <li><code>docs/02-policy-and-rules.md</code> — Policy thresholds, rules, and reason codes</li>
+        <li><code>docs/model-card.md</code> — ML baseline model card</li>
+        <li><code>docs/final-report.md</code> — Final project report</li>
       </ul>
     </section>
 

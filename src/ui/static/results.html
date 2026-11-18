@@ -40,11 +40,13 @@
     </p>
 
     <!-- Tab bar -->
-    <div class="tab-bar" role="tablist" aria-label="Results tabs">
-      <button role="tab" class="tab-btn active" aria-selected="true"  aria-controls="tab-ml"        id="tabctl-ml"        data-tab="ml">ML Metrics</button>
-      <button role="tab" class="tab-btn"        aria-selected="false" aria-controls="tab-scorecard" id="tabctl-scorecard" data-tab="scorecard">Scorecard</button>
-      <button role="tab" class="tab-btn"        aria-selected="false" aria-controls="tab-fairness"  id="tabctl-fairness"  data-tab="fairness">Fairness</button>
-      <button role="tab" class="tab-btn"        aria-selected="false" aria-controls="tab-edge"      id="tabctl-edge"      data-tab="edge">Edge Cases</button>
+    <div class="tab-bar-wrap">
+      <div class="tab-bar" role="tablist" aria-label="Results tabs">
+        <button role="tab" class="tab-btn active" aria-selected="true"  aria-controls="tab-ml"        id="tabctl-ml"        data-tab="ml">ML Metrics</button>
+        <button role="tab" class="tab-btn"        aria-selected="false" aria-controls="tab-scorecard" id="tabctl-scorecard" data-tab="scorecard">Scorecard</button>
+        <button role="tab" class="tab-btn"        aria-selected="false" aria-controls="tab-fairness"  id="tabctl-fairness"  data-tab="fairness">Fairness</button>
+        <button role="tab" class="tab-btn"        aria-selected="false" aria-controls="tab-edge"      id="tabctl-edge"      data-tab="edge">Edge Cases</button>
+      </div>
     </div>
 
     <!-- Tab panel: ML Metrics -->
@@ -59,8 +61,8 @@
     <!-- Tab panel: Scorecard -->
     <div id="tab-scorecard" role="tabpanel" aria-labelledby="tabctl-scorecard" class="tab-panel" hidden>
       <p class="tab-panel__limits">
-        The scorecard maps the rule-based engine's decisions to the four evaluation criteria defined in
-        <code>docs/06-test-plan.md</code>. Scores reflect correctness on TV1–TV9, not a generalisation estimate.
+        The scorecard maps each system to the four evaluation criteria defined in
+        <code>docs/06-test-plan.md</code>. Scores come from the project's full evaluation (golden vectors TV1–TV9, 64 edge cases, SQLite audit and replay verification, and regulatory compliance mapping), not only TV1–TV9.
       </p>
       <div class="tab-content-body" id="content-scorecard">Loading…</div>
     </div>

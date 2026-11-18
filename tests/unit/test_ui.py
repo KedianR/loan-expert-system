@@ -418,6 +418,7 @@ def test_results_reports_endpoints_return_non_empty(client):
         "comparison_scorecard",
         "d2_tables",
         "edge_case_summary",
+        "edge_cases_results",
     ]
     for rep in reports:
         res = client.get(f"/ui/report/{rep}")
@@ -426,6 +427,8 @@ def test_results_reports_endpoints_return_non_empty(client):
         assert data.get("available") is not False, f"Report {rep} marked as unavailable: {data}"
         if "content" in data:
             assert len(data["content"].strip()) > 0, f"Report {rep} content is empty"
+        elif "rows" in data:
+            assert len(data["rows"]) == 64, f"Report {rep} rows count expected 64, got {len(data['rows'])}"
         else:
             assert len(data) > 0, f"Report {rep} JSON is empty"
 
@@ -482,4 +485,88 @@ def test_checkboxes_style_and_preset_behavior():
     assert "kyc_verified" in js
     assert "consent_given" in js
     assert "checked" in js
+
+
+# ---------------------------------------------------------------------------
+# UI v2 Fix Pass 2 Tests (Results tables, About page, REFER text, chips nowrap)
+# ---------------------------------------------------------------------------
+
+
+def test_about_page_no_first_order_and_accurate_wording(client):
+    """Pass 2 #10, #11, #12, #13: About page has forward-chaining wording, rule-set tag/hash, plain doc paths."""
+    res = client.get("/about")
+    assert res.status_code == 200
+    text = res.text
+
+    # No "first-order"
+    assert "first-order" not in text.lower(), "About page must not say 'first-order'"
+    assert "first order" not in text.lower(), "About page must not say 'first order'"
+
+    # Has "forward-chaining"
+    assert "forward-chaining" in text
+
+    # No "borderline debt-service ratio"
+    assert "borderline debt-service ratio" not in text
+
+    # Shows active rule set and hash
+    assert "rules-1.0.0+params-0.1.0" in text
+    assert "sha256:eb7073a388817e0a455997c0c2ea86ccb25524cdff07faf8bf5ca98bb267be5a" in text
+
+    # Document paths rendered as code text, not broken links
+    assert "<code>docs/01-srs.md</code>" in text
+    assert '<a href="/docs/01-srs.md">' not in text
+
+
+def test_refer_offer_summary_pending_review_text(client):
+    """Pass 2 #9: REFER outcome displays 'No offer yet: pending manual review.'."""
+    js_path = REPO_ROOT / "src" / "ui" / "static" / "ui.js"
+    js_content = js_path.read_text(encoding="utf-8")
+    assert "No offer yet: pending manual review." in js_content
+    assert "3 Offer summary: pending review" in js_content
+
+    # Call decide endpoint on a referral scenario (credit score null -> R01)
+    vectors_path = REPO_ROOT / "tests" / "golden" / "vectors.json"
+    vecs = json.loads(vectors_path.read_text(encoding="utf-8"))["vectors"]
+    payload = vecs[0]["input"].copy()
+    payload["credit_score"] = None
+    res = client.post("/ui/decide", json=payload)
+    assert res.status_code == 200
+    assert res.json().get("decision") == "refer"
+
+
+def test_chips_and_badges_have_nowrap_in_css():
+    """Pass 2 #5: Chips, badges, and outcome indicators must have nowrap to prevent wrapping mid-word."""
+    css_path = REPO_ROOT / "src" / "ui" / "static" / "style.css"
+    css = css_path.read_text(encoding="utf-8")
+
+    assert re.search(r'\.badge\s*\{[^}]*white-space:\s*nowrap', css), ".badge must have white-space: nowrap"
+    assert re.search(r'\.chip\s*\{[^}]*white-space:\s*nowrap', css), ".chip must have white-space: nowrap"
+    assert re.search(r'\.preset-summary__badge\s*\{[^}]*white-space:\s*nowrap', css), ".preset-summary__badge must have white-space: nowrap"
+
+
+def test_edge_cases_and_fairness_render_tables_and_no_raw_markdown(client):
+    """Pass 2 #1: Edge cases structured endpoint returns 64 cases, and results.js uses table renderer."""
+    # Verify edge cases CSV endpoint
+    res = client.get("/ui/report/edge_cases_results")
+    assert res.status_code == 200
+    data = res.json()
+    assert data.get("available") is True
+    rows = data.get("rows", [])
+    assert len(rows) == 64
+
+    # 61 matched, 3 explained differences
+    matched = [r for r in rows if r["rule_status"] == "matched"]
+    differs = [r for r in rows if r["rule_status"] == "differs_explained"]
+    assert len(matched) == 61
+    assert len(differs) == 3
+    assert {r["case_id"] for r in differs} == {"EC-TB-16", "EC-TB-17", "EC-AD-02"}
+
+    # Verify results.js has renderMarkdownToDom and no raw markdown pre dump
+    js_path = REPO_ROOT / "src" / "ui" / "static" / "results.js"
+    js = js_path.read_text(encoding="utf-8")
+    assert "renderMarkdownToDom" in js
+    assert "61 of 64 matched the catalog exactly; 3 differences are explained." in js
+    assert "Edge Case Summary by Category" in js
+    assert "All 64 Edge Cases" in js
+
 

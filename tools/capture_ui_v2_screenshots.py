@@ -135,7 +135,7 @@ def main():
 
                 # Tab 2: Scorecard
                 page.click("#tabctl-scorecard")
-                time.sleep(0.5)
+                time.sleep(0.6)
                 check_no_overflow(page, f"results_scorecard_{vp_name}_{scheme}")
                 path_sc = OUT_DIR / f"results_scorecard_{vp_name}_{scheme}.png"
                 page.screenshot(path=str(path_sc), full_page=True)
@@ -143,7 +143,7 @@ def main():
 
                 # Tab 3: Fairness
                 page.click("#tabctl-fairness")
-                time.sleep(0.5)
+                time.sleep(0.8)
                 check_no_overflow(page, f"results_fairness_{vp_name}_{scheme}")
                 path_fn = OUT_DIR / f"results_fairness_{vp_name}_{scheme}.png"
                 page.screenshot(path=str(path_fn), full_page=True)
@@ -151,7 +151,7 @@ def main():
 
                 # Tab 4: Edge Cases
                 page.click("#tabctl-edge")
-                time.sleep(0.5)
+                time.sleep(0.8)
                 check_no_overflow(page, f"results_edge_{vp_name}_{scheme}")
                 path_ed = OUT_DIR / f"results_edge_{vp_name}_{scheme}.png"
                 page.screenshot(path=str(path_ed), full_page=True)
